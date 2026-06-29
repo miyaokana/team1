@@ -10,7 +10,7 @@
     <input type="email" name="email" placeholder="メール"><br>
     <input type="password" name="password" placeholder="パスワード"><br>
 
-    <button type="submit">ログイン</button>
+    <button type="submit"> ログイン </button>
 </form>
 
 <a href="/register">新規登録はこちら</a>
