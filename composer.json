@@ -1,0 +1,15 @@
+{
+    "name": "tbc-admin/team1",
+    "autoload": {
+        "psr-4": {
+            "TbcAdmin\\Team1\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "miyaokana",
+            "email": "k.miyao@tbc-inc.co.jp"
+        }
+    ],
+    "require": {}
+}
