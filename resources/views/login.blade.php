@@ -1,16 +1,40 @@
-<h2>ログイン</h2>
+@include('layouts.header')
 
-@if(session('error'))
-    <p style="color:red;">{{ session('error') }}</p>
-@endif
+<!-- フォーム専用CSS -->
+<link rel="stylesheet" href="{{ asset('css/form.css') }}">
 
-<form action="/login" method="POST">
-    @csrf
+<div class="container">
 
-    <input type="email" name="email" placeholder="メール"><br>
-    <input type="password" name="password" placeholder="パスワード"><br>
+    <h2>ログイン</h2>
 
-    <button type="submit">ログイン</button>
-</form>
+    @if(session('error'))
+        <p style="color:red;">
+            {{ session('error') }}
+        </p>
+    @endif
 
-<a href="/register">新規登録はこちら</a>
+    <form action="/login" method="POST">
+        @csrf
+
+        <p>
+            メール：<br>
+            <input type="email" name="email" placeholder="メール">
+        </p>
+
+        <p>
+            パスワード：<br>
+            <input type="password" name="password" placeholder="パスワード">
+        </p>
+
+        <button type="submit">ログイン</button>
+    </form>
+
+    <p>
+        <a href="/register" class="btn">
+            新規登録はこちら
+        </a>
+    </p>
+
+</div>
+
+@include('layouts.footer')

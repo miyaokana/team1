@@ -1,13 +1,38 @@
-<h2>新規登録</h2>
+@include('layouts.header')
 
-<form action="/register" method="POST">
-    @csrf
+@section('css')
+<link rel="stylesheet" href="{{ asset('css/form.css') }}">
+@endsection
 
-    <input type="text" name="user_name" placeholder="名前"><br>
-    <input type="email" name="email" placeholder="メール"><br>
-    <input type="password" name="password" placeholder="パスワード"><br>
+<div class="container">
 
-    <button type="submit">登録</button>
-</form>
+    <h2>新規登録</h2>
 
-<a href="/login">ログインはこちら</a>
+    <form action="/register" method="POST">
+        @csrf
+
+        <p>
+            名前：<br>
+            <input type="text" name="user_name">
+        </p>
+
+        <p>
+            メール：<br>
+            <input type="email" name="email">
+        </p>
+
+        <p>
+            パスワード：<br>
+            <input type="password" name="password">
+        </p>
+
+        <button type="submit">登録</button>
+    </form>
+
+    <p>
+        <a href="/login">ログインはこちら</a>
+    </p>
+
+</div>
+
+@include('layouts.footer')
