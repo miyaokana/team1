@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Shift;
 
 class User extends Authenticatable
 {
@@ -27,5 +28,10 @@ class User extends Authenticatable
         return [
             'password' => 'hashed',
         ];
+    }
+
+        public function shifts()
+    {
+        return $this->hasMany(Shift::class);
     }
 }

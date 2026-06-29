@@ -17,7 +17,10 @@ return new class extends Migration
             $table->date('shift_date');
             $table->dateTime('start_time');
             $table->dateTime('end_time');
+            $table->dateTime('created_at');
             $table->timestamps();
+
+            $table->unique(['user_id', 'date']);
         });
     }
 
