@@ -1,0 +1,52 @@
+h2 {
+    color: #ff73b3;
+}
+
+/* テーブル */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background: #00cfff;
+    color: white;
+}
+
+td, th {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+
+/* ボタン */
+a.btn {
+    padding: 5px 10px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: white;
+}
+
+.edit {
+    background: #00cfff;
+}
+
+.edit:hover {
+    background: #009fcc;
+}
+
+.delete {
+    background: #ff5c5c;
+}
+
+.delete:hover {
+    background: #e04a4a;
+}
+
+.add-btn {
+    background: #ff73b3;
+    padding: 8px 15px;
+    border-radius: 10px;
+    color: white;
+    text-decoration: none;
+}
