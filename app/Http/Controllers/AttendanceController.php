@@ -20,6 +20,7 @@ class AttendanceController extends Controller
             'workMinutes' => $this->workMinutes($attendance),
         ]);
     }
+
     // 打刻（POST /attendance/punch）
     public function punch(Request $request)
     {
@@ -46,6 +47,28 @@ class AttendanceController extends Controller
         ];
         return back()->with('status', $labels[$type] . 'を記録しました（' . now()->format('H:i') . '）');
     }
+
+    // 打刻履歴(GET /attendance/history)
+    public function history()
+    {
+        // 直近30日分を新しい順で所得
+        $records = Attendance::where('user_id', Auth::id())
+            ->where('work_date', '>=', today()->subDays(30))
+            ->orderBy('work_date', 'desc')
+            ->get();
+        // 各レコードに勤務時間(分)を持たせる。
+        $rows = $records->map(function ($a) {
+            return [
+                'record' => $a,
+                'workMinutes' => $this->workMinutes($a),
+            ];
+        });
+
+        return view('attendance.history', [
+            'rows' => $rows,
+        ]);
+    }
+
     // 打刻順の検証。問題があればエラーメッセージ、無ければ null
     private function validatePunch(string $type, Attendance $a): ?string
     {
@@ -73,6 +96,7 @@ class AttendanceController extends Controller
             default => '不明な打刻種別です。',
         };
     }
+
     // 現在の勤務状態ラベル
     private function resolveStatus(?Attendance $a): string
     {
@@ -81,6 +105,7 @@ class AttendanceController extends Controller
         if ($a->break_start && !$a->break_end) return '休憩中';
         return '勤務中';
     }
+    
     // 当日の勤務時間（分）=（退勤 - 出勤）- 休憩。出退勤が揃うまでは null
     private function workMinutes(?Attendance $a): ?int
     {
