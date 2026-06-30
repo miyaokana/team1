@@ -1,0 +1,27 @@
+h2 {
+    color: #ff73b3;
+    text-align: center;
+}
+
+form {
+    text-align: center;
+}
+
+input, select {
+    padding: 8px;
+    width: 300px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background: #ff73b3;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+}
+
+button:hover {
+    background: #ff4da6;
+}
