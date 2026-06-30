@@ -1,9 +1,10 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\ShiftController;
 
 // トップ
 Route::get('/', function () {
@@ -24,8 +25,7 @@ Route::middleware('auth')->group(function () {
 
 
 // 認証
-Route::get('/register', [AuthController::class, 'showRegister']);
-Route::post('/register', [AuthController::class, 'register']);
+
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -39,3 +39,7 @@ Route::post('/admin/users/store', [AdminController::class, 'store']);
 Route::get('/admin/users/delete/{id}', [AdminController::class, 'delete']);
 Route::get('/admin/users/edit/{id}', [AdminController::class, 'edit']);
 Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
+
+//シフト
+Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');
+Route::post('/shifts/store', [ShiftController::class, 'store'])->name('shifts.store');

@@ -3,39 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <title>ユーザ一覧</title>
+    <link rel="stylesheet" href="{{ asset('css/admin/users.css') }}">
 </head>
 <body>
 
-<h2>ユーザ一覧</h2>
+<div class="admin-wrapper">
 
-<p>
-    <a href="/admin/users/create">ユーザ追加</a> |
-    <a href="/dashboard">ダッシュボード</a>
-</p>
+    <header class="top-bar">
+        <h1>ギンクラ 管理画面</h1>
+    </header>
 
-<table border="1" cellpadding="5">
-<tr>
-    <th>ID</th>
-    <th>名前</th>
-    <th>Email</th>
-    <th>権限</th>
-    <th>操作</th>
-</tr>
+    <div class="container">
 
-@foreach($users as $user)
-<tr>
-    <td>{{ $user->id }}</td>
-    <td>{{ $user->user_name }}</td>
-    <td>{{ $user->email }}</td>
-    <td>{{ $user->role }}</td>
-    <td>
-        <a href="/admin/users/edit/{{ $user->id }}">編集</a>
-        <a href="/admin/users/delete/{{ $user->id }}" onclick="return confirm('削除しますか？')">削除</a>
-    </td>
-</tr>
-@endforeach
+        <div class="header-area">
+            <h2>ユーザ一覧</h2>
 
-</table>
+            <a href="/admin/users/create" class="add-btn">＋ユーザ追加</a>
+        </div>
+
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>名前</th>
+                    <th>Email</th>
+                    <th>権限</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            @foreach($users as $user)
+                <tr>
+                    <td>{{ $user->id }}</td>
+                    <td>{{ $user->user_name }}</td>
+                    <td>{{ $user->email }}</td>
+                    <td>
+                        @if($user->role == 1)
+                            <span class="role admin">管理者</span>
+                        @else
+                            <span class="role user">一般</span>
+                        @endif
+                    </td>
+                    <td class="actions">
+                        <a href="/admin/users/edit/{{ $user->id }}" class="edit">編集</a>
+                        <a href="/admin/users/delete/{{ $user->id }}"
+                           class="delete"
+                           onclick="return confirm('削除しますか？')">削除</a>
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
 
 </body>
 </html>
