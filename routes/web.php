@@ -29,4 +29,5 @@ Route::get('/admin/users/edit/{id}', [AdminController::class, 'edit']);
 Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
 
 //シフト
-Route::get('/shift', [ShiftController::class, 'index'])->name('shift.index');
+Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');
+Route::post('/shifts/store', [ShiftController::class, 'store'])->name('shifts.store');

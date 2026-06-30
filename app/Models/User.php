@@ -30,7 +30,7 @@ class User extends Authenticatable
         ];
     }
 
-        public function shifts()
+    public function shifts()
     {
         return $this->hasMany(Shift::class);
     }
