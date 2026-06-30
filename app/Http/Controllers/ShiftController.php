@@ -42,21 +42,27 @@ public function index(Request $request)
         return view('shifts.shift', compact('users', 'selectedUser', 'dates', 'currentMonth', 'startOfWeek', 'shifts'));
     }
 
-    public function store(Request $request)
+public function store(Request $request)
     {
+        // バリデーションに start_hour と end_hour を追加
         $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'date'    => 'required|date',
-            'action'  => 'required|in:register,delete', // 登録か削除かを識別
+            'user_id'    => 'required|exists:users,id',
+            'date'       => 'required|date',
+            'action'     => 'required|in:register,delete',
+            'start_hour' => 'required_if:action,register|string',
+            'end_hour'   => 'required_if:action,register|string',
         ]);
 
         if ($request->action === 'register') {
-            // デフォルトの勤務時間を設定 (例: 9:00 〜 17:30)
-            // 送られてきた日付（例: 2026-07-01）に時間を結合します
-            $startTime = Carbon::parse($request->date)->setTime(9, 0, 0);
-            $endTime = Carbon::parse($request->date)->setTime(17, 3, 0);
+            // 画面から送られてきた時間（"09:00" など）と日付を組み合わせてCarbonインスタンスを作る
+            $startTime = Carbon::parse($request->date . ' ' . $request->start_hour);
+            $endTime = Carbon::parse($request->date . ' ' . $request->end_hour);
 
-            // データの登録（すでにあれば上書き更新、なければ新規作成）
+            // 退勤時間が出勤時間より前の場合はエラーにする簡易チェック
+            if ($endTime->lt($startTime)) {
+                return redirect()->back()->with('error', '退勤時間は出勤時間より後の時間を設定してください。');
+            }
+
             Shift::updateOrCreate(
                 [
                     'user_id'    => $request->user_id,
@@ -67,9 +73,8 @@ public function index(Request $request)
                     'end_time'   => $endTime,
                 ]
             );
-            $message = '出勤を登録しました（09:00〜17:30）。';
+            $message = 'シフトを登録しました（' . $request->start_hour . '〜' . $request->end_hour . '）。';
         } else {
-            // 削除処理
             Shift::where('user_id', $request->user_id)
                  ->where('shift_date', $request->date)
                  ->delete();
@@ -77,7 +82,7 @@ public function index(Request $request)
         }
 
         $month = Carbon::parse($request->date)->format('Y-m');
-        return redirect()->route('shifts.shift', ['month' => $month])
+        return redirect()->route('shifts.shift', ['month' => $month, 'user_id' => $request->user_id])
                          ->with('success', $message);
     }
 }
