@@ -1,40 +1,74 @@
-@include('layouts.header')
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ログイン</title>
+<link rel="stylesheet" href="css/form.css">
+</head>
 
-<!-- フォーム専用CSS -->
-<link rel="stylesheet" href="{{ asset('css/form.css') }}">
+<body>
 
-<div class="container">
+<div class="bg-wrapper">
 
-    <h2>ログイン</h2>
+    <!-- 図形 -->
+    <div class="bg-shape shape1"></div>
+    <div class="bg-shape shape2"></div>
+    <div class="bg-shape shape3"></div>
+    <div class="bg-shape shape4"></div>
 
-<<<<<<< HEAD
-    <button type="submit"> ログイン </button>
-</form>
-=======
-    @if(session('error'))
-        <p style="color:red;">
-            {{ session('error') }}
-        </p>
-    @endif
->>>>>>> 3a888079d7ae08c9ed8f0a5a1b75e55425bbb7c2
+    <div class="hex hex1"></div>
+    <div class="hex hex2"></div>
 
-    <form action="/login" method="POST">
+    <div class="container">
+
+        <div class="logo-area">
+            <h1>ギンクラ</h1>
+            <p class="subtitle">ログイン</p>
+        </div>
+
+        <!-- ✅ フォーム正しく -->
+        <form action="/login" method="POST">
         @csrf
 
-        <p>
-            メール：<br>
-            <input type="email" name="email" placeholder="メール">
-        </p>
+        <div class="form-group">
+            <label>メールアドレス</label>
+            <input type="email" name="email" placeholder="メールアドレスを入力">
+        </div>
 
-        <p>
-            パスワード：<br>
-            <input type="password" name="password" placeholder="パスワード">
-        </p>
+        <div class="form-group">
+            <label>パスワード</label>
+            <div class="password-box">
+                <input type="password" name="password" placeholder="パスワードを入力">
+                <span class="eye">👁</span>
+            </div>
+        </div>
+
+        <label class="checkbox">
+            <input type="checkbox">
+            <span class="checkmark"></span>
+            メールアドレスを保存する
+        </label>
 
         <button type="submit">ログイン</button>
+
+        <a href="#" class="link">パスワードを忘れた場合はこちら</a>
+
+        <div class="google-btn">
+            <img src="https://developers.google.com/identity/images/g-logo.png">
+            <span>Sign in with Google</span>
+        </div>
+
+        <a href="#" class="link">アカウント作成はこちら</a>
+
     </form>
 
+    </div>
+
+    <footer class="footer">
+        © 2026 ギンクラ
+    </footer>
 
 </div>
 
-@include('layouts.footer')
+</body>
+</html>
