@@ -110,6 +110,22 @@
             document.getElementById('clock').textContent =
                 p(n.getHours()) + ':' + p(n.getMinutes()) + ':' + p(n.getSeconds());
         }, 1000);
+
+        // 二重送信防止:打刻フォームを送信したら、そのボタンを無効化する。
+        document.querySelectorAll('.grid form').forEach((form) => {
+            form.addEventListener('submit', (e) => {
+                const btn = form.querySelector('button');
+
+                // すでに無効ならなにもしない
+                if (btn.disabled) {
+                    e.preventDefault();
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = '送信中...';
+            });
+        });
     </script>
 </body>
 
