@@ -1,7 +1,10 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ShiftCorrectionController;
+
 
 // トップ
 Route::get('/', function () {
@@ -12,7 +15,7 @@ Route::get('/', function () {
 Route::get('/register', [AuthController::class, 'showRegister']);
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::get('/login', [AuthController::class, 'showLogin']);
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login'); // ★追加が必要
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/dashboard', [AuthController::class, 'dashboard']);
@@ -25,3 +28,9 @@ Route::post('/admin/users/store', [AdminController::class, 'store']);
 Route::get('/admin/users/delete/{id}', [AdminController::class, 'delete']);
 Route::get('/admin/users/edit/{id}', [AdminController::class, 'edit']);
 Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
+
+// 勤怠修正
+Route::middleware('auth')->group(function () {
+    Route::get('/correction', [ShiftCorrectionController::class, 'edit']);
+    Route::post('/correction', [ShiftCorrectionController::class, 'store']);
+});
