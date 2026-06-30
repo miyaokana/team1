@@ -7,11 +7,16 @@
 
     <h2>ログイン</h2>
 
+<<<<<<< HEAD
+    <button type="submit"> ログイン </button>
+</form>
+=======
     @if(session('error'))
         <p style="color:red;">
             {{ session('error') }}
         </p>
     @endif
+>>>>>>> 3a888079d7ae08c9ed8f0a5a1b75e55425bbb7c2
 
     <form action="/login" method="POST">
         @csrf

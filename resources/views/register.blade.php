@@ -6,7 +6,7 @@
 
 <div class="container">
 
-    <h2>新規登録</h2>
+    <h2> 新規登録 </h2>
 
     <form action="/register" method="POST">
         @csrf
