@@ -4,34 +4,39 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    // ✅ ユーザ一覧
-    public function index()
+    // 共通チェック
+    private function checkAdmin()
     {
-        // 管理者だけ許可
         if (!auth()->check() || auth()->user()->role != 1) {
             abort(403);
         }
+    }
+
+    public function index()
+    {
+        $this->checkAdmin();
 
         $users = User::all();
-
         return view('admin.users', compact('users'));
     }
 
-    // ✅ 新規作成画面
     public function create()
     {
+        $this->checkAdmin();
         return view('admin.create');
     }
 
-    // ✅ 登録処理
     public function store(Request $request)
     {
+        $this->checkAdmin();
+
         User::create([
             'email' => $request->email,
-            'password' => $request->password,
+            'password' => Hash::make($request->password), // ✅ 修正
             'user_name' => $request->user_name,
             'role' => $request->role ?? 0
         ]);
@@ -39,25 +44,27 @@ class AdminController extends Controller
         return redirect('/admin/users');
     }
 
-    // ✅ 削除
     public function delete($id)
     {
-        User::find($id)->delete();
+        $this->checkAdmin();
 
+        User::findOrFail($id)->delete();
         return redirect('/admin/users');
     }
 
-        // 編集画面
     public function edit($id)
     {
-        $user = User::find($id);
+        $this->checkAdmin();
+
+        $user = User::findOrFail($id);
         return view('admin.edit', compact('user'));
     }
 
-    // 更新処理
     public function update(Request $request, $id)
     {
-        $user = User::find($id);
+        $this->checkAdmin();
+
+        $user = User::findOrFail($id);
 
         $user->update([
             'email' => $request->email,
@@ -67,5 +74,4 @@ class AdminController extends Controller
 
         return redirect('/admin/users');
     }
-
 }

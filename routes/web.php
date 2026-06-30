@@ -1,21 +1,32 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\ShiftController;
 
 // トップ
 Route::get('/', function () {
     return redirect('/login');
 });
 
-// 認証
-Route::get('/register', [AuthController::class, 'showRegister']);
-Route::post('/register', [AuthController::class, 'register']);
+// ログイン必須。未ログインなら /loginに飛ばされる
+Route::middleware('auth')->group(function () {
+   // ダッシュボード画面（打刻）
+   Route::get('/dashboard', [AttendanceController::class, 'dashboard'])->name('dashboard');
 
-Route::get('/login', [AuthController::class, 'showLogin']);
+   // 打刻 POST /attendance/punch
+   Route::post('/attendance/punch', [AttendanceController::class, 'punch'])->name('attendance.punch');
+});
+
+
+// 認証
+
+
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/dashboard', [AuthController::class, 'dashboard']);
 Route::get('/logout', [AuthController::class, 'logout']);
 
 // 管理画面
@@ -25,3 +36,7 @@ Route::post('/admin/users/store', [AdminController::class, 'store']);
 Route::get('/admin/users/delete/{id}', [AdminController::class, 'delete']);
 Route::get('/admin/users/edit/{id}', [AdminController::class, 'edit']);
 Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
+
+//シフト
+Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');
+Route::post('/shifts/store', [ShiftController::class, 'store'])->name('shifts.store');

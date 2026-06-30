@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash; // ✅ これ追加
 
 class AuthController extends Controller
 {
@@ -14,12 +15,12 @@ class AuthController extends Controller
         return view('register');
     }
 
-    // 登録処理
+    // ✅ 登録処理（ここ修正）
     public function register(Request $request)
     {
         User::create([
             'email' => $request->email,
-            'password' => $request->password,
+            'password' => Hash::make($request->password), // ✅ 重要
             'user_name' => $request->user_name,
             'role' => 0
         ]);
@@ -33,14 +34,17 @@ class AuthController extends Controller
         return view('login');
     }
 
-    // ✅ ここが重要（修正済み）
+    // ✅ ログイン処理
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
 
-            // 管理者なら管理画面
+            // ✅ セッション再生成（セキュリティ）
+            $request->session()->regenerate();
+
+            // 管理者
             if (auth()->user()->role == 1) {
                 return redirect('/admin/users');
             }
@@ -49,19 +53,17 @@ class AuthController extends Controller
             return redirect('/dashboard');
         }
 
-        return back()->with('error', 'ログイン失敗');
-    }
-
-    // ダッシュボード
-    public function dashboard()
-    {
-        return view('dashboard');
+        return back()->with('error', 'メールアドレスまたはパスワードが違います');
     }
 
     // ログアウト
-    public function logout()
+    public function logout(Request $request)
     {
         Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect('/login');
     }
 }
