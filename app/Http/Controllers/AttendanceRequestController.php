@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceRequest;
-use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -45,7 +44,7 @@ class AttendanceRequestController extends Controller
             : $validated['request_time'];
 
 
-        AttendanceRequest::created([
+        AttendanceRequest::create([
             'user_id' => Auth::id(),
             'type' => $validated['type'],
             'target_date' => $validated['target_date'],

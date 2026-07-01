@@ -15,14 +15,18 @@ Route::get('/', function () {
 
 // ログイン必須。未ログインなら /loginに飛ばされる
 Route::middleware('auth')->group(function () {
-   // ダッシュボード画面（打刻）
-   Route::get('/dashboard', [AttendanceController::class, 'dashboard'])->name('dashboard');
+    // ダッシュボード画面（打刻）
+    Route::get('/dashboard', [AttendanceController::class, 'dashboard'])->name('dashboard');
 
-   // 打刻 POST /attendance/punch
-   Route::post('/attendance/punch', [AttendanceController::class, 'punch'])->name('attendance.punch');
+    // 打刻 POST /attendance/punch
+    Route::post('/attendance/punch', [AttendanceController::class, 'punch'])->name('attendance.punch');
 
-   // 打刻履歴
-   Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
+    // 打刻履歴
+    Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
+
+    // 各種申請
+    Route::get('/attendance-requests', [AttendanceRequestController::class, 'index'])->name('attendance_requests.index');
+    Route::post('/attendance-requests', [AttendanceRequestController::class, 'store'])->name('attendance_requests.store');
 });
 
 
@@ -45,7 +49,3 @@ Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
 //シフト
 Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');
 Route::post('/shifts/store', [ShiftController::class, 'store'])->name('shifts.store');
-
-// 各種申請
-Route::get('/attendance-requests', [AttendanceRequestController::class, 'index'])->name('attedance_requests.index');
-Route::post('/attendance-requests', [AttendanceRequestController::class, 'store'])->name('attedance_requests.store');
