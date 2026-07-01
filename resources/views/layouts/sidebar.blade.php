@@ -8,11 +8,12 @@
          </li>
 
          <!-- 未実装(リンク先がまだない。あとから追加予定) -->
-          <li class="disabled">
-            <a href="#">シフト一覧</a>
+          <li class="{{ request()->routeIs('shifts.shift') ? 'active' : '' }}">
+            <a href="{{ route('shifts.shift') }}">シフト一覧</a>
          </li>
+         
           <li class="disabled">
-            <a href="#">シフト一覧</a>
+            <a href="#">勤務表</a>
          </li>
 
          <li class="{{ request() -> routeIs('attendance.history') ? 'active' : '' }}">
