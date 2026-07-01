@@ -10,7 +10,7 @@
 
 <body>
 
-<!-- ✅ 通知 -->
+<!-- 通知 -->
 <div class="notice">
     <span class="badge">システム通知</span>
     「遅刻」発生通知（6月30日）
@@ -19,15 +19,6 @@
 
 <div class="wrap">
 
-<!-- ✅ フラッシュ -->
-@if (session('status'))
-    <div class="flash ok">{{ session('status') }}</div>
-@endif
-
-@if (session('error'))
-    <div class="flash err">{{ session('error') }}</div>
-@endif
-
 @php
 $wp = ['日','月','火','水','木','金','土'][now()->dayOfWeek];
 $isWorking = $status === '勤務中';
@@ -35,10 +26,10 @@ $isBreak = $status === '休憩中';
 $notIn = $status === '未出勤';
 @endphp
 
-<!-- ✅ メインカード -->
+<!-- メインカード -->
 <div class="card">
 
-    <!-- 背景アニメーション -->
+    <!-- 背景アニメ -->
     <div class="shape s1"></div>
     <div class="shape s2"></div>
     <div class="shape s3"></div>
@@ -48,24 +39,23 @@ $notIn = $status === '未出勤';
         ただいま {{ $status }}
     </div>
 
-    <div class="main-flex">
+    <div class="main">
 
         <!-- 左 -->
         <div class="left">
-
             <div class="date">
                 {{ now()->format('Y年n月j日') }} ({{ $wp }})
             </div>
 
             <div class="clock" id="clock">
-                {{ now()->format('H:i:s') }}
+                {{ now()->format('H:i') }}
+                <span class="sec">{{ now()->format('s') }}</span>
             </div>
 
             <div class="user">
                 {{ Auth::user()->user_name ?? Auth::user()->email }}
             </div>
 
-            <!-- ✅ 勤務情報（全部そのまま） -->
             <div class="info">
                 <div>勤務地：本社</div>
 
@@ -93,53 +83,75 @@ $notIn = $status === '未出勤';
         <!-- 右 -->
         <div class="right">
 
-            <!-- ✅ 出勤 -->
-            <form action="{{ route('attendance.punch') }}" method="POST">
-                @csrf
-                <input type="hidden" name="type" value="check_in">
-                <button class="btn in {{ !$notIn ? 'inactive' : '' }}" {{ $notIn ? '' : 'disabled' }}>
-                    出勤
-                </button>
-            </form>
+            <!-- 勤務地 -->
+            <div class="location">
+                <div class="location">
+                    <span class="loc-label">勤務地</span>
 
-            <!-- ✅ 退勤（状態で色変わる） -->
-            <form action="{{ route('attendance.punch') }}" method="POST">
-                @csrf
-                <input type="hidden" name="type" value="check_out">
-                <button class="btn out {{ !$isWorking ? 'inactive' : '' }}" {{ $isWorking ? '' : 'disabled' }}>
-                    退勤
-                </button>
-            </form>
+                    <div class="loc-box">
+                        <span>本社</span>
+                        <span class="change-btn">変更</span>
+                    </div>
+                </div>
+            </div>
 
-            <!-- ✅ 休憩開始 -->
+            <!-- 出勤・退勤 -->
+            <div class="punch-row">
+
+                <!-- 出勤 -->
+                <form action="{{ route('attendance.punch') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="type" value="check_in">
+                    <button class="big-btn in {{ !$notIn ? 'inactive' : '' }}"
+                        {{ $notIn ? '' : 'disabled' }}>
+                        出勤
+                    </button>
+                </form>
+
+                <!-- 退勤 -->
+                <form action="{{ route('attendance.punch') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="type" value="check_out">
+                    <button class="big-btn out {{ !$isWorking ? 'inactive' : '' }}"
+                        {{ $isWorking ? '' : 'disabled' }}>
+                        退勤
+                    </button>
+                </form>
+
+            </div>
+
+            <!-- トグル風 -->
+            <div class="toggle">
+                <span class="toggle-text">既定の休憩を追加</span>
+
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <!-- 休憩 -->
             <form action="{{ route('attendance.punch') }}" method="POST">
                 @csrf
                 <input type="hidden" name="type" value="break_start">
-                <button class="btn sub {{ !$isWorking ? 'inactive' : '' }}" {{ $isWorking ? '' : 'disabled' }}>
+                <button class="sub-btn {{ !$isWorking ? 'inactive' : '' }}"
+                    {{ $isWorking ? '' : 'disabled' }}>
                     休憩開始
                 </button>
             </form>
 
-            <!-- ✅ 休憩終了 -->
-            <form action="{{ route('attendance.punch') }}" method="POST">
-                @csrf
-                <input type="hidden" name="type" value="break_end">
-                <button class="btn sub {{ !$isBreak ? 'inactive' : '' }}" {{ $isBreak ? '' : 'disabled' }}>
-                    休憩終了
-                </button>
-            </form>
-
-            <!-- ✅ 追加ボタン -->
-            <div class="mini-row">
-                <button class="mini">勤怠申請</button>
-                <button class="mini">打刻修正</button>
+            <!-- 下ボタン -->
+            <div class="bottom-btns">
+                <button class="outline">勤怠申請</button>
+                <button class="outline">打刻修正</button>
             </div>
 
         </div>
+
     </div>
 </div>
 
-<!-- ✅ 打刻履歴 -->
+<!-- 打刻履歴 -->
 <div class="history">
     <h3>打刻履歴</h3>
 
@@ -156,13 +168,14 @@ $notIn = $status === '未出勤';
 
 </div>
 
-<!-- ✅ 時計 -->
+<!-- 時計 -->
 <script>
 setInterval(() => {
     const n = new Date();
     const p = x => String(x).padStart(2,'0');
-    document.getElementById('clock').textContent =
-        p(n.getHours()) + ':' + p(n.getMinutes()) + ':' + p(n.getSeconds());
+    document.getElementById('clock').innerHTML =
+        p(n.getHours()) + ':' + p(n.getMinutes()) +
+        '<span class="sec">' + p(n.getSeconds()) + '</span>';
 },1000);
 </script>
 

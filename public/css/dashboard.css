@@ -23,6 +23,7 @@ body {
     color:#e57373;
 }
 
+/* レイアウト */
 .wrap {
     max-width:1000px;
     margin:auto;
@@ -32,8 +33,8 @@ body {
 .card {
     position:relative;
     background:white;
-    border-radius:14px;
     padding:30px;
+    border-radius:12px;
     overflow:hidden;
 }
 
@@ -66,8 +67,8 @@ body {
     margin-bottom:20px;
 }
 
-/* レイアウト */
-.main-flex {
+/* 横レイアウト */
+.main {
     display:flex;
     justify-content:space-between;
 }
@@ -76,7 +77,10 @@ body {
 .clock {
     font-size:80px;
     font-weight:bold;
-    color:#444;
+}
+.clock .sec {
+    font-size:30px;
+    margin-left:10px;
 }
 
 /* 情報 */
@@ -87,62 +91,96 @@ body {
 
 /* 右 */
 .right {
-    display:flex;
-    flex-direction:column;
-    gap:15px;
+    width:350px;
 }
 
-/* ボタン */
-.btn {
-    width:160px;
-    height:70px;
-    font-size:20px;
-    border-radius:12px;
+/* 勤務地 */
+.loc-box {
+    background:#f5f5f5;
+    padding:10px;
+    border-radius:8px;
+}
+.change {
+    color:#e57373;
+    font-size:12px;
+}
+
+/* ボタン横並び */
+.punch-row {
+    display:flex;
+    gap:15px;
+    margin:15px 0;
+}
+
+/* 大ボタン */
+.big-btn {
+    width:150px;
+    height:90px;
+    font-size:28px;
+    border-radius:14px;
     border:none;
     transition:0.2s;
 }
 
 /* 出勤 */
-.btn.in {
+.big-btn.in {
     background:#ddd;
 }
 
 /* 退勤 */
-.btn.out {
+.big-btn.out {
     background:#e57373;
-    color:white;
+    color:#fff;
 }
 
-/* サブ */
-.btn.sub {
-    border:2px solid #e57373;
-    color:#e57373;
-    background:white;
-}
-
-/* ✅ 無効状態（ここが重要） */
-.btn.inactive {
+/* 無効 */
+.inactive {
     background:#ddd !important;
     color:#aaa !important;
 }
 
-/* ホバー */
-.btn:hover:not(:disabled) {
+/* カーソル */
+button:not(:disabled) {
+    cursor:pointer;
+}
+button:hover:not(:disabled) {
     transform:translateY(-2px);
 }
 
-/* 小ボタン */
-.mini-row {
+/* トグル */
+.toggle {
+    margin:10px 0;
+}
+.switch {
+    margin-left:10px;
+    padding:5px 10px;
+    background:#ddd;
+    border-radius:20px;
+}
+
+/* 休憩 */
+.sub-btn {
+    width:100%;
+    padding:12px;
+    border:2px solid #e57373;
+    background:#fff;
+    color:#e57373;
+    border-radius:8px;
+}
+
+/* 下ボタン */
+.bottom-btns {
     display:flex;
     gap:10px;
+    margin-top:15px;
 }
-.mini {
+.outline {
     flex:1;
     padding:10px;
-    border:1px solid #e57373;
+    border:2px solid #e57373;
     color:#e57373;
-    background:white;
-    border-radius:8px;
+    background:#fff;
+    border-radius:10px;
 }
 
 /* 履歴 */
@@ -158,12 +196,108 @@ body {
     border-radius:5px;
 }
 
-/* クリックできるボタン */
-.btn:not(.inactive) {
-    cursor: pointer;
+/* ===== 勤務地 ===== */
+.loc-head {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:5px;
 }
 
-/* サブボタン */
-.mini {
-    cursor: pointer;
+/* ラベル */
+.loc-box {
+    background:#f3f4f6;
+    padding:12px;
+    border-radius:10px;
+
+    display:flex;
+    justify-content:space-between; /* ←右寄せのキモ */
+    align-items:center;
+
+    font-size:14px;
+    color:#555;
+}
+
+.change-btn {
+    font-size:13px;
+    color:#999;
+    cursor:pointer;
+}
+
+.change-btn:hover {
+    color:#e57373;
+}
+
+/* ボックス */
+.loc-box {
+    background:#f3f4f6;
+    padding:12px;
+    border-radius:10px;
+    font-size:14px;
+    color:#555;
+}
+
+/* ===== トグル ===== */
+.toggle {
+    display:flex;
+    justify-content:space-between; /* ←これが超重要 */
+    align-items:center;
+
+    margin-top:10px;
+}
+
+/* テキスト */
+.toggle-text {
+    font-size:13px;
+    color:#888;
+}
+
+/* スイッチ全体 */
+.switch {
+    position:relative;
+    display:inline-block;
+    width:50px;
+    height:26px;
+}
+
+/* チェック非表示 */
+.switch input {
+    opacity:0;
+    width:0;
+    height:0;
+}
+
+/* 背景 */
+.slider {
+    position:absolute;
+    cursor:pointer;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background-color:#ccc;
+    border-radius:34px;
+    transition:0.3s;
+}
+
+/* 丸 */
+.slider:before {
+    position:absolute;
+    content:"";
+    height:20px;
+    width:20px;
+    left:3px;
+    bottom:3px;
+    background-color:white;
+    border-radius:50%;
+    transition:0.3s;
+}
+
+/* ✅ ON状態 */
+input:checked + .slider {
+    background-color:#e57373;
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
 }
