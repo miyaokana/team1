@@ -18,6 +18,9 @@ Route::middleware('auth')->group(function () {
 
    // 打刻 POST /attendance/punch
    Route::post('/attendance/punch', [AttendanceController::class, 'punch'])->name('attendance.punch');
+
+   // 打刻履歴
+   Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
 });
 
 
