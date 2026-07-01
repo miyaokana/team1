@@ -316,6 +316,6 @@ input:checked + .slider:before {
 }
 
 .badge {
-    padding: 2px 6px;  /* ←少し小さく */
+    padding: 2px 6px;  /* ←少し小さくsuru */
     font-size: 12px;
 }
