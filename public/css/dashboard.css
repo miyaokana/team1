@@ -1,0 +1,169 @@
+body {
+    background:#f4f4f4;
+    font-family:sans-serif;
+}
+
+/* 通知 */
+.notice {
+    width:95%;
+    margin:15px auto;
+    border:1px solid #e57373;
+    background:#fff5f5;
+    padding:10px;
+    border-radius:8px;
+}
+.badge {
+    background:#e57373;
+    color:#fff;
+    padding:3px 6px;
+    border-radius:4px;
+}
+.confirm {
+    float:right;
+    color:#e57373;
+}
+
+.wrap {
+    max-width:1000px;
+    margin:auto;
+}
+
+/* カード */
+.card {
+    position:relative;
+    background:white;
+    border-radius:14px;
+    padding:30px;
+    overflow:hidden;
+}
+
+/* 背景アニメ */
+.shape {
+    position:absolute;
+    width:120px;
+    height:120px;
+    background:#ffcdd2;
+    opacity:0.25;
+    clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+    animation: float 12s linear infinite;
+}
+.s1 { left:10%; bottom:-100px; }
+.s2 { left:50%; bottom:-120px; animation-delay:3s; }
+.s3 { left:80%; bottom:-90px; animation-delay:6s; }
+
+@keyframes float {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-500px); }
+}
+
+/* 状態バー */
+.status-bar {
+    background: linear-gradient(90deg,#ef9a9a,#e57373);
+    color:white;
+    text-align:center;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:20px;
+}
+
+/* レイアウト */
+.main-flex {
+    display:flex;
+    justify-content:space-between;
+}
+
+/* 時計 */
+.clock {
+    font-size:80px;
+    font-weight:bold;
+    color:#444;
+}
+
+/* 情報 */
+.info {
+    margin-top:10px;
+    color:#666;
+}
+
+/* 右 */
+.right {
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+/* ボタン */
+.btn {
+    width:160px;
+    height:70px;
+    font-size:20px;
+    border-radius:12px;
+    border:none;
+    transition:0.2s;
+}
+
+/* 出勤 */
+.btn.in {
+    background:#ddd;
+}
+
+/* 退勤 */
+.btn.out {
+    background:#e57373;
+    color:white;
+}
+
+/* サブ */
+.btn.sub {
+    border:2px solid #e57373;
+    color:#e57373;
+    background:white;
+}
+
+/* ✅ 無効状態（ここが重要） */
+.btn.inactive {
+    background:#ddd !important;
+    color:#aaa !important;
+}
+
+/* ホバー */
+.btn:hover:not(:disabled) {
+    transform:translateY(-2px);
+}
+
+/* 小ボタン */
+.mini-row {
+    display:flex;
+    gap:10px;
+}
+.mini {
+    flex:1;
+    padding:10px;
+    border:1px solid #e57373;
+    color:#e57373;
+    background:white;
+    border-radius:8px;
+}
+
+/* 履歴 */
+.history {
+    margin-top:30px;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+}
+.tag {
+    background:#ffe0e0;
+    padding:3px 8px;
+    border-radius:5px;
+}
+
+/* クリックできるボタン */
+.btn:not(.inactive) {
+    cursor: pointer;
+}
+
+/* サブボタン */
+.mini {
+    cursor: pointer;
+}
