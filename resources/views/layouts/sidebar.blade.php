@@ -1,23 +1,39 @@
-<!-- resources/views/layouts/sidebar.blade.php -->
- <nav class="sidebar">
-    <div class="sidebar-title">勤怠メニュー</div>
+<nav class="sidebar">
+
+    <!-- 上ロゴ -->
+    <div class="logo"></div>
+
     <ul class="sidebar-menu">
-        <!-- 実装済み -->
-         <li class="{{ request() -> routeIs('dashboard') ? 'active' : '' }}">
-            <a href="{{ route('dashboard') }}">打刻</a>
-         </li>
 
-         <!-- 未実装(リンク先がまだない。あとから追加予定) -->
-          <li class="{{ request()->routeIs('shifts.shift') ? 'active' : '' }}">
-            <a href="{{ route('shifts.shift') }}">シフト一覧</a>
-         </li>
-         
-          <li class="disabled">
-            <a href="#">勤務表</a>
-         </li>
+      <li class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
+         <a href="{{ route('dashboard') }}" title="打刻">
+            <span class="icon">⏱</span>
+            <span class="text">打刻</span>
+         </a>
+      </li>
 
-         <li class="{{ request() -> routeIs('attendance.history') ? 'active' : '' }}">
-            <a href="{{ route('attendance.history') }}">打刻履歴</a>
-         </li>
+      <li class="{{ request()->routeIs('shifts.shift') ? 'active' : '' }}">
+         <a href="{{ route('shifts.shift') }}" title="シフト一覧">
+            <span class="icon">📅</span>
+            <span class="text">シフト一覧</span>
+         </a>
+      </li>
+
+      <li class="disabled">
+         <a href="#" title="勤務表">
+            <span class="icon">📋</span>
+            <span class="text">勤務表</span>
+         </a>
+      </li>
+
+      <li class="{{ request()->routeIs('attendance.history') ? 'active' : '' }}">
+         <a href="{{ route('attendance.history') }}" title="打刻履歴">
+            <span class="icon">🕒</span>
+            <span class="text">打刻履歴</span>
+         </a>
+      </li>
+
     </ul>
- </nav>
+
+
+</nav>
