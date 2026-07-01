@@ -28,6 +28,7 @@
                         <th>退勤</th>
                         <th>休憩</th>
                         <th>勤務時間</th>
+                        <th>差分</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -67,6 +68,21 @@
                                 @if (!is_null($row['workMinutes']))
                                     {{ intdiv($row['workMinutes'], 60) }}時間{{ $row['workMinutes'] % 60 }}分
                                 @else
+                                    --
+                                @endif
+                            </td>
+                            <td>
+                                @php $diff = $row['diff']; @endphp
+                                @if (!is_null($diff['late']))
+                                    <span class="diff-late">遅刻{{ $diff['late'] }}分</span>
+                                @endif
+                                @if (!is_null($diff['early']))
+                                    <span class="diff-early">早退{{ $diff['early'] }}分</span>
+                                @endif
+                                @if (!is_null($diff['overtime']))
+                                    <span class="diff-overtime">残業{{ $diff['overtime'] }}分</span>
+                                @endif
+                                @if (is_null($diff['late']) && is_null($diff['early']) && is_null($diff['overtime']))
                                     --
                                 @endif
                             </td>
