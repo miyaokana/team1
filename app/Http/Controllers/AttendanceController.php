@@ -56,31 +56,67 @@ class AttendanceController extends Controller
 
         $userId = Auth::id();
         $from = today()->subDays(30);
+        $to = today();
 
         // 直近30日分を新しい順で所得
         $records = Attendance::where('user_id', $userId)
             ->where('work_date', '>=', $from)
-            ->orderBy('work_date', 'desc')
-            ->get();
+            ->get()
+            ->keyBy(fn($a) => $a->work_date->format('Y-m-d'));
 
         $shifts = Shift::where('user_id', $userId)
             ->where('shift_date', '>=', $from->format('Y-m-d'))
             ->get()
-            ->keyBy(fn ($s) => Carbon::parse($s->shift_date)->format('Y-m-d'));
+            ->keyBy(fn($s) => Carbon::parse($s->shift_date)->format('Y-m-d'));
 
         // 各レコードに勤務時間(分)を持たせる。
-        $rows = $records->map(function ($a) use ($shifts) {
-            $key = $a->work_date->format('Y-m-d');
-            return [
-                'record' => $a,
-                'shift' => $shifts->get($key),
-                'workMinutes' => $this->workMinutes($a),
-            ];
-        });
+        // 日付を軸に,新しい順で1日づつ組み立てる。
+        $rows = collect();
+        for ($date = $to->copy(); $date->gte($from); $date->subDay()) {
+            $key = $date->format('Y-m-d');
+
+            $attendance = $records->get($key);
+            $shift = $shifts->get($key);
+
+            // 予定も実績もない日は行をつくらない。
+            if (!$attendance && !$shift) {
+                continue;
+            }
+
+            $rows->push([
+                'date' => $date->copy(),
+                'record' => $attendance,
+                'shift' => $shift,
+                'workMinutes' => $this->workMinutes($attendance),
+                'state' => $this->dayState($attendance, $shift),
+            ]);
+        }
 
         return view('attendance.history', [
             'rows' => $rows,
         ]);
+    }
+
+    // その日の状態を判定する(欠勤/未打刻/勤務中/退勤済み/予定外)
+    private function dayState(?Attendance $a, $shift): string
+    {
+        // シフトがあるのに打刻が全くない -> 欠勤
+        if ($shift && (!$a || !$a->check_in)) {
+            return '欠勤';
+        }
+
+        // 出勤したが退勤していない
+        if ($a && $a->check_in && !$a->check_out) {
+            return '勤務中';
+        }
+
+        // 出退勤揃っている
+        if ($a && $a->check_in && $a->check_out) {
+            return '退勤済み';
+        }
+
+        // シフトは無いが打刻はある等
+        return '-';
     }
 
     // 打刻順の検証。問題があればエラーメッセージ、無ければ null
@@ -119,7 +155,7 @@ class AttendanceController extends Controller
         if ($a->break_start && !$a->break_end) return '休憩中';
         return '勤務中';
     }
-    
+
     // 当日の勤務時間（分）=（退勤 - 出勤）- 休憩。出退勤が揃うまでは null
     private function workMinutes(?Attendance $a): ?int
     {
