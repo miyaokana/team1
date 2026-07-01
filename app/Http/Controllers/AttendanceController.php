@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\Shift;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,15 +53,27 @@ class AttendanceController extends Controller
     // 打刻履歴(GET /attendance/history)
     public function history()
     {
+
+        $userId = Auth::id();
+        $from = today()->subDays(30);
+
         // 直近30日分を新しい順で所得
-        $records = Attendance::where('user_id', Auth::id())
-            ->where('work_date', '>=', today()->subDays(30))
+        $records = Attendance::where('user_id', $userId)
+            ->where('work_date', '>=', $from)
             ->orderBy('work_date', 'desc')
             ->get();
+
+        $shifts = Shift::where('user_id', $userId)
+            ->where('shift_date', '>=', $from->format('Y-m-d'))
+            ->get()
+            ->keyBy(fn ($s) => Carbon::parse($s->shift_date)->format('Y-m-d'));
+
         // 各レコードに勤務時間(分)を持たせる。
-        $rows = $records->map(function ($a) {
+        $rows = $records->map(function ($a) use ($shifts) {
+            $key = $a->work_date->format('Y-m-d');
             return [
                 'record' => $a,
+                'shift' => $shifts->get($key),
                 'workMinutes' => $this->workMinutes($a),
             ];
         });

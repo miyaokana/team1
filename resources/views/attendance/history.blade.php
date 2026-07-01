@@ -20,6 +20,7 @@
                     <thead>
                         <tr>
                             <th>日付</th>
+                            <th>予定</th>
                             <th>出勤</th>
                             <th>退勤</th>
                             <th>休憩</th>
@@ -30,10 +31,20 @@
                         @foreach ($rows as $row)
                             @php
                                 $a = $row['record'];
+                                $shift = $row['shift'];
                                 $wd = ['日', '月', '火', '水', '木', '金', '土'][$a->work_date->dayOfWeek];
                             @endphp
                             <tr>
                                 <td>{{ $a->work_date->format('n/j') }} ({{ $wd }}) </td>
+                                <td>
+                                    @if ($shift)
+                                        {{ \Carbon\Carbon::parse($shift->start_time)->format('H:i') }}
+                                        ~
+                                        {{ \Carbon\Carbon::parse($shift->end_time)->format('H:i') }}
+                                    @else
+                                        予定なし
+                                    @endif
+                                </td>
                                 <td>{{ optional($a->check_in)->format('H:i') ?? '--:--' }}</td>
                                 <td>{{ optional($a->check_out)->format('H:i') ?? '--:--' }}</td>
                                 <td>
