@@ -1,0 +1,102 @@
+body {
+    margin: 0;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(120deg, #fff5f5, #fceaea);
+}
+
+/* 上バー */
+.top-bar {
+    background: #ff6b6b;
+    color: white;
+    padding: 15px 30px;
+    font-size: 18px;
+}
+
+/* 中央 */
+.container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 40px auto;
+
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+
+    padding: 30px;
+    border-radius: 10px;
+
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* ヘッダー */
+.header-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* 追加ボタン */
+.add-btn {
+    background: #ff6b6b;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.add-btn:hover {
+    background: #ff4c4c;
+}
+
+/* テーブル */
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-table th {
+    background: #ffe5e5;
+    padding: 12px;
+    text-align: left;
+}
+
+.user-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+/* ホバー */
+.user-table tr:hover {
+    background: #fff2f2;
+}
+
+/* 権限タグ */
+.role {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.role.admin {
+    background: #ff6b6b;
+    color: white;
+}
+
+.role.user {
+    background: #ddd;
+}
+
+/* 操作 */
+.actions a {
+    margin-right: 10px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.actions .edit {
+    color: #007bff;
+}
+
+.actions .delete {
+    color: red;
+}
