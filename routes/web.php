@@ -43,3 +43,4 @@ Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
 //シフト
 Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');
 Route::post('/shifts/store', [ShiftController::class, 'store'])->name('shifts.store');
+Route::post('/shifts/bulk', [ShiftController::class, 'storeBulk'])->name('shifts.store_bulk');
