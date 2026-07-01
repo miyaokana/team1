@@ -15,9 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->date('shift_date');
+            //出勤時間
             $table->dateTime('start_time');
+            //退勤時間
             $table->dateTime('end_time');
             $table->timestamps();
+
+            $table->unique(['user_id', 'shift_date']);
         });
     }
 

@@ -1,27 +1,190 @@
-h2 {
-    color: #ff73b3;
-    text-align: center;
+body {
+    margin: 0;
+    font-family: "Helvetica Neue", Arial, sans-serif;
 }
 
-form {
-    text-align: center;
+/* 背景 */
+.bg-wrapper {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
 }
 
-input, select {
-    padding: 8px;
-    width: 300px;
+/* 図形 */
+.bg-shape {
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    border-radius: 12px;
+
+    background: linear-gradient(
+        135deg,
+        rgba(255, 0, 0, 0.85),
+        rgba(255, 80, 80, 0.55)
+    );
+
+    filter: blur(6px);
+    bottom: -300px;
+}
+
+/* バラバラに */
+.shape1 { left: 10%; animation: float1 26s infinite; }
+.shape2 { left: 30%; animation: float2 30s infinite 6s; }
+.shape3 { left: 55%; animation: float3 34s infinite 12s; }
+.shape4 { left: 80%; animation: float1 28s infinite 18s; }
+
+/* 動き */
+@keyframes float1 {
+    0% { transform: translateY(0) rotate(0); opacity:0; }
+    20% { opacity:0.6;}
+    60% { transform: translateY(-1100px) rotate(180deg);}
+    80% { transform: translateY(-1000px) rotate(240deg);}
+    100% { transform: translateY(-1400px) rotate(360deg); opacity:0;}
+}
+
+@keyframes float2 {
+    0% { transform: translateY(0) rotate(0);}
+    25% { opacity:0.7;}
+    55% { transform: translateY(-1200px) rotate(260deg);}
+    75% { transform: translateY(-1050px) rotate(320deg);}
+    100% { transform: translateY(-1500px) rotate(420deg); opacity:0;}
+}
+
+@keyframes float3 {
+    0% { transform: translateY(0) rotate(0);}
+    30% { opacity:0.6;}
+    60% { transform: translateY(-1150px) rotate(200deg);}
+    80% { transform: translateY(-1000px) rotate(260deg);}
+    100% { transform: translateY(-1450px) rotate(360deg); opacity:0;}
+}
+
+/* 六角形 */
+.hex {
+    position: absolute;
+    width: 120px;
+    height: 60px;
+    background: rgba(255,0,0,0.7);
+}
+.hex::before, .hex::after {
+    content:"";
+    position:absolute;
+    border-left:60px solid transparent;
+    border-right:60px solid transparent;
+}
+.hex::before {
+    bottom:100%;
+    border-bottom:35px solid rgba(255,0,0,0.7);
+}
+.hex::after {
+    top:100%;
+    border-top:35px solid rgba(255,0,0,0.7);
+}
+.hex1 { left:20%; bottom:-200px; animation: float2 30s infinite 5s;}
+.hex2 { right:20%; bottom:-250px; animation: float3 34s infinite 12s;}
+
+/* ✅ ガラスカード */
+.container {
+    width: 420px;
+    margin: 0 auto;
+
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(12px);
+
+    padding: 40px;
     border-radius: 10px;
-    border: 1px solid #ccc;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    z-index: 10;
+    position: relative;
 }
 
+/* 中央 */
+.logo-area, .subtitle {
+    text-align: center;
+}
+
+/* 入力 */
+.form-group { margin-bottom: 18px; }
+
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* パス */
+.password-box { position: relative; }
+.eye {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* チェック */
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+.checkbox input { display: none; }
+.checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ff6b6b;
+}
+.checkbox input:checked + .checkmark {
+    background: #ff6b6b;
+}
+
+/* ✅ ボタン（角ばり+中央+指） */
 button {
-    background: #ff73b3;
-    color: white;
-    border: none;
-    padding: 10px 15px;
+    display: block;
+    width: 220px;
+    margin: 25px auto 0;
+    padding: 14px;
+
     border-radius: 10px;
+    border: none;
+
+    background: #ff6b6b;
+    color: white;
+
+    cursor: pointer;
 }
 
 button:hover {
-    background: #ff4da6;
+    background: #ff4c4c;
+}
+
+/* リンク中央 */
+.link {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    color: #00a99d;
+    text-decoration: none;
+}
+
+/* Google */
+.google-btn {
+    width: 260px;
+    margin: 20px auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+.google-btn img { width: 20px; }
+
+/* フッター */
+.footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #888;
 }
