@@ -1,0 +1,143 @@
+.sidebar {
+    width: 80px;
+    height: 100vh;
+    background: #f3f4f6;
+    border-right: 1px solid #ddd;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ロゴ */
+.logo {
+    width: 42px;
+    height: 42px;
+    margin-top: 20px;
+    border-radius: 10px;
+    background: #e57373;
+}
+
+/* メニュー */
+.sidebar-menu {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 30px 0 !important;
+
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* liリセット */
+.sidebar-menu li {
+    margin: 0 !important;
+}
+
+/* ボックス */
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 60px;
+    height: 60px;
+
+    background: #fff;
+    border-radius: 14px;
+
+    text-decoration: none !important;
+    color: #555 !important;
+
+    transition: 0.2s;
+}
+
+/* アイコン */
+.sidebar .icon {
+    font-size: 22px;
+}
+
+/* テキスト消す（キンクラ） */
+.sidebar .text {
+    display: none;
+}
+
+/* 選択中 */
+.sidebar-menu li.active a {
+    border-left: 4px solid #e57373;
+}
+
+/* hover */
+.sidebar-menu a:hover {
+    background: #ffecec;
+}
+
+/* 無効 */
+.sidebar-menu li.disabled a {
+    background: #eee;
+    color: #aaa !important;
+    pointer-events: none;
+}
+
+/* 下の丸 */
+.bottom-btn {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 20px;
+
+    background: #fff;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+}
+
+.bottom-btn:hover {
+    background: #ffecec;
+}
+
+.sidebar {
+    width: 80px;   /* ←これ重要 */
+}
+
+/* テキスト消す */
+.sidebar .text {
+    display: none;
+}
+
+/* アイコンだけ中央 */
+.sidebar-menu a {
+    justify-content: center;
+    align-items: center;
+}
+
+.sidebar-menu {
+    padding: 0;
+}
+
+.wrap {
+    flex: 1;
+    padding: 40px;
+}
+
+.sidebar-menu li.active a {
+    border-left: 4px solid #e57373;
+}
+
+.sidebar {
+    width: 80px;
+}
+
+.top-bar {
+    margin-left: 80px;  /* サイドバーとピッタリ */
+    padding: 10px 20px;
+}
+
+.notice-wide {
+    margin-left: 80px;   /* ←ここ超重要 */
+    margin-right: 20px;
+    margin-top: 10px;
+}
