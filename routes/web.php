@@ -40,6 +40,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/leave-requests', [LeaveRequestController::class, 'store'])->name('leave_requests.store');
 });
 
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/approvals', [\App\Http\Controllers\ApprovalController::class, 'index'])
+        ->name('approvals.index');
+        
+    Route::post('/approvals/{type}/{id}', [\App\Http\Controllers\ApprovalController::class, 'update'])
+        ->name('approvals.update');
+});
+
 
 // 認証
 
