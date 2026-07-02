@@ -7,6 +7,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\AttendanceRequestController;
 use App\Models\AttendanceRequest;
+use App\Models\Notice;
 
 // トップ
 Route::get('/', function () {
@@ -15,16 +16,23 @@ Route::get('/', function () {
 
 // ログイン必須。未ログインなら /loginに飛ばされる
 Route::middleware('auth')->group(function () {
-   // ダッシュボード画面（打刻）
-   Route::get('/dashboard', [AttendanceController::class, 'dashboard'])->name('dashboard');
+    // ダッシュボード画面（打刻）
+    Route::get('/dashboard', [AttendanceController::class, 'dashboard'])->name('dashboard');
 
-   // 打刻 POST /attendance/punch
-   Route::post('/attendance/punch', [AttendanceController::class, 'punch'])->name('attendance.punch');
+    // 打刻 POST /attendance/punch
+    Route::post('/attendance/punch', [AttendanceController::class, 'punch'])->name('attendance.punch');
 
-   // 打刻履歴
-   Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
+    // 打刻履歴
+    Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
+
+    // 各種申請
+    Route::get('/attendance-requests', [AttendanceRequestController::class, 'index'])->name('attendance_requests.index');
+    Route::post('/attendance-requests', [AttendanceRequestController::class, 'store'])->name('attendance_requests.store');
 });
 
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+
+Route::post('/register', [AuthController::class, 'register']);
 
 // 認証
 
@@ -32,7 +40,8 @@ Route::middleware('auth')->group(function () {
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/logout', [AuthController::class, 'logout']);
+Route::get('/logout', [AuthController::class, 'logout'])
+    ->name('logout');
 
 // 管理画面
 Route::get('/admin/users', [AdminController::class, 'index']);
@@ -46,6 +55,22 @@ Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
 Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');
 Route::post('/shifts/store', [ShiftController::class, 'store'])->name('shifts.store');
 
-// 各種申請
-Route::get('/attendance-requests', [AttendanceRequestController::class, 'index'])->name('attedance_requests.index');
-Route::post('/attendance-requests', [AttendanceRequestController::class, 'store'])->name('attedance_requests.store');
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])
+    ->name('google.login');
+
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
+Route::get('/forgot-password', function () {
+    return view('auth.forgot-password');
+})->name('password.request');
+
+Route::get('/notices', function () {
+
+    $notices = Notice::latest()->get();
+
+    return view('notices.index', [
+        'notices' => $notices
+    ]);
+
+})->name('notices.index');
+Route::post('/shifts/bulk', [ShiftController::class, 'storeBulk'])->name('shifts.store_bulk');

@@ -164,8 +164,13 @@ button:hover {
     display: block;
     text-align: center;
     margin-top: 10px;
-    color: #00a99d;
+    color: #ff4c4c;
     text-decoration: none;
+}
+
+.eye {
+    cursor: pointer;
+    user-select: none;
 }
 
 /* Google */
@@ -187,4 +192,34 @@ button:hover {
     text-align: center;
     margin-top: 20px;
     color: #888;
+}
+
+.error-box {
+    background: #ffe5e5;
+    border: 1px solid #e57373;
+    color: #c00;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.success-box {
+    background: #e5fff0;
+    border: 1px solid #4caf50;
+    color: #2e7d32;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.link {
+    text-decoration: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+.google-btn {
+    color: #000;
 }
