@@ -1,11 +1,32 @@
 <!DOCTYPE html>
+
+
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <title>シフト表</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/shifts.css') }}">
+
+
 </head>
+
+
 <body class="p-4 md:p-8 bg-slate-50 text-slate-800 antialiased">
+
+    @include('layouts.header')
+
+<div class="layout">
+
+    @include('layouts.sidebar')
+
+    <div class="wrap">
+
+
 
     <div class="max-w-5xl mx-auto bg-white p-4 md:p-8 rounded-2xl shadow-sm border border-black">
         
@@ -414,6 +435,9 @@
             </div>
         </div>
     </div>
+    
+</div>
+</div>
 
     <script>
         // 月を変更してフォームを送信する関数
