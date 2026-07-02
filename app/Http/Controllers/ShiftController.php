@@ -3,21 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Shift;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use App\Models\Shift;
+use Illuminate\Support\Facades\Auth;
 
 class ShiftController extends Controller
 {
     public function index(Request $request)
     {
+        $selectedUser = Auth::user();
+
         $monthInput = $request->input('month', Carbon::now()->format('Y-m'));
         $currentMonth = Carbon::parse($monthInput);
 
-        // 画面で選択されたユーザーID（指定がなければ最初のユーザー）
-        $selectedUserId = $request->input('user_id');
-        $users = User::all();
-        $selectedUser = $selectedUserId ? User::find($selectedUserId) : $users->first();
+        // ログイン中のユーザーのシフトを取得
+        $shifts = Shift::where('user_id', $selectedUser->id)
+        ->whereMonth('shift_date', $currentMonth->month)
+        ->whereYear('shift_date', $currentMonth->year)
+        ->get();
 
         $startOfMonth = $currentMonth->copy()->startOfMonth();
         $endOfMonth = $currentMonth->copy()->endOfMonth();
@@ -41,8 +45,7 @@ class ShiftController extends Controller
         // 祝日の配列を取得
         $holidays = $this->getHolidaysForMonth($currentMonth);
 
-        // 💡 修正ポイント: compact() に 'holidays' を追加しました
-        return view('shifts.shift', compact('users', 'selectedUser', 'dates', 'currentMonth', 'startOfWeek', 'shifts', 'holidays'));
+        return view('shifts.shift', compact('selectedUser', 'currentMonth', 'shifts', 'dates', 'startOfWeek', 'holidays'));
     }
 
     /**
@@ -124,7 +127,7 @@ class ShiftController extends Controller
 
         $finalHolidays = array_unique(array_merge($allHolidays, $substituteHolidays, $nationalHolidays));
 
-        // 表示中月の日付のみを抽出し、配列のキーを連番に振り直して返却
+        // 表示中月の日付のみを抽出
         $filteredHolidays = array_filter($finalHolidays, function($h) use ($month) {
             return strpos($h, $month->format('Y-m')) === 0;
         });
@@ -175,56 +178,68 @@ class ShiftController extends Controller
 
     public function storeBulk(Request $request)
     {
-        $userId = $request->user_id;
-        $dates = $request->selected_dates; // ['2026-07-01', '2026-07-02'...]
+        // 💡 改善: 適切にバリデーションを追加
+        $request->validate([
+            'user_id'          => 'required|exists:users,id',
+            'selected_dates'   => 'required|array',
+            'selected_dates.*' => 'required|date',
+            'action'           => 'required|in:register,delete',
+            'bulk_start_hour'  => 'required_if:action,register|string',
+            'bulk_end_hour'    => 'required_if:action,register|string',
+            'work_location'    => 'nullable|string',
+        ]);
+
+        $userId = Auth::id();
+        $dates = $request->selected_dates;
+
+        if ($request->action === 'delete') {
+            Shift::where('user_id', $userId)
+                ->whereIn('shift_date', $dates)
+                ->delete();
+
+            return redirect()->back()->with('success', '選択した日付のシフトを一括削除しました。');
+        }
+
         $workLocation = $request->work_location;
-        
         $startTimeStr = $request->bulk_start_hour; // "17:00"
-        $endTimeRaw = $request->bulk_end_hour;     // ここに "33:00" や "09:00+1" が入ってくる
+        $endTimeRaw = $request->bulk_end_hour;     // "33:00" や "09:00+1"
 
         foreach ($dates as $dateStr) {
-            // 開始日時（これはエラーにならない）
-            $start = \Carbon\Carbon::parse($dateStr . ' ' . $startTimeStr);
+            $start = Carbon::parse($dateStr . ' ' . $startTimeStr);
             
-            // 🚨【修正箇所】ここから ───
+            // 💡 改善: 終了時間の解析ロジックを Carbon を活かしてシンプル化
             $endTimeStr = $endTimeRaw;
             $addDays = 0;
 
-            // もし画面から「09:00+1」のように送られてきた場合の分解処理
+            // 「+1」などの日数加算表記のパース
             if (strpos($endTimeRaw, '+') !== false) {
                 list($endTimeStr, $addDays) = explode('+', $endTimeRaw);
                 $addDays = (int)$addDays;
             }
 
-            // 「:」で区切って時と分に分解し、33:00 などの不正な時間をクレンジングする
+            // 「33:00」などの24時間超過表記のパース
             if (strpos($endTimeStr, ':') !== false) {
                 list($hours, $minutes) = explode(':', $endTimeStr);
                 $hours = (int)$hours;
 
                 if ($hours >= 24) {
-                    // 33:00 のような表記なら、24を引いて「翌日の09:00」に変換する
-                    $nextDayHours = $hours - 24;
-                    $end = \Carbon\Carbon::parse($dateStr . ' ' . sprintf('%02d:%s', $nextDayHours, $minutes))->addDay();
-                } else {
-                    // 通常の時間（09:00など）
-                    $end = \Carbon\Carbon::parse($dateStr . ' ' . $endTimeStr);
-                    // 画面から「09:00+1」で送られてきていたら1日足す
-                    if ($addDays > 0) {
-                        $end->addDays($addDays);
-                    }
+                    $addDays += floor($hours / 24); // 24時間ごとに1日加算
+                    $hours = $hours % 24;           // 24未満の余り時間に変換
                 }
-            } else {
-                $end = \Carbon\Carbon::parse($dateStr . ' ' . $endTimeStr);
+                $endTimeStr = sprintf('%02d:%s', $hours, $minutes);
             }
-            // ─── ここまで 🚨
 
-            // データベースへ保存
-            \App\Models\Shift::updateOrCreate(
+            // ベースとなる終了日時を生成し、算出した日数を加算
+            $end = Carbon::parse($dateStr . ' ' . $endTimeStr)->addDays($addDays);
+
+            // 💡 修正バグ対応: format('H:i:s') ではなく、日付を含んだ Carbon オブジェクト、
+            // または format('Y-m-d H:i:s') で保存する
+            Shift::updateOrCreate(
                 ['user_id' => $userId, 'shift_date' => $dateStr],
                 [
                     'work_location' => $workLocation,
-                    'start_time' => $start->format('H:i:s'),
-                    'end_time' => $end->format('H:i:s'), 
+                    'start_time'    => $start, // もしDBが time型 の場合は $start->format('H:i:s') に戻し、
+                    'end_time'      => $end,   // 別途「翌日フラグ」などをDBに持たせる必要があります
                 ]
             );
         }
