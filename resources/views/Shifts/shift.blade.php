@@ -1,11 +1,32 @@
 <!DOCTYPE html>
+
+
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <title>シフト表</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/shifts.css') }}">
+
+
 </head>
+
+
 <body class="p-8 bg-gray-50 text-gray-800">
+
+    @include('layouts.header')
+
+<div class="layout">
+
+    @include('layouts.sidebar')
+
+    <div class="wrap">
+
+
 
     <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-md">
         
@@ -175,6 +196,9 @@
 
         @endif
     </div>
+    
+</div>
+</div>
 
 </body>
 </html>
