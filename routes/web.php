@@ -73,3 +73,4 @@ Route::get('/notices', function () {
     ]);
 
 })->name('notices.index');
+Route::post('/shifts/bulk', [ShiftController::class, 'storeBulk'])->name('shifts.store_bulk');
