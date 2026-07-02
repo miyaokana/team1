@@ -27,6 +27,7 @@
             <div class="alert error">{{ session('error') }}</div>
         @endif
 
+        <!-- ==================== 1. 遅刻・早退・欠勤申請 ==================== -->
         <h3>🕒 遅刻・早退・欠勤申請</h3>
         <table class="request-table">
             <thead>
@@ -55,11 +56,13 @@
                     <td><strong>{{ $req->status }}</strong></td>
                     <td>
                         @if($req->status === 'pending')
-                        <form action="{{ route('admin.requests.status', ['type' => 'attendance', 'id' => $req->id]) }}" method="POST">
+                        <form action="{{ route('admin.requests.status', ['type' => 'attendance', 'id' => $req->id]) }}" method="POST" onsubmit="return handleStatusSubmit(this, event)">
                             @csrf
-                            <input type="text" name="admin_comment" placeholder="コメント・差し戻し理由">
-                            <button type="submit" name="status" value="approved">承認</button>
-                            <button type="submit" name="status" value="rejected">差し戻し</button>
+                            <!-- 隠しフィールドでコメントとステータスを送信する形に変更や！ -->
+                            <input type="hidden" name="admin_comment" class="admin-comment-input">
+                            <input type="hidden" name="status" class="status-input">
+                            <button type="button" onclick="submitWithStatus(this, 'approved')">承認</button>
+                            <button type="button" onclick="submitWithStatus(this, 'rejected')">差し戻し</button>
                         </form>
                         @else
                             {{ $req->admin_comment ?? 'コメントなし' }}
@@ -70,6 +73,7 @@
             </tbody>
         </table>
 
+        <!-- ==================== 2. 有給・特別休暇申請 ==================== -->
         <h3>📅 休暇申請（有給・特休）</h3>
         <table class="request-table">
             <thead>
@@ -98,11 +102,12 @@
                     <td><strong>{{ $req->status }}</strong></td>
                     <td>
                         @if($req->status === 'pending')
-                        <form action="{{ route('admin.requests.status', ['type' => 'leave', 'id' => $req->id]) }}" method="POST">
+                        <form action="{{ route('admin.requests.status', ['type' => 'leave', 'id' => $req->id]) }}" method="POST" onsubmit="return handleStatusSubmit(this, event)">
                             @csrf
-                            <input type="text" name="admin_comment" placeholder="コメント・差し戻し理由">
-                            <button type="submit" name="status" value="approved">承認</button>
-                            <button type="submit" name="status" value="rejected">差し戻し</button>
+                            <input type="hidden" name="admin_comment" class="admin-comment-input">
+                            <input type="hidden" name="status" class="status-input">
+                            <button type="button" onclick="submitWithStatus(this, 'approved')">承認</button>
+                            <button type="button" onclick="submitWithStatus(this, 'rejected')">差し戻し</button>
                         </form>
                         @else
                             {{ $req->admin_comment ?? 'コメントなし' }}
@@ -113,6 +118,7 @@
             </tbody>
         </table>
 
+        <!-- ==================== 3. 残業申請 ==================== -->
         <h3>💪 残業申請</h3>
         <table class="request-table">
             <thead>
@@ -135,11 +141,12 @@
                     <td><strong>{{ $req->status }}</strong></td>
                     <td>
                         @if($req->status === 'pending')
-                        <form action="{{ route('admin.requests.status', ['type' => 'overtime', 'id' => $req->id]) }}" method="POST">
+                        <form action="{{ route('admin.requests.status', ['type' => 'overtime', 'id' => $req->id]) }}" method="POST" onsubmit="return handleStatusSubmit(this, event)">
                             @csrf
-                            <input type="text" name="admin_comment" placeholder="コメント・差し戻し理由">
-                            <button type="submit" name="status" value="approved">承認</button>
-                            <button type="submit" name="status" value="rejected">差し戻し</button>
+                            <input type="hidden" name="admin_comment" class="admin-comment-input">
+                            <input type="hidden" name="status" class="status-input">
+                            <button type="button" onclick="submitWithStatus(this, 'approved')">承認</button>
+                            <button type="button" onclick="submitWithStatus(this, 'rejected')">差し戻し</button>
                         </form>
                         @else
                             {{ $req->admin_comment ?? 'コメントなし' }}
@@ -152,6 +159,39 @@
 
     </div>
 </div>
+
+<!-- 🌟 ポップアップ制御用のJavaScriptや！ -->
+<script>
+function submitWithStatus(button, status) {
+    const form = button.closest('form');
+    form.querySelector('.status-input').value = status;
+
+    if (status === 'rejected') {
+        // 差し戻しの時だけポップアップ（prompt）を出すで！
+        const reason = prompt('差し戻しの理由を入力してください：');
+        
+        // キャンセルされたか、何も入力されへんかったら送信をストップ！
+        if (reason === null) {
+            return;
+        }
+        if (reason.trim() === '') {
+            alert('差し戻し理由は必須やで！');
+            return;
+        }
+        
+        // 入力された理由を隠しフィールドにセット
+        form.querySelector('.admin-comment-input').value = reason;
+    } else {
+        // 承認の時は確認のダイアログだけ出す（不要なら消してOKや！）
+        if (!confirm('この申請を承認してもよろしいですか？')) {
+            return;
+        }
+    }
+
+    // 条件をクリアしたらフォームを送信！
+    form.submit();
+}
+</script>
 
 </body>
 </html>
