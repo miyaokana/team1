@@ -7,21 +7,22 @@ use App\Models\Shift;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ShiftController extends Controller
 {
     public function index(Request $request)
     {
-        $selectedUser = Auth::user();
+        // リクエストに user_id があればそのユーザー、なければログインユーザーを取得
+        $userId = $request->input('user_id', Auth::id());
+        $selectedUser = User::find($userId) ?? Auth::user();
+
+        if (!$selectedUser) {
+            return redirect()->route('login')->with('error', 'ユーザーが特定できません。');
+        }
 
         $monthInput = $request->input('month', Carbon::now()->format('Y-m'));
         $currentMonth = Carbon::parse($monthInput);
-
-        // ログイン中のユーザーのシフトを取得
-        $shifts = Shift::where('user_id', $selectedUser->id)
-        ->whereMonth('shift_date', $currentMonth->month)
-        ->whereYear('shift_date', $currentMonth->year)
-        ->get();
 
         $startOfMonth = $currentMonth->copy()->startOfMonth();
         $endOfMonth = $currentMonth->copy()->endOfMonth();
@@ -34,13 +35,9 @@ class ShiftController extends Controller
             $dates[] = $date->copy();
         }
 
-        // 選択されたユーザーの今月のシフトだけを取得
-        $shifts = collect();
-        if ($selectedUser) {
-            $shifts = Shift::where('user_id', $selectedUser->id)
-                ->whereBetween('shift_date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
-                ->get();
-        }
+        $shifts = Shift::where('user_id', $selectedUser->id)
+            ->whereBetween('shift_date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+            ->get();
 
         // 祝日の配列を取得
         $holidays = $this->getHolidaysForMonth($currentMonth);
@@ -77,16 +74,9 @@ class ShiftController extends Controller
 
         // 固定祝日
         $fixedHolidays = [
-            "$year-01-01", // 元日
-            "$year-02-11", // 建国記念の日
-            "$year-02-23", // 天皇誕生日
-            "$year-04-29", // 昭和の日
-            "$year-05-03", // 憲法記念日
-            "$year-05-04", // みどりの日
-            "$year-05-05", // こどもの日
-            "$year-08-11", // 山の日
-            "$year-11-03", // 文化の日
-            "$year-11-23", // 勤労感謝の日
+            "$year-01-01", "$year-02-11", "$year-02-23", "$year-04-29", 
+            "$year-05-03", "$year-05-04", "$year-05-05", "$year-08-11", 
+            "$year-11-03", "$year-11-23",
         ];
 
         // 移動祝日
@@ -178,18 +168,19 @@ class ShiftController extends Controller
 
     public function storeBulk(Request $request)
     {
-        // 💡 改善: 適切にバリデーションを追加
+        // 💡 変更点: バリデーションルールを分割した2つのセレクトボックス（base / style）に更新
         $request->validate([
-            'user_id'          => 'required|exists:users,id',
-            'selected_dates'   => 'required|array',
-            'selected_dates.*' => 'required|date',
-            'action'           => 'required|in:register,delete',
-            'bulk_start_hour'  => 'required_if:action,register|string',
-            'bulk_end_hour'    => 'required_if:action,register|string',
-            'work_location'    => 'nullable|string',
+            'user_id'            => 'required|exists:users,id',
+            'selected_dates'     => 'required|array',
+            'selected_dates.*'   => 'required|date',
+            'action'             => 'required|in:register,delete',
+            'bulk_start_hour'    => 'required_if:action,register|string',
+            'bulk_end_hour'      => 'required_if:action,register|string',
+            'work_location_base' => 'required_if:action,register|string', // 💡 追加
+            'work_style'         => 'required_if:action,register|string', // 💡 追加
         ]);
 
-        $userId = Auth::id();
+        $userId = $request->user_id; 
         $dates = $request->selected_dates;
 
         if ($request->action === 'delete') {
@@ -200,49 +191,52 @@ class ShiftController extends Controller
             return redirect()->back()->with('success', '選択した日付のシフトを一括削除しました。');
         }
 
-        $workLocation = $request->work_location;
-        $startTimeStr = $request->bulk_start_hour; // "17:00"
-        $endTimeRaw = $request->bulk_end_hour;     // "33:00" や "09:00+1"
+        // 💡 2つの選択肢を結びつけて「本社（在宅）」のような文字列にドッキング
+        $base = $request->input('work_location_base', '本社');
+        $style = $request->input('work_style', '出社');
+        $workLocation = "{$base}（{$style}）";
+        
+        $startTimeStr = $request->bulk_start_hour; 
+        $endTimeRaw = $request->bulk_end_hour;     
 
-        foreach ($dates as $dateStr) {
-            $start = Carbon::parse($dateStr . ' ' . $startTimeStr);
-            
-            // 💡 改善: 終了時間の解析ロジックを Carbon を活かしてシンプル化
-            $endTimeStr = $endTimeRaw;
-            $addDays = 0;
+        // トランザクション処理を追加して一括更新を安全に高速化
+        DB::transaction(function () use ($dates, $userId, $startTimeStr, $endTimeRaw, $workLocation) {
+            foreach ($dates as $dateStr) {
+                $start = Carbon::parse($dateStr . ' ' . $startTimeStr);
+                
+                $endTimeStr = $endTimeRaw;
+                $addDays = 0;
 
-            // 「+1」などの日数加算表記のパース
-            if (strpos($endTimeRaw, '+') !== false) {
-                list($endTimeStr, $addDays) = explode('+', $endTimeRaw);
-                $addDays = (int)$addDays;
-            }
-
-            // 「33:00」などの24時間超過表記のパース
-            if (strpos($endTimeStr, ':') !== false) {
-                list($hours, $minutes) = explode(':', $endTimeStr);
-                $hours = (int)$hours;
-
-                if ($hours >= 24) {
-                    $addDays += floor($hours / 24); // 24時間ごとに1日加算
-                    $hours = $hours % 24;           // 24未満の余り時間に変換
+                // 「+1」などの日数加算表記のパース
+                if (strpos($endTimeRaw, '+') !== false) {
+                    list($endTimeStr, $addDays) = explode('+', $endTimeRaw);
+                    $addDays = (int)$addDays;
                 }
-                $endTimeStr = sprintf('%02d:%s', $hours, $minutes);
+
+                // 「33:00」などの24時間超過表記のパース
+                if (strpos($endTimeStr, ':') !== false) {
+                    list($hours, $minutes) = explode(':', $endTimeStr);
+                    $hours = (int)$hours;
+
+                    if ($hours >= 24) {
+                        $addDays += floor($hours / 24);
+                        $hours = $hours % 24;
+                    }
+                    $endTimeStr = sprintf('%02d:%s', $hours, $minutes);
+                }
+
+                $end = Carbon::parse($dateStr . ' ' . $endTimeStr)->addDays($addDays);
+
+                Shift::updateOrCreate(
+                    ['user_id' => $userId, 'shift_date' => $dateStr],
+                    [
+                        'work_location' => $workLocation,
+                        'start_time'    => $start, 
+                        'end_time'      => $end,   
+                    ]
+                );
             }
-
-            // ベースとなる終了日時を生成し、算出した日数を加算
-            $end = Carbon::parse($dateStr . ' ' . $endTimeStr)->addDays($addDays);
-
-            // 💡 修正バグ対応: format('H:i:s') ではなく、日付を含んだ Carbon オブジェクト、
-            // または format('Y-m-d H:i:s') で保存する
-            Shift::updateOrCreate(
-                ['user_id' => $userId, 'shift_date' => $dateStr],
-                [
-                    'work_location' => $workLocation,
-                    'start_time'    => $start, // もしDBが time型 の場合は $start->format('H:i:s') に戻し、
-                    'end_time'      => $end,   // 別途「翌日フラグ」などをDBに持たせる必要があります
-                ]
-            );
-        }
+        });
 
         return redirect()->back()->withInput()->with('success', '一括登録しました。');
     }
