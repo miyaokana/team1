@@ -88,11 +88,6 @@
         </a>
         
 
-        <!-- ✅ 登録リンク（修正済み） -->
-        <a href="{{ route('register') }}" class="link">
-            アカウント作成はこちら
-        </a>
-
         </form>
 
     </div>

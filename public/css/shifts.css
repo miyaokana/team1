@@ -245,3 +245,171 @@ input[type="month"]{
     }
 
 }
+
+/* =========================
+   全体を少し小さく
+========================= */
+
+.wrap{
+    zoom: 0.88;
+}
+
+/* =========================
+   メインカード
+========================= */
+
+.max-w-5xl{
+    max-width: 1100px !important;
+}
+
+/* =========================
+   タイトル
+========================= */
+
+.text-4xl{
+    font-size: 2rem !important;
+}
+
+.text-xl{
+    font-size: 1.1rem !important;
+}
+
+.text-lg{
+    font-size: 1rem !important;
+}
+
+/* =========================
+   キンクラカラー
+========================= */
+
+.text-blue-600{
+    color:#e57373 !important;
+}
+
+.text-blue-500{
+    color:#ef9a9a !important;
+}
+
+.bg-blue-50{
+    background:#fff5f5 !important;
+}
+
+.bg-blue-100{
+    background:#ffe5e5 !important;
+}
+
+.border-blue-100{
+    border-color:#ffd0d0 !important;
+}
+
+.border-blue-500{
+    border-color:#ef9a9a !important;
+}
+
+/* =========================
+   ボタン
+========================= */
+
+.bg-blue-600{
+    background:#ef9a9a !important;
+}
+
+.bg-blue-600:hover{
+    background:#e57373 !important;
+}
+
+.hover\:bg-blue-700:hover{
+    background:#e57373 !important;
+}
+
+/* =========================
+   カレンダー
+========================= */
+
+.min-h-\[120px\]{
+    min-height:90px !important;
+}
+
+.text-lg.md\:text-xl{
+    font-size:16px !important;
+}
+
+.border-black{
+    border-color:#f3c1c1 !important;
+}
+
+.border-2.border-black{
+    border-width:1px !important;
+}
+
+/* =========================
+   出勤日
+========================= */
+
+.bg-emerald-100{
+    background:#ffe8e8 !important;
+}
+
+.bg-emerald-600{
+    background:#e57373 !important;
+}
+
+/* =========================
+   日曜日
+========================= */
+
+.bg-rose-100{
+    background:#fff0f0 !important;
+}
+
+.text-rose-600{
+    color:#e57373 !important;
+}
+
+/* =========================
+   土曜日
+========================= */
+
+.bg-blue-200{
+    background:#fff7f7 !important;
+}
+
+.text-blue-600{
+    color:#e57373 !important;
+}
+
+/* =========================
+   一括登録エリア
+========================= */
+
+.bg-slate-50{
+    background:#fffafa !important;
+}
+
+.bg-slate-100{
+    background:#fff5f5 !important;
+}
+
+.border-slate-400{
+    border-color:#f0caca !important;
+}
+
+.border-slate-300{
+    border-color:#f0d5d5 !important;
+}
+
+/* =========================
+   登録済みシフト一覧
+========================= */
+
+.bg-slate-600{
+    background:#f6dede !important;
+}
+
+.text-slate-800{
+    color:#444 !important;
+}
+
+.text-slate-700{
+    color:#555 !important;
+}

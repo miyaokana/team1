@@ -13,9 +13,16 @@
     <div class="user-menu">
 
         <button class="user-btn" onclick="toggleMenu()">
-            {{ Auth::user()->user_name ?? Auth::user()->email }}
+
+            @auth
+                {{ Auth::user()->user_name ?? Auth::user()->email }}
+            @else
+                ゲスト
+            @endauth
+
         </button>
 
+        @auth
         <div id="userDropdown" class="dropdown-menu">
 
             <a href="#">
@@ -31,6 +38,7 @@
             </a>
 
         </div>
+        @endauth
 
     </div>
 
@@ -39,6 +47,8 @@
 <script>
 function toggleMenu() {
     const menu = document.getElementById('userDropdown');
+
+    if (!menu) return;
 
     if (menu.style.display === 'block') {
         menu.style.display = 'none';

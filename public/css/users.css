@@ -50,3 +50,37 @@ a.btn {
     color: white;
     text-decoration: none;
 }
+.top-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    background:#ff6b6b;
+    padding:30px 40px;
+}
+
+.top-bar h1{
+    margin:0;
+    color:#fff;
+}
+
+.back-btn,
+.back-btn:link,
+.back-btn:visited{
+    color:#fff;
+    text-decoration:none;
+
+    background:#6b7280;
+    padding:10px 16px;
+    border-radius:8px;
+
+    font-size:14px;
+    font-weight:600;
+
+    display:inline-block;
+}
+
+.back-btn:hover{
+    background:#4b5563;
+    color:#fff;
+}
