@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\Admin\RequestController;
 
 // トップ
 Route::get('/', function () {
@@ -43,3 +44,9 @@ Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
 //シフト
 Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');
 Route::post('/shifts/store', [ShiftController::class, 'store'])->name('shifts.store');
+
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
+    
+    Route::post('/requests/{type}/{id}/status', [RequestController::class, 'updateStatus'])->name('requests.status');
+});
