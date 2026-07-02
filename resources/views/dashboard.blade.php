@@ -20,7 +20,7 @@
 
     <div class="wrap">
 
-        <!-- システム通知 -->
+        <!--  システム通知  -->
         <div class="notice-wide">
 
             <div class="notice-left">
