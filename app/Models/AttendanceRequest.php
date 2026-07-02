@@ -16,7 +16,7 @@ class AttendanceRequest extends Model
         'reason',
         'status',
         'approver_id',
-        'approver_at',
+        'approved_at',
         'admin_comment',
     ];
 
