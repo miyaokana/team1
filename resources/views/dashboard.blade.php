@@ -8,32 +8,35 @@
 <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
 <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}">
 <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+<link rel="stylesheet" href="{{ asset('css/header.css') }}">
 </head>
-
 <body>
+
+@include('layouts.header')
 
 <div class="layout">
 
-    <!-- ✅ サイドバー -->
     @include('layouts.sidebar')
 
-    <!-- ✅ メイン -->
     <div class="wrap">
 
-        <!-- ✅ ★ここに移動（←これが修正ポイント） -->
-        <div class="top-bar">
-            <div class="notice-btn">
-                お知らせ <span class="count">1</span>
-            </div>
-        </div>
-
-        <!-- ✅ ★ここも移動 -->
+        <!-- システム通知 -->
         <div class="notice-wide">
+
             <div class="notice-left">
+
                 <span class="badge">システム通知</span>
-                「遅刻」発生通知（6月30日）
+
+                @if(isset($notices) && $notices->count())
+                    {{ $notices->first()->title }}
+                @else
+                    現在お知らせはありません
+                @endif
+
             </div>
+
             <span class="confirm">確認</span>
+
         </div>
 
         @php
@@ -43,9 +46,10 @@
         $notIn = $status === '未出勤';
         @endphp
 
-        <!-- ✅ メインカード -->
         <div class="card">
+        <!-- ✅ メインカード -->
 
+        
             <div class="shape s1"></div>
             <div class="shape s2"></div>
             <div class="shape s3"></div>
@@ -68,9 +72,7 @@
                         <span class="sec">{{ now()->format('s') }}</span>
                     </div>
 
-                    <div class="user">
-                        {{ Auth::user()->user_name ?? Auth::user()->email }}
-                    </div>
+
 
                     <div class="info">
                         <div>勤務地：本社</div>
@@ -142,11 +144,22 @@
 
                     <form action="{{ route('attendance.punch') }}" method="POST">
                         @csrf
-                        <input type="hidden" name="type" value="break_start">
-                        <button class="sub-btn {{ !$isWorking ? 'inactive' : '' }}"
-                            {{ $isWorking ? '' : 'disabled' }}>
-                            休憩開始
-                        </button>
+
+                        @if($isBreak)
+                            <input type="hidden" name="type" value="break_end">
+
+                            <button class="sub-btn">
+                                休憩終了
+                            </button>
+                        @else
+                            <input type="hidden" name="type" value="break_start">
+
+                            <button class="sub-btn {{ !$isWorking ? 'inactive' : '' }}"
+                                {{ $isWorking ? '' : 'disabled' }}>
+                                休憩開始
+                            </button>
+                        @endif
+
                     </form>
 
                     <div class="bottom-btns">
@@ -159,7 +172,8 @@
             </div>
         </div>
 
-        <div class="history">
+        
+        <div class="history-card">
             <h3>打刻履歴</h3>
 
             <div class="history-item">

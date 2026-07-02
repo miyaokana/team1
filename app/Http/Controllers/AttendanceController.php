@@ -7,6 +7,7 @@ use App\Models\Shift;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Notice;
 
 class AttendanceController extends Controller
 {
@@ -16,10 +17,14 @@ class AttendanceController extends Controller
         $attendance = Attendance::where('user_id', Auth::id())
             ->where('work_date', today())
             ->first();
+
+        $notices = Notice::latest()->get();
+
         return view('dashboard', [
             'attendance'  => $attendance,
             'status'      => $this->resolveStatus($attendance),
             'workMinutes' => $this->workMinutes($attendance),
+            'notices'     => $notices,
         ]);
     }
 

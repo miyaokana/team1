@@ -4,14 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>各種申請(遅刻・早退・残業)</title>
+    <title>各種申請(遅刻・早退・欠勤)</title>
+
+    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/attendance-request.css') }}">
 </head>
 
 <body>
-    <div class="layout">
-        @include('layouts.sidebar')
+
+@include('layouts.header')
+
+<div class="layout">
+
+    @include('layouts.sidebar')
 
         <div class="wrap">
+
             <h1>各種申請(遅刻・早退・欠勤)</h1>
 
             <!-- 送信完了メッセージ -->

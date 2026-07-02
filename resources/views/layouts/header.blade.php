@@ -1,27 +1,68 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>勤怠システム</title>
+<header class="header">
 
-    <!-- 共通CSS -->
-    <link rel="stylesheet" href="{{ asset('css/common.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
-</head>
-<body>
+    <div class="header-left">
+        <a href="{{ route('notices.index') }}" class="notice-link">
+            お知らせ
 
-<header>
-    <h1>🍨 勤怠管理システム 🍭</h1>
+            <span class="count">
+                {{ isset($notices) ? $notices->count() : 0 }}
+            </span>
+        </a>
+    </div>
 
-    @if(auth()->check())
-    <nav>
-        <a href="/dashboard">ダッシュボード</a>
+    <div class="user-menu">
 
-        @if(auth()->user()->role == 1)
-            <a href="/admin/users">管理画面</a>
-        @endif
+        <button class="user-btn" onclick="toggleMenu()">
 
-        <a href="/logout">ログアウト</a>
-    </nav>
-    @endif
+            @auth
+                {{ Auth::user()->user_name ?? Auth::user()->email }}
+            @else
+                ゲスト
+            @endauth
+
+        </button>
+
+        @auth
+        <div id="userDropdown" class="dropdown-menu">
+
+            <a href="#">
+                メール通知設定
+            </a>
+
+            <a href="#">
+                パスワード変更
+            </a>
+
+            <a href="{{ route('logout') }}">
+                ログアウト
+            </a>
+
+        </div>
+        @endauth
+
+    </div>
+
 </header>
+
+<script>
+function toggleMenu() {
+    const menu = document.getElementById('userDropdown');
+
+    if (!menu) return;
+
+    if (menu.style.display === 'block') {
+        menu.style.display = 'none';
+    } else {
+        menu.style.display = 'block';
+    }
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.user-menu')) {
+        const menu = document.getElementById('userDropdown');
+        if(menu){
+            menu.style.display = 'none';
+        }
+    }
+});
+</script>
