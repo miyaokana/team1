@@ -11,6 +11,10 @@
 
     <header class="top-bar">
         <h1>ギンクラ 管理画面</h1>
+
+        <a href="{{ route('login') }}" class="back-btn">
+            ログイン画面へ戻る
+        </a>
     </header>
 
     <div class="container">
