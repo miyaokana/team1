@@ -22,6 +22,7 @@ body {
     margin-bottom: 5px;
 }
 
+
 /* ボタン */
 .notice-btn {
     display: inline-flex;
@@ -30,6 +31,8 @@ body {
     font-size: 14px;
     color: #00bcd4;
     cursor: pointer;
+    text-decoration: none;
+    color:  #e57373;
 }
 
 .count {
@@ -74,21 +77,88 @@ body {
     cursor: pointer;
 }
 
-/* ===== 中央コンテンツ（ここが重要） ===== */
+/* ===== 中央コンテンツ ===== */
+
+/* ===== 中央コンテンツ ===== */
 .card,
 .history {
     width: 100%;
-    max-width: 800px;   /* ←ここでカードを細くする */
-    margin: 0 auto;     /* ←中央に来る */
+
+    max-width: 850px;
+
+    margin-left: auto;
+    margin-right: auto;
+
+
+    box-sizing: border-box;
 }
 
-/* ===== カード ===== */
 .card {
     position: relative;
     background: white;
     padding: 30px;
     border-radius: 12px;
     overflow: hidden;
+}
+
+.history {
+    margin-top: 30px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+/* =========================
+   打刻履歴カード
+========================= */
+
+.history-card{
+    max-width: 790px;
+    margin-left: auto;
+    margin-right: auto; /* ← 24pxから60pxへ変更 */
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,.05);
+
+    
+    margin-top: 60px;
+    min-height: 320px;   /* カードの高さを合わせる */
+
+    padding: 30px;
+    border-radius: 12px; /* 上のカードに合わせる
+
+}
+
+
+.history-card h3{
+    margin-bottom: 24px;
+    font-size: 24px;   /* 32px → 24px */
+    font-weight: 700;
+}
+
+.history-item{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    font-size: 16px;   /* 20px → 16px */
+}
+
+.history-item:last-child{
+    margin-bottom: 0;
+}
+
+.history-item .tag{
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #fde8e8;
+    color: #7f1d1d;
+    text-align: center;
+    font-weight: 700;
+    
+    min-width: 70px;
+    padding: 8px 12px;
+    font-size: 14px;
+
 }
 
 /* ===== 背景アニメ ===== */
@@ -304,12 +374,7 @@ input:checked + .slider:before {
     border-radius: 5px;
 }
 
-.top-bar {
-    width: 100%;
-    max-width: none;   /* ←制限外す */
-    margin: 0;         /* ←中央解除 */
-    padding-left: 0;   /* ←左ピタ */
-}
+
 
 .notice-wide {
     padding: 8px 16px;   /* ←高さ小さく（今より半分くらい） */
@@ -319,3 +384,5 @@ input:checked + .slider:before {
     padding: 2px 6px;  /* ←少し小さくsuru */
     font-size: 12px;
 }
+
+

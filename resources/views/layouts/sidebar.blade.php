@@ -2,6 +2,7 @@
 
     <!-- 上ロゴ -->
     <div class="logo"></div>
+    <hr>
 
     <ul class="sidebar-menu">
 

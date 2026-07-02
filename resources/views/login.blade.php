@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>ログイン</title>
-<link rel="stylesheet" href="css/form.css">
+<link rel="stylesheet" href="{{ asset('css/form.css') }}">
 </head>
 
 <body>
@@ -26,21 +26,46 @@
             <p class="subtitle">ログイン</p>
         </div>
 
-        <!-- ✅ フォーム正しく -->
-        <form action="/login" method="POST">
+        <!-- ✅ エラーメッセージ -->
+        @if ($errors->any())
+        <div class="error-box">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        <!-- ✅ 成功メッセージ -->
+        @if (session('status'))
+        <div class="success-box">
+            {{ session('status') }}
+        </div>
+        @endif
+
+        <!-- ✅ フォーム（修正済み） -->
+        <form action="{{ route('login') }}" method="POST">
         @csrf
 
         <div class="form-group">
             <label>メールアドレス</label>
-            <input type="email" name="email" placeholder="メールアドレスを入力">
+            <input type="email" name="email"
+                   value="{{ old('email') }}"
+                   placeholder="メールアドレスを入力">
         </div>
 
         <div class="form-group">
             <label>パスワード</label>
-            <div class="password-box">
-                <input type="password" name="password" placeholder="パスワードを入力">
-                <span class="eye">👁</span>
-            </div>
+        <div class="password-box">
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="パスワードを入力">
+
+            <span class="eye" id="togglePassword">👁</span>
+        </div>
         </div>
 
         <label class="checkbox">
@@ -51,16 +76,24 @@
 
         <button type="submit">ログイン</button>
 
-        <a href="#" class="link">パスワードを忘れた場合はこちら</a>
+        <!-- ✅ パスワード忘れ -->
+        <a href="{{ route('password.request') }}" class="link">
+            パスワードを忘れた場合はこちら
+        </a>
 
-        <div class="google-btn">
+        <!-- ✅ Google -->
+        <a href="{{ route('google.login') }}" class="google-btn">
             <img src="https://developers.google.com/identity/images/g-logo.png">
             <span>Sign in with Google</span>
-        </div>
+        </a>
+        
 
-        <a href="#" class="link">アカウント作成はこちら</a>
+        <!-- ✅ 登録リンク（修正済み） -->
+        <a href="{{ route('register') }}" class="link">
+            アカウント作成はこちら
+        </a>
 
-    </form>
+        </form>
 
     </div>
 
@@ -69,6 +102,21 @@
     </footer>
 
 </div>
+<script>
+document.getElementById('togglePassword').addEventListener('click', function () {
+
+    const password = document.getElementById('password');
+
+    if (password.type === 'password') {
+        password.type = 'text';
+        this.textContent = '🙈';
+    } else {
+        password.type = 'password';
+        this.textContent = '👁';
+    }
+});
+</script>
+
 
 </body>
 </html>
