@@ -6,6 +6,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\Admin\RequestController;
+use App\Http\Controllers\AttendanceRequestController;
+use App\Models\AttendanceRequest;
 
 // トップ
 Route::get('/', function () {
@@ -50,3 +52,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     
     Route::post('/requests/{type}/{id}/status', [RequestController::class, 'updateStatus'])->name('requests.status');
 });
+// 各種申請
+Route::get('/attendance-requests', [AttendanceRequestController::class, 'index'])->name('attedance_requests.index');
+Route::post('/attendance-requests', [AttendanceRequestController::class, 'store'])->name('attedance_requests.store');

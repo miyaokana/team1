@@ -89,12 +89,52 @@ class AttendanceController extends Controller
                 'shift' => $shift,
                 'workMinutes' => $this->workMinutes($attendance),
                 'state' => $this->dayState($attendance, $shift),
+                'diff' => $this->calcDiff($attendance, $shift),
             ]);
         }
 
         return view('attendance.history', [
             'rows' => $rows,
         ]);
+    }
+
+    // 予定と実績の差分(遅刻・早退・残業)を分単位で計算する。
+    // 予定と出退勤が揃っていない項目はnull 判定しない
+    private function calcDiff(?Attendance $a, $shift): array 
+    {
+        $late = null;       // 遅刻(分)
+        $early = null;      // 早退(分)
+        $overtime = null;    // 残業(分)
+
+        // 予定がない、または出退勤がなければ差分はださない。
+        if (!$shift || !$a) {
+            return ['late' => null, 'early' => null, 'overtime' => null];
+        }
+
+        // 秒を切り捨てて「分」比較するためのヘルパ
+        $toMin = fn ($dt) => Carbon::parse($dt)->startOfMinute();
+
+        // 遅刻:実際の出勤 > 予定開始
+        if ($a -> check_in) {
+            $planStart = $toMin($shift->start_time);
+            $realIn = $toMin($a->check_in);
+            if ($realIn -> gt($planStart)) {
+                $late = (int) abs($planStart->diffInMinutes($realIn));
+            }
+        }
+
+        // 早退・残業:退勤が予定終了より前なら早退、あとなら残業
+        if ($a->check_out) {
+            $planEnd = $toMin($shift->end_time);
+            $realOut = $toMin($a->check_out);
+            if ($realOut->lt($planEnd)) {
+                $early = (int) abs($planEnd->diffInMinutes($realOut));
+            } elseif ($realOut->gt($planEnd)) {
+                $overtime = (int) abs($realOut->diffInMinutes($planEnd));
+            }
+        }
+
+        return ['late' => $late, 'early' => $early, 'overtime' => $overtime];
     }
 
     // その日の状態を判定する(欠勤/未打刻/勤務中/退勤済み/予定外)
