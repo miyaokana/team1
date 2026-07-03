@@ -26,14 +26,9 @@
             <p class="subtitle">ログイン</p>
         </div>
 
-        <!-- ✅ エラーメッセージ -->
-        @if ($errors->any())
+       @if ($errors->has('login'))
         <div class="error-box">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+            {{ $errors->first('login') }}
         </div>
         @endif
 

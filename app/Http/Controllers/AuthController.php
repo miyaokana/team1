@@ -57,7 +57,9 @@ class AuthController extends Controller
             return redirect('/dashboard');
         }
 
-        return back()->with('error', 'メールアドレスまたはパスワードが違います');
+        return back()->withErrors([
+            'login' => 'メールアドレスまたはパスワードが違います'
+        ])->onlyInput('email');
     }
 
     // ログアウト
