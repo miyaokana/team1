@@ -2,6 +2,7 @@
 
     <!-- 上ロゴ -->
     <div class="logo"></div>
+    <hr>
 
     <ul class="sidebar-menu">
 
@@ -19,17 +20,17 @@
          </a>
       </li>
 
-      <li class="disabled">
-         <a href="#" title="勤務表">
+      <li class="{{ request()->routeIs('attendance_requests.index') ? 'active' : '' }}">
+         <a href="{{ route('attendance_requests.index') }}" title="各種申請">
             <span class="icon">📋</span>
-            <span class="text">勤務表</span>
+            <span class="text">各種申請</span>
          </a>
       </li>
 
       <li class="{{ request()->routeIs('attendance.history') ? 'active' : '' }}">
          <a href="{{ route('attendance.history') }}" title="打刻履歴">
             <span class="icon">🕒</span>
-            <span class="text">打刻履歴</span>
+            <span class="text">勤怠表</span>
          </a>
       </li>
 

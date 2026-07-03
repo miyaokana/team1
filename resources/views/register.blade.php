@@ -1,5 +1,3 @@
-@include('layouts.header')
-
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/form.css') }}">
 @endsection

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash; // ✅ これ追加
+use Laravel\Socialite\Facades\Socialite;
+
 
 class AuthController extends Controller
 {
@@ -14,6 +16,8 @@ class AuthController extends Controller
     {
         return view('register');
     }
+
+    
 
     // ✅ 登録処理（ここ修正）
     public function register(Request $request)
@@ -65,5 +69,26 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/login');
+    }
+
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+    public function handleGoogleCallback()
+{
+    $googleUser = Socialite::driver('google')->user();
+
+    $user = User::firstOrCreate(
+        ['email' => $googleUser->email],
+        [
+            'user_name' => $googleUser->name,
+            'password' => bcrypt(Str::random(20)),
+        ]
+    );
+
+    Auth::login($user);
+
+    return redirect()->route('dashboard');
     }
 }
