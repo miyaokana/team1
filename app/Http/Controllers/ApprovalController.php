@@ -63,21 +63,40 @@ class ApprovalController extends Controller
 
         if ($type === 'attendance'
             && $validated['status'] === 'approved'
-            && $model->type === 'late'
-            && $model->request_time) {
+            && $model->request_time
+            && in_array($model->type, ['late', 'early_leave'], true)) {
 
-            // 対象日のレコードを取得。無ければ作成(押し忘れの場合ないから)
             $attendance = Attendance::firstOrCreate([
-                'user_id' => $model -> user_id,
-                'work_date' => $model -> target_date -> format('Y-m-d',)
+                'user_id' => $model->user_id,
+                'work_date' => $model->target_date->format('Y-m-d'),
             ]);
 
-            // 対象日 ＋ 申請時刻を結合してcheck_in にセット
-            $newCheckIn = Carbon::parse(
-                $model -> target_date -> format('Y-m-d') . ' ' . $model -> request_time
+            $newTime = Carbon::parse(
+                $model->target_date->format('Y-m-d') . ' ' . $model->request_time
             );
-            $attendance->check_in = $newCheckIn;
-            $attendance->save();
+
+            // 遅刻・早退の時だけ反映(欠勤はここでは扱わない)
+            if (in_array($model->type, ['late', 'early_leave'], true)){
+
+                // 対象日のレコードを取得。無ければ作成(押し忘れの場合ないから)
+                $attendance = Attendance::firstOrCreate([
+                    'user_id' => $model -> user_id,
+                    'work_date' => $model -> target_date -> format('Y-m-d',)
+                ]);
+
+                // 対象日 ＋ 申請時刻を結合してcheck_in にセット
+                $newTime = Carbon::parse(
+                    $model -> target_date -> format('Y-m-d') . ' ' . $model -> request_time
+                );
+
+                if ($model->type === 'late') {
+                    $attendance->check_in = $newTime;
+                } else {
+                    $attendance->check_out = $newTime;
+                }
+
+                $attendance->save();
+            }
         }
 
         $label = $validated['status'] === 'approved' ? '承認' : '差し戻し';

@@ -34,18 +34,23 @@ class AttendanceController extends Controller
         $validated = $request->validate([
             'type' => 'required|in:check_in,check_out,break_start,break_end',
         ]);
+
         $type = $validated['type'];
+
         // 当日のレコードを取得。無ければ作成
         $attendance = Attendance::firstOrCreate([
             'user_id'   => Auth::id(),
             'work_date' => today(),
         ]);
+
         // 打刻順の妥当性チェック。不正ならメッセージを返して中断
         if ($error = $this->validatePunch($type, $attendance)) {
             return back()->with('error', $error);
         }
+
         $attendance->{$type} = now();
         $attendance->save();
+
         $labels = [
             'check_in'    => '出勤',
             'check_out'   => '退勤',
@@ -73,6 +78,13 @@ class AttendanceController extends Controller
             ->where('shift_date', '>=', $from->format('Y-m-d'))
             ->get()
             ->keyBy(fn($s) => Carbon::parse($s->shift_date)->format('Y-m-d'));
+        
+        $approvedAbsences = \App\Models\AttendanceRequest::where('user_id', $userId)
+            ->where('type', 'absence')
+            ->where('status', 'approved')
+            ->where('target_date', '>=', $from->format('Y-m-d'))
+            ->get()
+            ->keyBy(fn ($r) => \Carbon\Carbon::parse($r->target_date)->format('Y-m-d'));
 
         // 各レコードに勤務時間(分)を持たせる。
         // 日付を軸に,新しい順で1日づつ組み立てる。
@@ -82,18 +94,19 @@ class AttendanceController extends Controller
 
             $attendance = $records->get($key);
             $shift = $shifts->get($key);
+            $isApprovedAbsence = $approvedAbsences -> has($key);
 
             // 予定も実績もない日は行をつくらない。
-            if (!$attendance && !$shift) {
+            if (!$attendance && !$shift && !$isApprovedAbsence) {
                 continue;
             }
 
-            $rows->push([
+            $rows->push([    
                 'date' => $date->copy(),
                 'record' => $attendance,
                 'shift' => $shift,
                 'workMinutes' => $this->workMinutes($attendance),
-                'state' => $this->dayState($attendance, $shift),
+                'state' => $this->dayState($attendance, $shift, $isApprovedAbsence),
                 'diff' => $this->calcDiff($attendance, $shift),
             ]);
         }
@@ -143,25 +156,27 @@ class AttendanceController extends Controller
     }
 
     // その日の状態を判定する(欠勤/未打刻/勤務中/退勤済み/予定外)
-    private function dayState(?Attendance $a, $shift): string
+    private function dayState(?Attendance $a, $shift, bool $isApprovedAbsence = false): string
     {
-        // シフトがあるのに打刻が全くない -> 欠勤
-        if ($shift && (!$a || !$a->check_in)) {
-            return '欠勤';
+        // 出勤打刻がない日
+        if (!$a || !$a->check_in){
+            // 承認済みの欠勤申請があれば[承認済み欠勤],なければ状況に応じて判断
+            if ($isApprovedAbsence){
+                return '承認済み欠勤';
+            }
+
+            // シフトがあるのに打刻も承認欠勤もなし -> 無断欠勤
+            if ($shift) {
+                return '無断欠勤';
+            }
+
+            // シフトも打刻もない日(そもそも勤務予定なし)
+            return '---';
         }
 
-        // 出勤したが退勤していない
-        if ($a && $a->check_in && !$a->check_out) {
-            return '勤務中';
-        }
-
-        // 出退勤揃っている
-        if ($a && $a->check_in && $a->check_out) {
-            return '退勤済み';
-        }
-
-        // シフトは無いが打刻はある等
-        return '-';
+        if ($a->check_out) return '退勤済み';
+        if ($a->break_start && !$a->break_end) return '休憩中';
+        return '勤務中';
     }
 
     // 打刻順の検証。問題があればエラーメッセージ、無ければ null
