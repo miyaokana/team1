@@ -10,9 +10,6 @@
     <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/shifts.css') }}">
-
-
 </head>
 
 
@@ -28,7 +25,7 @@
 
 
 
-    <div class="max-w-5xl mx-auto bg-white p-4 md:p-8 rounded-2xl shadow-sm border border-black">
+    <div class="max-w-5xl mx-auto bg-white p-4 md:p-8 rounded-2xl shadow-sm border border-rose-300">
         
         <div class="flex flex-col items-center text-center gap-2 mb-6 border-b border-slate-100 pb-5">
             <h1 class="text-4xl font-bold text-slate-900 tracking-tight">シフト一覧</h1>
@@ -36,24 +33,23 @@
         </div>
 
         {{-- 「月間切り替え」 --}}
-        <div class="mb-6 px-1 flex flex-col sm:flex-row sm:items-center justify-center gap-3 bg-slate-50 p-5 rounded-2xl border border-slate-100">
+        <div class="mb-6 px-1 flex flex-col sm:flex-row sm:items-center justify-center gap-3 bg-slate-50 p-5 rounded-2xl">
             <form method="GET" action="{{ route('shifts.shift') }}" id="viewForm" class="flex items-center justify-center gap-2 w-full">
                 @if(request('user_id'))
                     <input type="hidden" name="user_id" value="{{ request('user_id') }}">
                 @endif
                 
-                {{-- 💡 全体的にサイズアップ（h-14 / text-xl など） --}}
-                <div class="flex items-center bg-white border border-slate-300 rounded-2xl shadow-2xs overflow-hidden h-14 min-w-[280px]">
-                    {{-- ◀ 前の月ボタン（幅を広げて text-xl に） --}}
-                    <button type="button" onclick="changeMonth(-1)" class="w-14 h-full hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer font-bold border-r border-slate-200 text-xl flex items-center justify-center">
+                <div class="flex items-center bg-white border-2 border-black rounded-2xl shadow-2xs overflow-hidden h-14 min-w-[280px]">
+                    {{-- ◀ 前の月ボタン --}}
+                    <button type="button" onclick="changeMonth(-1)" class="w-14 h-full hover:bg-slate-50 text-black transition-colors cursor-pointer font-bold border-r-2 border-black text-xl flex items-center justify-center">
                         &lt;
                     </button>
                     
-                    {{-- 月選択インプット（フォントサイズを text-xl / 太字、左右の余白を多めに） --}}
+                    {{-- 月選択インプット --}}
                     <input type="month" name="month" id="monthInput" value="{{ $currentMonth->format('Y-m') }}" onchange="document.getElementById('viewForm').submit()" class="px-6 py-2 bg-transparent text-xl font-bold text-slate-800 focus:outline-none cursor-pointer tracking-wide text-center">
                     
-                    {{-- ▶ 次の月ボタン（幅を広げて text-xl に） --}}
-                    <button type="button" onclick="changeMonth(1)" class="w-14 h-full hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer font-bold border-l border-slate-200 text-xl flex items-center justify-center">
+                    {{-- ▶ 次の月ボタン --}}
+                    <button type="button" onclick="changeMonth(1)" class="w-14 h-full hover:bg-slate-50 text-black transition-colors cursor-pointer font-bold border-l-2 border-black text-xl flex items-center justify-center">
                         &gt;
                     </button>
                 </div>
@@ -82,7 +78,7 @@
         @endif
 
         <div class="mb-4 px-1 flex items-baseline gap-1.5">
-            <span class="text-xl font-bold text-blue-600">【{{ $selectedUser->user_name }} さん】</span>
+            <span class="text-xl font-bold text-rose-400">【{{ $selectedUser->user_name }} さん】</span>
         </div>
 
         <form method="POST" action="{{ route('shifts.store_bulk') }}">
@@ -90,39 +86,39 @@
             <input type="hidden" name="user_id" value="{{ $selectedUser->id }}">
             <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m') }}">
 
-            <div class="mb-6 p-6 bg-blue-50/50 border-2 border-black rounded-2xl flex flex-col gap-4">
+            <div class="mb-6 p-6 bg-blue-50/50 border-2 border-rose-400 rounded-2xl flex flex-col gap-4">
     
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-blue-100/60 pb-3">
                     <div class="flex items-center gap-2">
                         <span class="text-sm font-bold text-blue-700 bg-blue-100 px-3.5 py-1.5 rounded-md">一括設定</span>
-                        <p class="text-sm text-slate-600 font-medium">下にチェックを入れた日付にまとめて適用します</p>
                     </div>
         
                     <div class="flex items-center gap-2">
-                        <button type="button" onclick="toggleAllDates(true)" class="px-3.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-lg border border-slate-400 shadow-2xs transition-colors cursor-pointer">
+                        <button type="button" onclick="toggleAllDates(true)" class="px-3.5 py-1.5 bg-white hover:bg-slate-100 text-black text-sm font-semibold rounded-lg border border-black shadow-2xs transition-colors cursor-pointer">
                             全選択
                         </button>
-                        <button type="button" onclick="toggleWorkdayDates()" class="px-3.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-lg border border-slate-400 shadow-2xs transition-colors cursor-pointer">
+                        <button type="button" onclick="toggleWorkdayDates()" class="px-3.5 py-1.5 bg-white hover:bg-slate-100 text-black text-sm font-semibold rounded-lg border border-black shadow-2xs transition-colors cursor-pointer">
                             土日祝除くすべて
                         </button>
-                        <button type="button" onclick="toggleAllDates(false)" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold rounded-lg border border-slate-400 shadow-2xs transition-colors cursor-pointer">
+                        <button type="button" onclick="toggleAllDates(false)" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-black text-sm font-semibold rounded-lg border border-black shadow-2xs transition-colors cursor-pointer">
                             選択解除
                         </button>
                     </div>
+                    <p class="text-sm text-black font-medium">勤務先、勤務時間を設定してからチェックを入れた日付にまとめて適用します</p>
                 </div>
     
                 <div class="flex flex-wrap items-center justify-center gap-3">
-                    <div class="flex items-center gap-3 bg-white p-4 rounded-xl border border-slate-400 shadow-2xs w-full sm:w-auto justify-between sm:justify-start">
+                    <div class="flex items-center gap-3 bg-white p-4 rounded-xl border border-black shadow-2xs w-full sm:w-auto justify-between sm:justify-start">
                         <div class="flex items-center gap-1 text-sm">
                             <span class="text-base font-bold text-black">勤務先：</span>
-                            <select name="work_location_base" class="border border-slate-400 rounded-lg p-2 text-base font-medium bg-slate-50 focus:outline-none focus:border-blue-500">
+                            <select name="work_location_base" class="border border-black rounded-lg p-2 text-base text-black font-medium bg-slate-50 focus:outline-none focus:border-blue-500">
                                 <option value="本社" {{ old('work_location_base') === '本社' ? 'selected' : '' }}>本社</option>
                                 <option value="研修" {{ old('work_location_base') === '研修' ? 'selected' : '' }}>研修</option>
                                 <option value="常駐先" {{ old('work_location_base') === '常駐先' ? 'selected' : '' }}>常駐先</option>
                             </select>
                         </div>
                         <div class="flex items-center gap-1 text-sm">
-                            <select name="work_style" class="border border-slate-400 rounded-lg p-2 text-base font-medium bg-slate-50 focus:outline-none focus:border-blue-500">
+                            <select name="work_style" class="border border-black rounded-lg p-2 text-base text-black font-medium bg-slate-50 focus:outline-none focus:border-blue-500">
                                 <option value="出社" {{ old('work_style') === '出社' ? 'selected' : '' }}>出社</option>
                                 <option value="在宅" {{ old('work_style') === '在宅' ? 'selected' : '' }}>在宅</option>
                             </select>
@@ -130,7 +126,7 @@
 
                         <div class="flex items-center gap-1 text-sm">
                             <span class="text-base font-bold text-black">勤務時間：</span>
-                            <select name="bulk_start_hour" class="border border-slate-400 rounded-lg p-2 text-base font-mono bg-slate-50 focus:outline-none focus:border-blue-500">
+                            <select name="bulk_start_hour" class="border border-black rounded-lg p-2 text-lg text-black font-mono bg-slate-50 focus:outline-none focus:border-blue-500">
                                 @for ($hour = 9; $hour <= 23; $hour++)
                                     @foreach (['00', '30'] as $min)
                                         @php $time = sprintf('%02d:%s', $hour, $min); @endphp
@@ -142,7 +138,7 @@
 
                             <span class="text-sm font-bold text-black">～</span>
 
-                            <select name="bulk_end_hour" class="border border-slate-400 rounded-lg p-2 text-base font-mono bg-slate-50 focus:outline-none focus:border-blue-500">
+                            <select name="bulk_end_hour" class="border border-black rounded-lg p-2 text-lg text-black font-mono bg-slate-50 focus:outline-none focus:border-blue-500">
                                 @for ($hour = 9; $hour <= 23; $hour++)
                                     @foreach (['00', '30'] as $min)
                                         @php $time = sprintf('%02d:%s', $hour, $min); @endphp
@@ -168,7 +164,7 @@
                             <button type="submit" name="action" value="register" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors shadow-xs cursor-pointer">
                                 選択日に一括登録
                             </button>
-                            <button type="submit" name="action" value="delete" onclick="return confirm('選択した日付のシフトを削除します。よろしいですか？')" class="px-3 py-1.5 bg-slate-200 hover:bg-rose-300 hover:text-rose-600 text-slate-600 text-xs font-bold rounded-lg transition-colors border border-slate-400 hover:border-rose-200 cursor-pointer">
+                            <button type="submit" name="action" value="delete" onclick="return confirm('選択した日付のシフトを削除します。よろしいですか？')" class="px-3 py-1.5 bg-slate-200 hover:bg-rose-300 hover:text-rose-600 text-black text-xs font-bold rounded-lg transition-colors border border-black hover:border-rose-200 cursor-pointer">
                                 一括削除
                             </button>
                         </div>
@@ -189,7 +185,7 @@
                 }
             @endphp
 
-            <div class="border-2 border-black rounded-2xl overflow-hidden shadow-xs bg-white">
+            <div class="border-2 border-rose-400 rounded-2xl overflow-hidden shadow-xs bg-white">
                 <div class="grid grid-cols-7 bg-slate-50 text-center text-lg font-bold border-b-3 border-slate-400 py-2.5 text-green-600">
                     <button type="button" onclick="toggleDayOfWeek(0)" class="text-rose-500 hover:bg-rose-50 py-1 rounded cursor-pointer font-bold">日</button>
                     <button type="button" onclick="toggleDayOfWeek(1)" class="hover:bg-slate-200/60 py-1 rounded cursor-pointer font-bold">月</button>
@@ -218,10 +214,7 @@
                     @foreach($dates as $date)
                         @php
                             $formattedDate = $date->format('Y-m-d');
-
-                            // 💡 変更点：あらかじめ作った配列から直接 O(1) で高速取得
                             $shift = $mappedShifts[$formattedDate] ?? null;
-
                             $isHoliday = is_array($holidays) && in_array($formattedDate, $holidays); 
 
                             if ($date->isSunday() || $isHoliday) {
@@ -232,8 +225,14 @@
                                 $dateColor = 'text-green-600';
                             }
 
+                            // 💡 カレンダーのマス全体の背景色判定（シフトがある日は在宅・出社で色分け）
                             if ($shift) {
-                                $boxBg = 'bg-emerald-100 hover:bg-emerald-200/70'; 
+                                $locationStr = $shift->work_location ?? '';
+                                if (str_contains($locationStr, '在宅')) {
+                                    $boxBg = 'bg-emerald-50 hover:bg-emerald-100/80'; // 🏠在宅の日は薄い緑
+                                } else {
+                                    $boxBg = 'bg-emerald-50 hover:bg-emerald-100/80';  // 🏢出社の日は薄い黄
+                                }
                             } elseif ($date->isSunday() || $isHoliday) {
                                 $boxBg = 'bg-rose-100 hover:bg-rose-200/70';    
                             } elseif ($date->isSaturday()) {
@@ -257,12 +256,22 @@
 
                             <div class="mt-2 w-full text-center">
                                 @if($shift)
+                                    @php
+                                        $locationStr = $shift->work_location ?? '';
+                                        if (str_contains($locationStr, '在宅')) {
+                                            $badgeClass = 'bg-emerald-500 text-white';
+                                            $locTextClass = 'text-emerald-700 bg-white';
+                                        } else {
+                                            $badgeClass = 'bg-emerald-500 text-white';
+                                            $locTextClass = 'text-emerald-700 bg-white';
+                                        }
+                                    @endphp
                                     <div class="flex flex-col items-center gap-1.5 py-1 w-full">
-                                        <span class="inline-flex px-2 py-0.5 bg-emerald-600 text-white text-xs font-extrabold rounded shadow-2xs tracking-wider">
+                                        <span class="inline-flex px-2 py-0.5 {{ $badgeClass }} text-xs font-extrabold rounded shadow-2xs tracking-wider">
                                             出勤
                                         </span>
                                         @if(!empty($shift->work_location))
-                                            <span class="text-xs md:text-sm text-blue-800 font-extrabold bg-blue-50/80 px-1.5 py-0.5 rounded text-center block max-w-full truncate">
+                                            <span class="text-xs md:text-sm {{ $locTextClass }} font-extrabold px-1.5 py-0.5 rounded text-center block max-w-full truncate">
                                                 {{ $shift->work_location }}
                                             </span>
                                         @endif
@@ -271,7 +280,7 @@
                                         </span>
                                     </div>
                                 @else
-                                    <span class="text-[15px] text-black block py-2 select-none">未登録</span>
+                                    <span class="text-[15px] text-black block py-2 select-none tracking-tighter">未登録</span>
                                 @endif
                             </div>
                         </div>
@@ -315,11 +324,11 @@
             }
         @endphp
         <div class="mt-6 grid grid-cols-2 gap-4">
-            <div class="bg-slate-50 p-4 rounded-xl border border-black flex flex-col justify-center">
+            <div class="bg-slate-50 p-4 rounded-xl border-2 border-rose-400 flex flex-col justify-center">
                 <span class="text-xs font-medium text-black mb-1">当月合計出勤日数</span>
-                <div class="flex items-baseline gap-1"><span class="text-2xl font-bold text-slate-900">{{ $totalDays }}</span><span class="text-sm text-black font-medium">日</span></div>
+                <div class="flex items-baseline gap-1"><span class="text-2xl font-bold text-blue-600">{{ $totalDays }}</span><span class="text-sm text-black font-medium">日</span></div>
             </div>
-            <div class="bg-slate-50 p-4 rounded-xl border border-black flex flex-col justify-center">
+            <div class="bg-slate-50 p-4 rounded-xl border-2 border-rose-400 flex flex-col justify-center">
                 <span class="text-xs font-medium text-black mb-1">当月合計勤務時間</span>
                 <div class="flex items-baseline gap-1"><span class="text-2xl font-bold text-blue-600">{{ $totalHours }}</span><span class="text-sm text-black font-medium">時間</span></div>
             </div>
@@ -328,25 +337,24 @@
         {{-- 登録済みシフトの詳細一覧テーブル --}}
         <div class="mt-8">
             <h2 class="text-xl font-bold text-slate-900 mb-3 px-1">📅 登録済みシフト詳細一覧</h2>
-            <div class="border-2 border-black rounded-2xl overflow-hidden bg-white shadow-xs">
+            <div class="border-2 border-rose-400 rounded-2xl overflow-hidden bg-white shadow-xs">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-100 border-b-2 border-black text-sm font-bold text-slate-700">
-                                <th class="p-3 border-r border-slate-400 text-center w-28">日付</th>
-                                <th class="p-3 border-r border-slate-400">勤務地</th>
-                                <th class="p-3 border-r border-slate-400 text-center w-36">出勤時間</th>
-                                <th class="p-3 border-r border-slate-400 text-center w-36">退勤時間</th>
-                                <th class="p-3 border-r border-slate-400 text-center w-24">休憩時間</th>
+                            <tr class="bg-rose-100 border-b-2 border-rose-300 text-base font-bold text-slate-700">
+                                <th class="p-3 border-r border-rose-300 text-center w-28">日付</th>
+                                <th class="p-3 border-r border-rose-300">勤務地</th>
+                                <th class="p-3 border-r border-rose-300 text-center w-36">出勤時間</th>
+                                <th class="p-3 border-r border-rose-300 text-center w-36">退勤時間</th>
+                                <th class="p-3 border-r border-rose-300 text-center w-24">休憩時間</th>
                                 <th class="p-3 text-center w-28">勤務時間</th>
                             </tr>
                         </thead>
                         <tbody class="text-sm font-medium text-slate-800">
                             @if($shifts && $shifts->count() > 0)
                                 @php
-                                    // シフトを日付順に並び替え
                                     $sortedShifts = $shifts->sortBy('shift_date');
-                                    $currentWeekId = null; // 現在処理中の週の識別番号
+                                    $currentWeekId = null; 
                                 @endphp
 
                                 @foreach($sortedShifts as $s)
@@ -355,12 +363,20 @@
                                         $weeks = ['日', '月', '火', '水', '木', '金', '土'];
                                         $dow = $weeks[$dateObj->dayOfWeek];
                                         
-                                        // 曜日ごとのカラー設定
+                                        // 💡 テーブル一覧の「出社/在宅」による背景色・テキスト色の動的判定
+                                        $locationStrTable = $s->work_location ?? '';
+                                        if (str_contains($locationStrTable, '在宅')) {
+                                            $rowBgStyle = 'bg-emerald-50/60 hover:bg-emerald-100/70';
+                                            $locationBadgeStyle = 'text-emerald-700';
+                                        } else {
+                                            $rowBgStyle = $loop->odd ? 'bg-white hover:bg-amber-50/40' : 'bg-amber-50/20 hover:bg-amber-100/40';
+                                            $locationBadgeStyle = 'text-amber-700';
+                                        }
+
                                         if ($dateObj->isSunday()) { $bgAndColor = 'text-rose-600 bg-rose-50/50'; }
                                         elseif ($dateObj->isSaturday()) { $bgAndColor = 'text-blue-600 bg-blue-50/50'; }
                                         else { $bgAndColor = 'text-slate-800'; }
 
-                                        // 時間計算ロジック
                                         $start = \Carbon\Carbon::parse($s->start_time);
                                         $end = \Carbon\Carbon::parse($s->end_time);
                                         $isNextDay = $end->lt($start);
@@ -377,47 +393,40 @@
                                         $restHours = ($diffInHours >= 6) ? 1 : 0;
                                         $workHours = $diffInHours - $restHours;
 
-                                        // 💡 【ここを月曜始まりに変更】
-                                        // その日が含まれる週の「月曜日」の日付を基準（Week ID）にします
                                         $thisWeekId = $dateObj->copy()->startOfWeek(\Carbon\Carbon::MONDAY)->format('Y-m-d');
-                                        
-                                        // 前の行と「週のアタマ（月曜日）」の日付が変わったら区切りを入れる
                                         $isNewWeek = ($currentWeekId !== null && $currentWeekId !== $thisWeekId);
-                                        
-                                        // 現在の週IDを更新
                                         $currentWeekId = $thisWeekId;
                                     @endphp
 
-                                    {{-- 週が変わるタイミングで、空白の区切り行を挟む --}}
                                     @if($isNewWeek)
-                                        <tr class="bg-slate-600 h-4 border-y border-slate-300">
+                                        <tr class="bg-rose-100 h-4 border-y border-rose-200">
                                             <td colspan="6" class="p-0 text-[1px] leading-none select-none">&nbsp;</td>
                                         </tr>
                                     @endif
 
-                                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-400">
+                                    <tr class="transition-colors border-b border-rose-300">
                                         {{-- 日付 --}}
-                                        <td class="p-3 border-r border-slate-400 text-center font-bold {{ $bgAndColor }}">
+                                        <td class="p-3 border-r border-rose-300 text-center font-bold text-base {{ $bgAndColor }}">
                                             {{ $dateObj->format('m/d') }}（{{ $dow }}）
                                         </td>
                                         {{-- 勤務地 --}}
-                                        <td class="p-3 border-r border-slate-400 font-semibold text-slate-700">
+                                        <td class="p-3 border-r border-rose-300 font-extrabold text-base text-slate-800">
                                             {{ $s->work_location ?? '未設定' }}
                                         </td>
                                         {{-- 出勤時間 --}}
-                                        <td class="p-3 border-r border-slate-400 text-center font-mono font-bold text-slate-700">
+                                        <td class="p-3 border-r border-rose-300 text-center font-mono font-bold text-slate-700 text-lg">
                                             {{ $start->format('H:i') }}
                                         </td>
                                         {{-- 退勤時間 --}}
-                                        <td class="p-3 border-r border-slate-400 text-center font-mono font-bold {{ $isNextDay ? 'text-amber-600' : 'text-slate-700' }}">
+                                        <td class="p-3 border-r border-rose-300 text-center font-mono font-bold text-lg {{ $isNextDay ? 'text-amber-600' : 'text-slate-700' }}">
                                             {{ $endDisp }}
                                         </td>
                                         {{-- 休憩時間 --}}
-                                        <td class="p-3 border-r border-slate-400 text-center font-semibold text-slate-500">
+                                        <td class="p-3 border-r border-rose-300 text-center font-semibold text-slate-500 text-base">
                                             {{ $restHours }} 時間
                                         </td>
                                         {{-- 勤務時間 --}}
-                                        <td class="p-3 text-center font-extrabold text-blue-600 bg-blue-50/20">
+                                        <td class="p-3 text-center font-black text-blue-600 bg-amber-50/50 text-base">
                                             {{ $workHours }} 時間
                                         </td>
                                     </tr>
@@ -440,22 +449,16 @@
 </div>
 
     <script>
-        // 月を変更してフォームを送信する関数
         function changeMonth(offset) {
             const input = document.getElementById('monthInput');
             if (!input.value) return;
 
-            // 現在選択されている「年」と「月」を取得
             let [year, month] = input.value.split('-').map(Number);
-            
-            // 月をずらす（JavaScriptのDateは月が0始まりなので 1 引いて計算）
             let date = new Date(year, month - 1 + offset, 1);
             
-            // 新しい「年-月」を YYYY-MM 形式に整形
             let newYear = date.getFullYear();
             let newMonth = String(date.getMonth() + 1).padStart(2, '0');
             
-            // 値を書き換えてフォームを送信
             input.value = `${newYear}-${newMonth}`;
             document.getElementById('viewForm').submit();
         }
@@ -489,7 +492,6 @@
                 cell.addEventListener('click', (e) => {
                     const checkbox = cell.querySelector('input[name="selected_dates[]"]');
                     if (!checkbox) return;
-                    // 💡 変更点：セルのクリックイベント除外対象に OPTION を追加して安定化
                     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.tagName === 'OPTION') {
                         return;
                     }

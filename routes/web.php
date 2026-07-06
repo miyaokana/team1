@@ -7,8 +7,11 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\Admin\RequestController;
 use App\Http\Controllers\AttendanceRequestController;
+use App\Http\Controllers\LeaveRequestController;
+use App\Http\Controllers\OvertimeRequestController;
 use App\Http\Controllers\AdminRequestController; 
 use App\Models\AttendanceRequest;
+use App\Models\OvertimeRequest;
 use App\Models\Notice;
 
 // トップ
@@ -27,9 +30,25 @@ Route::middleware('auth')->group(function () {
     // 打刻履歴
     Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
 
-    // 各種申請
+    // 打刻申請
     Route::get('/attendance-requests', [AttendanceRequestController::class, 'index'])->name('attendance_requests.index');
     Route::post('/attendance-requests', [AttendanceRequestController::class, 'store'])->name('attendance_requests.store');
+
+    // 残業申請
+    Route::get('/overtime-requests', [OvertimeRequestController::class, 'index'])->name('overtime_requests.index');
+    Route::post('/overtime-requests', [OvertimeRequestController::class, 'store'])->name('overtime_requests.store');
+
+    // 有給申請
+    Route::get('/leave-requests', [LeaveRequestController::class, 'index'])->name('leave_requests.index');
+    Route::post('/leave-requests', [LeaveRequestController::class, 'store'])->name('leave_requests.store');
+});
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/approvals', [\App\Http\Controllers\ApprovalController::class, 'index'])
+        ->name('approvals.index');
+        
+    Route::post('/approvals/{type}/{id}', [\App\Http\Controllers\ApprovalController::class, 'update'])
+        ->name('approvals.update');
 });
 
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
