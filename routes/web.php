@@ -5,7 +5,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\Admin\RequestController;
 use App\Http\Controllers\AttendanceRequestController;
+use App\Http\Controllers\AdminRequestController; 
 use App\Models\AttendanceRequest;
 use App\Models\Notice;
 
@@ -55,6 +57,14 @@ Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
 Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');
 Route::post('/shifts/store', [ShiftController::class, 'store'])->name('shifts.store');
 
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
+    
+    Route::post('/requests/{type}/{id}/status', [RequestController::class, 'updateStatus'])->name('requests.status');
+});
+
+Route::get('/attendance-requests', [AttendanceRequestController::class, 'index'])->name('attendance_requests.index');
+Route::post('/attendance-requests', [AttendanceRequestController::class, 'store'])->name('attendance_requests.store');
 Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])
     ->name('google.login');
 
