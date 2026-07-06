@@ -12,21 +12,29 @@ use App\Models\Notice;
 class AttendanceController extends Controller
 {
     // ダッシュボード表示（GET /dashboard）
-    public function dashboard()
-    {
-        $attendance = Attendance::where('user_id', Auth::id())
-            ->where('work_date', today())
-            ->first();
+public function dashboard()
+{
+    $attendance = Attendance::where('user_id', Auth::id())
+        ->where('work_date', today())
+        ->first();
 
-        $notices = Notice::latest()->get();
+    $notices = Notice::latest()->get();
+
+    $todayShift = Shift::where('user_id', Auth::id())
+    ->whereDate('shift_date', today())
+    ->first();
+
+    
+
 
         return view('dashboard', [
             'attendance'  => $attendance,
             'status'      => $this->resolveStatus($attendance),
             'workMinutes' => $this->workMinutes($attendance),
             'notices'     => $notices,
+            'todayShift'  => $todayShift,
         ]);
-    }
+}
 
     // 打刻（POST /attendance/punch）
     public function punch(Request $request)
@@ -229,4 +237,27 @@ class AttendanceController extends Controller
         }
         return max(0, $minutes);
     }
+public function updateLocation(Request $request)
+{
+    $request->validate([
+        'work_location' => 'required|in:本社,研修（出社）,常駐先（出社）',
+    ]);
+
+    $shift = Shift::where('user_id', Auth::id())
+        ->whereDate('shift_date', today())
+        ->first();
+
+    if ($shift) {
+
+        $shift->update([
+            'work_location' => $request->work_location,
+        ]);
+
+    }
+
+    return redirect()
+        ->route('dashboard')
+        ->with('success', '勤務地を変更しました');
+}
+
 }

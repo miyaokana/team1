@@ -96,3 +96,8 @@ Route::get('/reset-password/{email}', [PasswordResetController::class, 'showRese
 
 // ④ 実際にパスワードをDBにアップデートする処理（POST）
 Route::post('/reset-password', [PasswordResetController::class, 'updatePassword'])->name('password.update');
+
+Route::post(
+    '/shift/location',
+    [AttendanceController::class, 'updateLocation']
+)->name('shift.location.update');

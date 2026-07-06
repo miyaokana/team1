@@ -220,30 +220,91 @@ body {
 }
 
 /* ===== 勤務地 ===== */
-.loc-box {
-    background: #f3f4f6;
-    padding: 12px;
-    border-radius: 10px;
+.location{
+    margin-bottom: 20px;
+}
 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.loc-label{
+    display: block;
+    margin-bottom: 8px;
 
     font-size: 14px;
-    color: #555;
+    font-weight: 600;
+
+    color: #666;
 }
 
-.change-btn {
-    font-size: 13px;
-    color: #999;
-    cursor: pointer;
+.loc-box{
+
+    background: #f8f8f8;
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.change-btn:hover {
-    color: #e57373;
+.loc-box select{
+
+    flex: 1;
+
+    height: 42px;
+
+    padding: 0 12px;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+
+    background: white;
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition: .2s;
 }
 
+.loc-box select:focus{
+
+    border-color: #e57373;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(229,115,115,.15);
+
+}
+
+.change-btn{
+
+    height: 42px;
+
+    padding: 0 16px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #e57373;
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: .2s;
+}
+
+.change-btn:hover{
+
+    background: #d85d5d;
+
+    transform: translateY(-2px);
+
+}
 /* ===== ボタン ===== */
+
 .punch-row {
     display: flex;
     gap: 15px;
@@ -254,35 +315,39 @@ body {
     width: 140px;
     height: 85px;
     font-size: 26px;
+    font-weight: bold;
     border-radius: 14px;
     border: none;
+    background: #e57373;
+    color: #fff;
     transition: 0.2s;
 }
 
-.big-btn.in {
-    background: #ddd;
-}
-
+/* 出勤・退勤共通 */
+.big-btn.in,
 .big-btn.out {
     background: #e57373;
     color: #fff;
+    border: none;
+}
+
+/* ホバー */
+.big-btn:hover:not(:disabled) {
+    background: #d85d5d;
+    transform: translateY(-2px);
 }
 
 /* 無効 */
 .inactive {
-    background: #ddd !important;
-    color: #aaa !important;
+    background: #e6e6e6 !important;
+    color: #999 !important;
+    border: none !important;
 }
 
-/* hover */
+/* ボタン全般 */
 button:not(:disabled) {
     cursor: pointer;
 }
-
-button:hover:not(:disabled) {
-    transform: translateY(-2px);
-}
-
 /* ===== トグル ===== */
 .toggle {
     display: flex;
