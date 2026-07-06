@@ -14,11 +14,11 @@
 
 <body>
 
-@include('layouts.header')
+    @include('layouts.header')
 
-<div class="layout">
+    <div class="layout">
 
-    @include('layouts.sidebar')
+        @include('layouts.sidebar')
 
         <div class="wrap">
 
@@ -44,7 +44,7 @@
             <div class="card">
                 <h2>新規申請</h2>
 
-                <form action="{{ route('attendance_requests.store') }}" method="POST">
+                <form action="{{ route('attendance_requests.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="form-row">
                         <label for="type">申請種別</label>
@@ -74,48 +74,55 @@
                         <textarea name="reason" id="reason" rows="3" required>{{ old('reason') }}</textarea>
                     </div>
 
+                    <div class="form-row">
+                        <label for="attachment">添付ファイル（任意）</label>
+                        <input type="file" name="attachment" id="attachment"
+                            accept=".jpg,.jpeg,.png,.pdf">
+                        <small class="form-hint">写真(JPG・PNG)またはPDF、5MBまで。診断書や遅延証明などがあれば添付してください。</small>
+                    </div>
+
                     <button type="submit" class="btn-submit">申請する</button>
                 </form>
             </div>
 
             <!-- 自分の申請一覧 -->
-             <div class="card">
+            <div class="card">
                 <h2>申請履歴</h2>
 
                 @if ($requests->isEmpty())
-                    <p>まだ申請はありません。</p>
+                <p>まだ申請はありません。</p>
                 @else
-                    <table class="request-table">
-                        <thead>
-                            <tr>
-                                <th>対象日</th>
-                                <th>種別</th>
-                                <th>時刻</th>
-                                <th>理由</th>
-                                <th>状態</th>
-                                <th>申請日時</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($requests as $req)
-                                <tr>
-                                    <td>{{ $req->target_date->format('n/j') }}</td>
-                                    <td>{{ \App\Models\AttendanceRequest::TYPE_LABELS[$req->type] ?? $req->type }}</td>
-                                    <td>{{ $req->request_time ? \Carbon\Carbon::parse($req->request_time)->format('H:i') : '-' }}</td>
-                                    <td>{{ $req->reason }}</td>
-                                    <td>
-                                        @php $st = $req->status; @endphp
-                                        <span class="req-status req-{{ $st }}">
-                                            {{ \App\Models\AttendanceRequest::STATUS_LABELS[$st] ?? $st }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $req->created_at->format('n/j H:i') }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                <table class="request-table">
+                    <thead>
+                        <tr>
+                            <th>対象日</th>
+                            <th>種別</th>
+                            <th>時刻</th>
+                            <th>理由</th>
+                            <th>状態</th>
+                            <th>申請日時</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($requests as $req)
+                        <tr>
+                            <td>{{ $req->target_date->format('n/j') }}</td>
+                            <td>{{ \App\Models\AttendanceRequest::TYPE_LABELS[$req->type] ?? $req->type }}</td>
+                            <td>{{ $req->request_time ? \Carbon\Carbon::parse($req->request_time)->format('H:i') : '-' }}</td>
+                            <td>{{ $req->reason }}</td>
+                            <td>
+                                @php $st = $req->status; @endphp
+                                <span class="req-status req-{{ $st }}">
+                                    {{ \App\Models\AttendanceRequest::STATUS_LABELS[$st] ?? $st }}
+                                </span>
+                            </td>
+                            <td>{{ $req->created_at->format('n/j H:i') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
                 @endif
-             </div>
+            </div>
         </div>
     </div>
 

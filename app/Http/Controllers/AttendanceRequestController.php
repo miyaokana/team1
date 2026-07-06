@@ -30,19 +30,30 @@ class AttendanceRequestController extends Controller
             // 遅刻・早退の時だけ時刻必須。欠勤は不要
             'request_time' => 'required_if:type,late,early_leave|nullable|date_format:H:i',
             'reason' => 'required|string|max:1000',
+            // 添付は任意。写真やPDFのみ、5MB(5120KB)まで
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ],[
             'type.required' => '申請種別を選択してください。',
             'target_date.required' => '対象日を入力してください。',
             'request_time.required_if' => '遅刻・早退の場合は時刻を入力してください。',
             'request_time.date_format' => '時刻はHH:MM形式で入力してください。',
             'reason.required' => '理由を入力してください。',
+            'attachment.mimes' => '添付は写真(JPG/PNG)またはPDFのみです。',
+            'attachment.max' => '添付ファイルは5MBまでです。',
         ]);
 
         // 欠勤の時は時刻を保存しない。
         $requestTime = $validated['type'] === 'absence'
             ? null
             : $validated['request_time'];
-
+        
+        // 添付ファイルがあれば非公開ディスクに保存し、そのパスを控える
+        $attachmentPath = null;
+        if($request->hasFile('attachment')){
+            // storage/app/private/attendance_requests 配下に保存
+            $attachmentPath = $request->file('attachment')
+                ->store('attendance_requests', 'local');
+        }
 
         AttendanceRequest::create([
             'user_id' => Auth::id(),
@@ -51,6 +62,7 @@ class AttendanceRequestController extends Controller
             'request_time' => $requestTime,
             'reason' => $validated['reason'],
             'status' => 'pending', // 常に申請中で作成
+            'attachment_path' => $attachmentPath,
         ]);
 
         return redirect()
