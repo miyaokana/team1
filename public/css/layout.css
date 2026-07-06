@@ -38,4 +38,6 @@ body {
     flex: 1;                /* ← 残り全部使う */
     padding: 30px;
     overflow-x: hidden;
+
+    margin-left: 80px;
 }

@@ -15,11 +15,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();    
+        // factory() を使わずに、直接 create するんや！
+        User::create([
+            'user_name' => '一般ユーザーA',
+            'email'     => 'user@example.com',
+            'password'  => bcrypt('password123'), // パスワードをハッシュ化
+            'role'      => 0,                     // 0:一般
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        User::create([
+            'user_name' => '管理者ユーザー',
+            'email'     => 'admin@example.com',
+            'password'  => bcrypt('admin123'),    // パスワードをハッシュ化
+            'role'      => 1,                     // 1:管理者
         ]);
     }
 }
