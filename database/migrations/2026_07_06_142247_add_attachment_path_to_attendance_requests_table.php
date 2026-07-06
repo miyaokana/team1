@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('attendance_requests', function (Blueprint $table) {
-            // 添付ファイルの保存先パス。任意なので nullable
+            // 添付 ファイルの保存先パス。任意なので nullable
             $table->string('attachment_path')->nullable()->after('reason');
         });
     }
