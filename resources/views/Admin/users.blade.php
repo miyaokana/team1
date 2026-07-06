@@ -11,9 +11,14 @@
 
     <header class="top-bar">
         <h1>ギンクラ 管理画面</h1>
+        <a href="/admin/requests" class="nav-item">申請一覧</a>
 
         <a href="{{ route('login') }}" class="back-btn">
             ログイン画面へ戻る
+        </a>
+
+        <a href="{{ route('approvals.index') }}" class="nav-item">
+            申請一覧・承認
         </a>
     </header>
 
@@ -39,7 +44,11 @@
             <tbody>
             @foreach($users as $user)
                 <tr>
-                    <td>{{ $user->id }}</td>
+                    <td>
+                        <a href="/admin/users/{{ $user->id }}/attendance">
+                        {{ $user->user_name }}
+                        </a>
+                    </td>
                     <td>{{ $user->user_name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>
