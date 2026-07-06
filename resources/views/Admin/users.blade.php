@@ -44,7 +44,11 @@
             <tbody>
             @foreach($users as $user)
                 <tr>
-                    <td>{{ $user->id }}</td>
+                    <td>
+                        <a href="/admin/users/{{ $user->id }}/attendance">
+                        {{ $user->user_name }}
+                        </a>
+                    </td>
                     <td>{{ $user->user_name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>

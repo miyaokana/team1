@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Attendance;
 
 class AdminController extends Controller
 {
@@ -36,7 +37,7 @@ class AdminController extends Controller
 
         User::create([
             'email' => $request->email,
-            'password' => Hash::make($request->password), // ✅ 修正
+            'password' => Hash::make($request->password), 
             'user_name' => $request->user_name,
             'role' => $request->role ?? 0
         ]);
@@ -73,5 +74,17 @@ class AdminController extends Controller
         ]);
 
         return redirect('/admin/users');
+    }
+
+    public function attendance($id){
+    $this->checkAdmin();
+
+    $user = User::findOrFail($id);
+
+    $attendances = Attendance::where('user_id', $id)
+        ->orderBy('work_date', 'desc')
+        ->get();
+
+        return view('admin.attendance', compact('user', 'attendances'));
     }
 }
