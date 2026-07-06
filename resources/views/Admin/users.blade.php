@@ -16,6 +16,10 @@
         <a href="{{ route('login') }}" class="back-btn">
             ログイン画面へ戻る
         </a>
+
+        <a href="{{ route('approvals.index') }}" class="nav-item">
+            申請一覧・承認
+        </a>
     </header>
 
     <div class="container">
