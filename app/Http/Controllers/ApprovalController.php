@@ -7,6 +7,8 @@ use App\Models\LeaveRequest;
 use App\Models\OvertimeRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Attendance;
+use Carbon\Carbon;
 
 class ApprovalController extends Controller
 {
@@ -58,6 +60,44 @@ class ApprovalController extends Controller
         $model->approver_id = Auth::id();
         $model->approved_at = now();
         $model->save();
+
+        if ($type === 'attendance'
+            && $validated['status'] === 'approved'
+            && $model->request_time
+            && in_array($model->type, ['late', 'early_leave'], true)) {
+
+            $attendance = Attendance::firstOrCreate([
+                'user_id' => $model->user_id,
+                'work_date' => $model->target_date->format('Y-m-d'),
+            ]);
+
+            $newTime = Carbon::parse(
+                $model->target_date->format('Y-m-d') . ' ' . $model->request_time
+            );
+
+            // 遅刻・早退の時だけ反映(欠勤はここでは扱わない)
+            if (in_array($model->type, ['late', 'early_leave'], true)){
+
+                // 対象日のレコードを取得。無ければ作成(押し忘れの場合ないから)
+                $attendance = Attendance::firstOrCreate([
+                    'user_id' => $model -> user_id,
+                    'work_date' => $model -> target_date -> format('Y-m-d',)
+                ]);
+
+                // 対象日 ＋ 申請時刻を結合してcheck_in にセット
+                $newTime = Carbon::parse(
+                    $model -> target_date -> format('Y-m-d') . ' ' . $model -> request_time
+                );
+
+                if ($model->type === 'late') {
+                    $attendance->check_in = $newTime;
+                } else {
+                    $attendance->check_out = $newTime;
+                }
+
+                $attendance->save();
+            }
+        }
 
         $label = $validated['status'] === 'approved' ? '承認' : '差し戻し';
         return back()->with('status', "申請を{$label}しました。");
