@@ -34,6 +34,7 @@ form {
     background: #ffffff;
     padding: 30px;
     border-radius: 10px;
+    border: 2px solid#ff7888;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
@@ -165,13 +166,21 @@ form {
     display: block; /* activeクラスがついたフォームだけ表示 */
 }
 
+.form-group{
+    text-align: center;
+}
+
+.text-red{
+    color: #ff0000
+}
+
 /* CSV用インフォメーションボックス */
 .csv-info {
     background: #edf2f7;
     padding: 14px;
     border-radius: 6px;
-    font-size: 13px;
-    color: #4a5568;
+    font-size: 15px;
+    color: #000;
     margin-bottom: 20px;
     line-height: 1.5;
 }
