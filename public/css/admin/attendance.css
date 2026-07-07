@@ -140,3 +140,96 @@ body {
 .edit-btn:hover {
     text-decoration: underline;
 }
+
+/* ==========================================================
+   ▼ ここから下を attendance.css の末尾に追記してや！
+   ========================================================== */
+
+/* 修正フォーム用のカードサイズ制限 */
+.form-card {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* フォーム全体のレイアウト */
+.edit-attendance-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 縦並びの入力グループ */
+.form-group-block {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* 横並びの行（出退勤・休憩用） */
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+/* 均等に幅を広げる */
+.flex-1 {
+    flex: 1;
+}
+
+/* ラベルスタイル */
+.form-label {
+    font-weight: bold;
+    color: #555;
+}
+
+/* 入力フォームの共通デザイン */
+.form-input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    background: #fff;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* ボタンを並べる行 */
+.form-actions-row {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+/* 保存ボタン */
+.submit-btn {
+    flex: 1;
+    padding: 12px;
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.submit-btn:hover {
+    background: #ff4c4c;
+}
+
+/* キャンセルボタン */
+.cancel-btn {
+    padding: 12px 20px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 16px;
+    text-align: center;
+    transition: background 0.2s;
+}
+
+.cancel-btn:hover {
+    background: #5a6268;
+}

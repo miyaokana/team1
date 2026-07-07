@@ -123,23 +123,31 @@ class AdminController extends Controller
         return view('Admin.edit_attendance', compact('attendance', 'user'));
     }
 
-    // ★勤怠データの更新処理
     public function updateAttendance(Request $request, $id)
     {
         $this->checkAdmin();
 
         $attendance = Attendance::findOrFail($id);
 
-        // リクエストされたデータを元にDBをアップデート！
+        // ★画面から日付は来ないので、このデータの元々の日付（Y-m-d）をベースにするで！
+        $date = \Carbon\Carbon::parse($attendance->work_date)->format('Y-m-d'); 
+
+        // 時刻をコンバインするセーフティ関数
+        $mergeDateTime = function($time) use ($date) {
+            if (empty($time) || $time === '--:--') {
+                return null;
+            }
+            return $date . ' ' . $time . ':00';
+        };
+
+        // 元々の日付をキープしたまま、時間だけを安全にアップデート！
         $attendance->update([
-            'work_date'   => $request->work_date,
-            'check_in'    => $request->check_in,
-            'check_out'   => $request->check_out,
-            'break_start' => $request->break_start,
-            'break_end'   => $request->break_end,
+            'check_in'    => $mergeDateTime($request->check_in),
+            'check_out'   => $mergeDateTime($request->check_out),
+            'break_start' => $mergeDateTime($request->break_start),
+            'break_end'   => $mergeDateTime($request->break_end),
         ]);
 
-        // 修正が終わったら、そのユーザーの勤怠一覧画面へ戻る
         return redirect('/admin/users/' . $attendance->user_id . '/attendance');
     }
 }

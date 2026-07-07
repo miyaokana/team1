@@ -17,44 +17,41 @@
     <div class="container">
 
         <div class="header-area">
-            <h2>勤怠データの修正</h2>
+            <h2>
+                {{ \Carbon\Carbon::parse($attendance->work_date)->format('Y年m月d日') }} の勤怠修正
+            </h2>
             <span class="user-email-badge">{{ $user->user_name }} さん</span>
         </div>
 
-        <div class="table-card" style="max-width: 600px; margin: 0 auto;">
-            <form action="/admin/attendance/{{ $attendance->id }}/update" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="table-card form-card">
+            <form action="/admin/attendance/{{ $attendance->id }}/update" method="POST" class="edit-attendance-form">
                 @csrf
 
-                <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <label style="font-weight: bold; color: #555;">勤務日</label>
-                    <input type="date" name="work_date" value="{{ \Carbon\Carbon::parse($attendance->work_date)->format('Y-m-d') }}" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px;">
-                </div>
-
-                <div style="display: flex; gap: 15px;">
-                    <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
-                        <label style="font-weight: bold; color: #555;">出勤時刻</label>
-                        <input type="time" name="check_in" value="{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '' }}" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px;">
+                <div class="form-row">
+                    <div class="form-group-block flex-1">
+                        <label class="form-label">出勤時刻</label>
+                        <input type="time" name="check_in" value="{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '' }}" class="form-input">
                     </div>
-                    <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
-                        <label style="font-weight: bold; color: #555;">退勤時刻</label>
-                        <input type="time" name="check_out" value="{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('H:i') : '' }}" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px;">
+                    <div class="form-group-block flex-1">
+                        <label class="form-label">退勤時刻</label>
+                        <input type="time" name="check_out" value="{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('H:i') : '' }}" class="form-input">
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 15px;">
-                    <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
-                        <label style="font-weight: bold; color: #555;">休憩開始</label>
-                        <input type="time" name="break_start" value="{{ $attendance->break_start ? \Carbon\Carbon::parse($attendance->break_start)->format('H:i') : '' }}" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px;">
+                <div class="form-row">
+                    <div class="form-group-block flex-1">
+                        <label class="form-label">休憩開始</label>
+                        <input type="time" name="break_start" value="{{ $attendance->break_start ? \Carbon\Carbon::parse($attendance->break_start)->format('H:i') : '' }}" class="form-input">
                     </div>
-                    <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
-                        <label style="font-weight: bold; color: #555;">休憩終了</label>
-                        <input type="time" name="break_end" value="{{ $attendance->break_end ? \Carbon\Carbon::parse($attendance->break_end)->format('H:i') : '' }}" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px;">
+                    <div class="form-group-block flex-1">
+                        <label class="form-label">休憩終了</label>
+                        <input type="time" name="break_end" value="{{ $attendance->break_end ? \Carbon\Carbon::parse($attendance->break_end)->format('H:i') : '' }}" class="form-input">
                     </div>
                 </div>
 
-                <div style="margin-top: 10px; display: flex; gap: 10px;">
-                    <button type="submit" style="flex: 1; padding: 12px; background: #ff6b6b; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer;">変更を保存する</button>
-                    <a href="/admin/users/{{ $user->id }}/attendance" style="padding: 12px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 6px; font-size: 16px; text-align: center;">キャンセル</a>
+                <div class="form-actions-row">
+                    <button type="submit" class="submit-btn">変更を保存する</button>
+                    <a href="/admin/users/{{ $user->id }}/attendance" class="cancel-btn">キャンセル</a>
                 </div>
 
             </form>
