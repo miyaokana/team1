@@ -3,19 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>パスワード再設定</title>
+    <link rel="stylesheet" href="/css/forgot-password.css">
 </head>
 <body>
 
-    <div style="max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc;">
-        
+    <div class="embers">
+        <span class="ember"></span>
+        <span class="ember"></span>
+        <span class="ember ember--square"></span>
+        <span class="ember"></span>
+        <span class="ember ember--triangle"></span>
+        <span class="ember"></span>
+        <span class="ember ember--star"></span>
+        <span class="ember"></span>
+        <span class="ember ember--square"></span>
+        <span class="ember"></span>
+        <span class="ember ember--triangle"></span>
+        <span class="ember"></span>
+        <span class="ember"></span>
+        <span class="ember"></span>
+        <span class="ember ember--square"></span>
+        <span class="ember"></span>
+    </div>
+
+    <div class="reset-card">
+
         @if (session('status'))
-            <div style="color: green; margin-bottom: 15px; font-weight: bold;">
-                {{ session('status') }}
-            </div>
+           <div class="success-message">
+            {{ session('status') }}
+        </div>
         @endif
 
         @if ($errors->any())
-            <div style="color: red; margin-bottom: 15px;">
+            <div class="form-error-message">
                 @foreach ($errors->all() as $error)
                     <p>{{ $error }}</p>
                 @endforeach
@@ -25,18 +45,18 @@
         <form action="{{ route('password.email') }}" method="POST">
             @csrf
 
-            <h2>パスワード再設定</h2>
+            <h2 class="reset-card__title">パスワード再設定</h2>
 
-            <div style="margin-bottom: 15px;">
+            <div class="form-group">
                 <input type="email"
                        name="email"
                        placeholder="登録メールアドレス"
                        value="{{ old('email') }}"
-                       style="width: 100%; padding: 8px;"
+                       class="form-input"
                        required>
             </div>
 
-            <button type="submit" style="padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer;">
+            <button type="submit" class="btn btn-primary">
                 再設定メール送信
             </button>
         </form>
