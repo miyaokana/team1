@@ -17,11 +17,32 @@ class AdminController extends Controller
         }
     }
 
-    public function index()
+    // ★名前とEmailの個別検索に対応したindexメソッド
+    public function index(Request $request)
     {
         $this->checkAdmin();
 
-        $users = User::all();
+        // クエリビルダを始動
+        $query = User::query();
+
+        // 1. 名前（user_name）で検索
+        if ($request->filled('name')) {
+            $query->where('user_name', 'like', "%{$request->input('name')}%");
+        }
+
+        // 2. Emailで検索
+        if ($request->filled('email')) {
+            $query->where('email', 'like', "%{$request->input('email')}%");
+        }
+
+        // 3. 権限（role）で絞り込み
+        if ($request->filled('role')) {
+            $query->where('role', $request->input('role'));
+        }
+
+        // 最終的なリザルト（結果）をゲット
+        $users = $query->get();
+
         return view('admin.users', compact('users'));
     }
 
@@ -77,13 +98,13 @@ class AdminController extends Controller
     }
 
     public function attendance($id){
-    $this->checkAdmin();
+        $this->checkAdmin();
 
-    $user = User::findOrFail($id);
+        $user = User::findOrFail($id);
 
-    $attendances = Attendance::where('user_id', $id)
-        ->orderBy('work_date', 'desc')
-        ->get();
+        $attendances = Attendance::where('user_id', $id)
+            ->orderBy('work_date', 'desc')
+            ->get();
 
         return view('admin.attendance', compact('user', 'attendances'));
     }
