@@ -48,6 +48,77 @@ body {
     background: #ff4c4c;
 }
 
+/* 検索ボックスのスタイル */
+.search-box {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    border: 1px solid #ffe5e5;
+}
+
+.search-box form {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-box .form-group {
+    display: flex;
+    align-items: center;
+}
+
+.search-box label {
+    font-weight: bold;
+    margin-right: 5px;
+    white-space: nowrap;
+    color: #555;
+}
+
+.search-box input[type="text"],
+.search-box select {
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+}
+
+/* ボタン群 */
+.search-box .form-actions {
+    display: flex;
+    align-items: center;
+}
+
+.search-box .search-btn {
+    padding: 6px 15px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.search-box .search-btn:hover {
+    background: #0056b3;
+}
+
+.search-box .clear-btn {
+    padding: 6px 15px;
+    background: #6c757d;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-left: 5px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.search-box .clear-btn:hover {
+    background: #5a6268;
+}
+
 /* テーブル */
 .user-table {
     width: 100%;
@@ -63,6 +134,19 @@ body {
 .user-table td {
     padding: 12px;
     border-bottom: 1px solid #eee;
+}
+
+/* IDと名前のリンク（勤怠一覧への導線）を装飾 */
+.user-table td a {
+    color: #e57373;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.user-table td a:hover {
+    text-decoration: underline; 
+    color: #ff4c4c;             
 }
 
 /* ホバー */
@@ -97,6 +181,14 @@ body {
     color: #007bff;
 }
 
+.actions .edit:hover {
+    text-decoration: underline;
+}
+
 .actions .delete {
     color: red;
+}
+
+.actions .delete:hover {
+    text-decoration: underline;
 }

@@ -73,6 +73,9 @@ Route::post('/admin/users/store-multiple', [AdminController::class, 'storeMultip
 Route::get('/admin/users/delete/{id}', [AdminController::class, 'delete']);
 Route::get('/admin/users/edit/{id}', [AdminController::class, 'edit']);
 Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
+Route::get('/admin/users/{id}/attendance', [AdminController::class, 'attendance']);
+Route::get('/admin/attendance/{id}/edit', [AdminController::class, 'editAttendance']);
+Route::post('/admin/attendance/{id}/update', [AdminController::class, 'updateAttendance']);
 
 // シフト
 Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');

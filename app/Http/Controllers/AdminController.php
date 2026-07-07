@@ -18,7 +18,7 @@ class AdminController extends Controller
         }
     }
 
-    // ★名前とEmailの個別検索に対応したindexメソッド
+    // 名前とEmailの個別検索に対応したindexメソッド
     public function index(Request $request)
     {
         $this->checkAdmin();
@@ -41,7 +41,7 @@ class AdminController extends Controller
             $query->where('role', $request->input('role'));
         }
 
-        // 最終的なリザルト（結果）をゲット
+        // 最終的な結果をゲット
         $users = $query->get();
 
         return view('admin.users', compact('users'));
@@ -233,6 +233,48 @@ class AdminController extends Controller
             ->orderBy('work_date', 'desc')
             ->get();
 
-        return view('admin.attendance', compact('user', 'attendances'));
+        return view('Admin.attendance', compact('user', 'attendances'));
+    }
+
+    // ★勤怠修正画面の表示
+    public function editAttendance($id)
+    {
+        $this->checkAdmin();
+
+        // 修正対象の勤怠データをゲット
+        $attendance = Attendance::findOrFail($id);
+        // 誰の勤怠かわかるようにユーザー情報もゲット
+        $user = User::findOrFail($attendance->user_id);
+
+        // フォルダ名が大文字の「Admin」やから大文字で指定するで！
+        return view('Admin.edit_attendance', compact('attendance', 'user'));
+    }
+
+    public function updateAttendance(Request $request, $id)
+    {
+        $this->checkAdmin();
+
+        $attendance = Attendance::findOrFail($id);
+
+        // ★画面から日付は来ないので、このデータの元々の日付（Y-m-d）をベースにするで！
+        $date = \Carbon\Carbon::parse($attendance->work_date)->format('Y-m-d'); 
+
+        // 時刻をコンバインするセーフティ関数
+        $mergeDateTime = function($time) use ($date) {
+            if (empty($time) || $time === '--:--') {
+                return null;
+            }
+            return $date . ' ' . $time . ':00';
+        };
+
+        // 元々の日付をキープしたまま、時間だけを安全にアップデート！
+        $attendance->update([
+            'check_in'    => $mergeDateTime($request->check_in),
+            'check_out'   => $mergeDateTime($request->check_out),
+            'break_start' => $mergeDateTime($request->break_start),
+            'break_end'   => $mergeDateTime($request->break_end),
+        ]);
+
+        return redirect('/admin/users/' . $attendance->user_id . '/attendance');
     }
 }
