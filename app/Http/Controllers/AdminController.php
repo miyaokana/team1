@@ -17,7 +17,7 @@ class AdminController extends Controller
         }
     }
 
-    // ★名前とEmailの個別検索に対応したindexメソッド
+    // 名前とEmailの個別検索に対応したindexメソッド
     public function index(Request $request)
     {
         $this->checkAdmin();
@@ -40,7 +40,7 @@ class AdminController extends Controller
             $query->where('role', $request->input('role'));
         }
 
-        // 最終的なリザルト（結果）をゲット
+        // 最終的な結果をゲット
         $users = $query->get();
 
         return view('admin.users', compact('users'));
@@ -106,6 +106,40 @@ class AdminController extends Controller
             ->orderBy('work_date', 'desc')
             ->get();
 
-        return view('admin.attendance', compact('user', 'attendances'));
+        return view('Admin.attendance', compact('user', 'attendances'));
+    }
+
+    // ★勤怠修正画面の表示
+    public function editAttendance($id)
+    {
+        $this->checkAdmin();
+
+        // 修正対象の勤怠データをゲット
+        $attendance = Attendance::findOrFail($id);
+        // 誰の勤怠かわかるようにユーザー情報もゲット
+        $user = User::findOrFail($attendance->user_id);
+
+        // フォルダ名が大文字の「Admin」やから大文字で指定するで！
+        return view('Admin.edit_attendance', compact('attendance', 'user'));
+    }
+
+    // ★勤怠データの更新処理
+    public function updateAttendance(Request $request, $id)
+    {
+        $this->checkAdmin();
+
+        $attendance = Attendance::findOrFail($id);
+
+        // リクエストされたデータを元にDBをアップデート！
+        $attendance->update([
+            'work_date'   => $request->work_date,
+            'check_in'    => $request->check_in,
+            'check_out'   => $request->check_out,
+            'break_start' => $request->break_start,
+            'break_end'   => $request->break_end,
+        ]);
+
+        // 修正が終わったら、そのユーザーの勤怠一覧画面へ戻る
+        return redirect('/admin/users/' . $attendance->user_id . '/attendance');
     }
 }
