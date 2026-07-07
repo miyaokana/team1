@@ -8,6 +8,10 @@
 
     <form action="/register" method="POST">
         @csrf
+        <p>
+            会社名：<br>
+            <input type="text" name="company_name" placeholder="会社名" value="{{ old('company_name') }}">
+        </p>
 
         <p>
             名前：<br>
