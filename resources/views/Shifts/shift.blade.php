@@ -92,7 +92,7 @@
                     <div class="flex items-center gap-2">
                         <span class="text-sm font-bold text-blue-700 bg-blue-100 px-3.5 py-1.5 rounded-md">一括設定</span>
                     </div>
-        
+    
                     <div class="flex items-center gap-2">
                         <button type="button" onclick="toggleAllDates(true)" class="px-3.5 py-1.5 bg-white hover:bg-slate-100 text-black text-sm font-semibold rounded-lg border border-black shadow-2xs transition-colors cursor-pointer">
                             全選択
@@ -159,6 +159,7 @@
                                 @endfor
                             </select>
                         </div>
+                        <input type="hidden" name="bulk_break_minutes" id="bulk_break_minutes" value="0">
                             
                         <div class="flex items-center gap-1.5">
                             <button type="submit" name="action" value="register" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors shadow-xs cursor-pointer">
@@ -225,20 +226,19 @@
                                 $dateColor = 'text-green-600';
                             }
 
-                            // 💡 カレンダーのマス全体の背景色判定（シフトがある日は在宅・出社で色分け）
                             if ($shift) {
                                 $locationStr = $shift->work_location ?? '';
                                 if (str_contains($locationStr, '在宅')) {
-                                    $boxBg = 'bg-emerald-50 hover:bg-emerald-100/80'; // 🏠在宅の日は薄い緑
+                                    $boxBg = 'bg-emerald-50 hover:bg-emerald-100/80';
                                 } else {
-                                    $boxBg = 'bg-emerald-50 hover:bg-emerald-100/80';  // 🏢出社の日は薄い黄
+                                    $boxBg = 'bg-emerald-50 hover:bg-emerald-100/80';
                                 }
                             } elseif ($date->isSunday() || $isHoliday) {
                                 $boxBg = 'bg-rose-100 hover:bg-rose-200/70';    
                             } elseif ($date->isSaturday()) {
                                 $boxBg = 'bg-blue-200 hover:bg-blue-300';      
                             } else {
-                                $boxBg = 'bg-white hover:bg-slate-200/60';         
+                                $boxBg = 'bg-white hover:bg-slate-200/60';          
                             }
 
                             $dayNum = $date->dayOfWeek;
@@ -275,12 +275,23 @@
                                                 {{ $shift->work_location }}
                                             </span>
                                         @endif
-                                        <span class="text-lg md:text-lg text-slate-800 font-mono font-extrabold tracking-tighter whitespace-nowrap">
-                                            {{ Carbon\Carbon::parse($shift->start_time)->format('H:i') }}-{{ Carbon\Carbon::parse($shift->end_time)->format('H:i') }}
+                                        @php
+                                            $timeStart = \Carbon\Carbon::parse($shift->start_time);
+                                            $timeEnd = \Carbon\Carbon::parse($shift->end_time);
+                                                
+                                            // 0時からの経過分数を計算
+                                            $startMinutes = ($timeStart->hour * 60) + $timeStart->minute;
+                                            $endMinutes = ($timeEnd->hour * 60) + $timeEnd->minute;
+                                                
+                                            // 終了時刻が開始時刻より前、または文字列に "+1" が含まれていれば翌日跨ぎ
+                                            $isCellNextDay = ($endMinutes < $startMinutes) || str_contains((string)$shift->end_time, '+1');
+                                        @endphp
+                                        <span class="text-base text-slate-800 font-mono font-extrabold tracking-tighter block w-full text-center leading-tight">                                         
+                                            <span class="block xl:inline-block">{{ $timeStart->format('H:i') }}</span><span class="block xl:inline-block">～</span><span class="block xl:inline-block">{{ $isCellNextDay ? '翌' : '' }}{{ $timeEnd->format('H:i') }}</span>
                                         </span>
                                     </div>
                                 @else
-                                    <span class="text-[15px] text-black block py-2 select-none tracking-tighter">未登録</span>
+                                    <span class="text-[15px] text-black block py-2 select-none font-mono font-extrabold tracking-tighter">未登録</span>
                                 @endif
                             </div>
                         </div>
@@ -305,6 +316,7 @@
             </div>
         </form>
 
+        {{-- ★ 当月合計時間の計算ロジック修正箇所 --}}
         @php
             $totalDays = $shifts ? $shifts->count() : 0;
             $totalHours = 0;
@@ -313,11 +325,13 @@
                     $start = \Carbon\Carbon::parse($s->start_time);
                     $end = \Carbon\Carbon::parse($s->end_time);
                         
-                    if ($end->lt($start)) {
-                        $end->addDay();
+                    $endForCalc = $end->copy();
+                    // 終了が開始より前の時刻、またはデータに+1が含まれる場合は翌日として扱う
+                    if ($endForCalc->lt($start) || str_contains((string)$s->end_time, '+1')) {
+                        $endForCalc->addDay();
                     }
                         
-                    $diffInHours = $start->diffInHours($end);
+                    $diffInHours = $start->diffInHours($endForCalc);
                     if ($diffInHours >= 6) { $diffInHours -= 1; } 
                     $totalHours += $diffInHours;
                 }
@@ -363,7 +377,6 @@
                                         $weeks = ['日', '月', '火', '水', '木', '金', '土'];
                                         $dow = $weeks[$dateObj->dayOfWeek];
                                         
-                                        // 💡 テーブル一覧の「出社/在宅」による背景色・テキスト色の動的判定
                                         $locationStrTable = $s->work_location ?? '';
                                         if (str_contains($locationStrTable, '在宅')) {
                                             $rowBgStyle = 'bg-emerald-50/60 hover:bg-emerald-100/70';
@@ -379,11 +392,11 @@
 
                                         $start = \Carbon\Carbon::parse($s->start_time);
                                         $end = \Carbon\Carbon::parse($s->end_time);
-                                        $isNextDay = $end->lt($start);
+                                        $isNextDay = $end->lt($start) || str_contains((string)$s->end_time, '+1');
                                         
                                         if ($isNextDay) {
                                             $endForCalc = $end->copy()->addDay();
-                                            $endDisp = '翌 ' . $end->format('H:i');
+                                            $endDisp = '翌' . $end->format('H:i');
                                         } else {
                                             $endForCalc = $end;
                                             $endDisp = $end->format('H:i');

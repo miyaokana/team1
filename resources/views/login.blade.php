@@ -10,7 +10,7 @@
 
 <div class="bg-wrapper">
 
-    <!-- 図形 -->
+    <!--  図形  -->
     <div class="bg-shape shape1"></div>
     <div class="bg-shape shape2"></div>
     <div class="bg-shape shape3"></div>

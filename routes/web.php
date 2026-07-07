@@ -68,6 +68,8 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/admin/users', [AdminController::class, 'index']);
 Route::get('/admin/users/create', [AdminController::class, 'create']);
 Route::post('/admin/users/store', [AdminController::class, 'store']);
+Route::post('/admin/users/import', [AdminController::class, 'import']);
+Route::post('/admin/users/store-multiple', [AdminController::class, 'storeMultiple']);
 Route::get('/admin/users/delete/{id}', [AdminController::class, 'delete']);
 Route::get('/admin/users/edit/{id}', [AdminController::class, 'edit']);
 Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
@@ -101,3 +103,8 @@ Route::get('/reset-password/{email}', [PasswordResetController::class, 'showRese
 
 // ④ 実際にパスワードをDBにアップデートする処理（POST）
 Route::post('/reset-password', [PasswordResetController::class, 'updatePassword'])->name('password.update');
+
+Route::post(
+    '/shift/location',
+    [AttendanceController::class, 'updateLocation']
+)->name('shift.location.update');

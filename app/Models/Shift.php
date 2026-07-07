@@ -16,6 +16,7 @@ class Shift extends Model
         'start_time',
         'end_time',
         'work_location',
+        'break_minutes',
     ];
 
     // 日時カラムを自動的にCarbonインスタンスに変換する設定
