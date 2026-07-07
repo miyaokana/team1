@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceRequest;
+use Illuminate\Contracts\Mail\Attachable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class AttendanceRequestController extends Controller
 {
@@ -68,5 +70,27 @@ class AttendanceRequestController extends Controller
         return redirect()
             ->route('attendance_requests.index')
             ->with('status', '申請を送信しました。');
+    }
+
+    // 添付ファイルのダウンロード(GET /attendance-requests/{id}/attachment)
+    public function downloadAttachment(AttendanceRequest $attendanceRequest)
+    {
+        // 本人または管理者(role=1)のみ許可。それ以外は403
+        $user = Auth::user();
+        $isOwner = $attendanceRequest->user_id === $user->id;
+        $isAdmin = $user->role === 1;
+
+        if (!$isOwner && !$isAdmin) {
+            abort(403, 'この添付ファイルを閲覧する権限がありません。');
+        }
+
+        // 添付がない、または実ファイルが存在しない場合は404
+        if (!$attendanceRequest->attachment_path
+            || !Storage::disk('local')->exists($attendanceRequest->attachment_path)) {
+            abort(404, '添付ファイルが見つかりません。');
+        }
+
+        // 非公開ディスクから認可済みで返す
+        return Storage::disk('local')->download($attendanceRequest->attachment_path);
     }
 }

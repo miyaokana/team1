@@ -99,6 +99,7 @@
                             <th>種別</th>
                             <th>時刻</th>
                             <th>理由</th>
+                            <th>添付</th>
                             <th>状態</th>
                             <th>申請日時</th>
                         </tr>
@@ -110,6 +111,13 @@
                             <td>{{ \App\Models\AttendanceRequest::TYPE_LABELS[$req->type] ?? $req->type }}</td>
                             <td>{{ $req->request_time ? \Carbon\Carbon::parse($req->request_time)->format('H:i') : '-' }}</td>
                             <td>{{ $req->reason }}</td>
+                            <td>
+                                @if ($req->attachment_path)
+                                    <a href="{{ route('attendance_requests.attachment', $req) }}">表示</a>
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td>
                                 @php $st = $req->status; @endphp
                                 <span class="req-status req-{{ $st }}">
