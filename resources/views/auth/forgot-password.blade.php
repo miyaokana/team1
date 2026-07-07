@@ -10,13 +10,19 @@
     <div class="embers">
         <span class="ember"></span>
         <span class="ember"></span>
+        <span class="ember ember--square"></span>
+        <span class="ember"></span>
+        <span class="ember ember--triangle"></span>
+        <span class="ember"></span>
+        <span class="ember ember--star"></span>
+        <span class="ember"></span>
+        <span class="ember ember--square"></span>
+        <span class="ember"></span>
+        <span class="ember ember--triangle"></span>
         <span class="ember"></span>
         <span class="ember"></span>
         <span class="ember"></span>
-        <span class="ember"></span>
-        <span class="ember"></span>
-        <span class="ember"></span>
-        <span class="ember"></span>
+        <span class="ember ember--square"></span>
         <span class="ember"></span>
     </div>
 
