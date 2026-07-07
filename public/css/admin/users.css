@@ -4,15 +4,70 @@ body {
     background: linear-gradient(120deg, #fff5f5, #fceaea);
 }
 
-/* 上バー */
+/* ==========================================================
+   ▼ 上バー（ここを横並び用にスマートにカスタム！）
+   ========================================================== */
 .top-bar {
     background: #ff6b6b;
     color: white;
     padding: 15px 30px;
     font-size: 18px;
+    
+    /* 横並び＆両端に寄せるための魔法 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* 中央 */
+.top-bar h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+/* リンクを右側に綺麗に並べるコンテナ */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* リンク同士の間隔 */
+}
+
+/* ナビゲーションアイテム共通 */
+.nav-item {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.nav-item:hover {
+    opacity: 0.8;
+}
+
+/* ログイン画面へ戻るボタン（元のテイストのまま右端に配置） */
+.back-btn,
+.back-btn:link,
+.back-btn:visited {
+    color: #fff;
+    text-decoration: none;
+    background: #6b7280;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    transition: background 0.2s;
+}
+
+.back-btn:hover {
+    background: #4b5563;
+    color: #fff;
+    opacity: 1;
+}
+
+/* ==========================================================
+   ▼ 中央コンテンツ＆パーツ（元の最高なデザインを100%継承！）
+   ========================================================== */
 .container {
     width: 90%;
     max-width: 1000px;
@@ -146,7 +201,7 @@ body {
 
 .user-table td a:hover {
     text-decoration: underline; 
-    color: #ff4c4c;             
+    color: #ff4c4c;              
 }
 
 /* ホバー */
