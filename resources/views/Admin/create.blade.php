@@ -16,7 +16,7 @@
         <button class="tab-btn" onclick="switchTab('bulk')">CSV一括登録</button>
     </div>
 
-    <div class="form-card-wrapper" style="background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);">
+    <div class="form-card-wrapper">
         
         <div id="form-single" class="form-content active">
             <form method="POST" action="/admin/users/store" novalidate>
@@ -98,8 +98,8 @@
                     @error('csv_file') <span class="error-message">{{ $message }}</span> @enderror
                 </div>
                 <div class="csv-info">
-                    <p><strong>【CSVの並び順ルール】</strong></p>
-                    <p>1行目：ヘッダー（無視されます）</p>
+                    <p><strong>【CSVファイルの書き方】</strong></p>
+                    <p class="text-red">1行目：ヘッダー（無視されます）</p>
                     <p>2行目以降：名前, メールアドレス, パスワード, 権限</p>
                     <p>（例）</p>
                     <p>鈴木一郎,suzuki@example.com,password555,0</p>
