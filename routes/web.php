@@ -41,6 +41,11 @@ Route::middleware('auth')->group(function () {
     // 有給申請
     Route::get('/leave-requests', [LeaveRequestController::class, 'index'])->name('leave_requests.index');
     Route::post('/leave-requests', [LeaveRequestController::class, 'store'])->name('leave_requests.store');
+
+    // 添付ファイル
+    Route::get('/attendance-requests/{attendanceRequest}/attachment',
+        [AttendanceRequestController::class, 'downloadAttachment'])
+        ->name('attendance_requests.attachment');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {

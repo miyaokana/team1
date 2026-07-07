@@ -29,8 +29,14 @@
                     <table class="request-table">
                         <thead>
                             <tr>
-                                <th>申請者</th><th>種別</th><th>対象日</th><th>時刻</th>
-                                <th>理由</th><th>状態</th><th>操作</th>
+                                <th>申請者</th>
+                                <th>種別</th>
+                                <th>対象日</th>
+                                <th>時刻</th>
+                                <th>理由</th>
+                                <th>添付</th>
+                                <th>状態</th>
+                                <th>操作</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -41,6 +47,13 @@
                                     <td>{{ $req->target_date->format('n/j') }}</td>
                                     <td>{{ $req->request_time ? \Carbon\Carbon::parse($req->request_time)->format('H:i') : '-' }}</td>
                                     <td>{{ $req->reason }}</td>
+                                    <td>
+                                        @if ($req->attachment_path)
+                                            <a href="{{ route('attendance_requests.attachment', $req) }}">表示</a>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td>{{ \App\Models\AttendanceRequest::STATUS_LABELS[$req->status] ?? $req->status }}</td>
                                     <td>@include('approvals.partials.actions', ['type' => 'attendance', 'req' => $req])</td>
                                 </tr>
@@ -59,8 +72,13 @@
                     <table class="request-table">
                         <thead>
                             <tr>
-                                <th>申請者</th><th>種別</th><th>期間</th><th>区分</th>
-                                <th>理由</th><th>状態</th><th>操作</th>
+                                <th>申請者</th>
+                                <th>種別</th>
+                                <th>期間</th>
+                                <th>区分</th>
+                                <th>理由</th>
+                                <th>状態</th>
+                                <th>操作</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -94,8 +112,12 @@
                     <table class="request-table">
                         <thead>
                             <tr>
-                                <th>申請者</th><th>対象日</th><th>時間</th>
-                                <th>理由</th><th>状態</th><th>操作</th>
+                                <th>申請者</th>
+                                <th>対象日</th>
+                                <th>時間</th>
+                                <th>理由</th>
+                                <th>状態</th>
+                                <th>操作</th>
                             </tr>
                         </thead>
                         <tbody>

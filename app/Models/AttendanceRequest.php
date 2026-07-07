@@ -18,6 +18,7 @@ class AttendanceRequest extends Model
         'approver_id',
         'approved_at',
         'admin_comment',
+        'attachment_path',
     ];
 
     protected $casts = [
