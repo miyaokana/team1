@@ -26,7 +26,7 @@ class AuthController extends Controller
             'company_name' => 'required|string|max:255',
             'user_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min8',
+            'password' => 'required|min:8',
         ],[
             'company_name.required' => '会社名は必須です。',
             'user_name.required' => '名前は必須です。',

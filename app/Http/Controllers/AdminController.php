@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\DB;
 
@@ -128,6 +129,9 @@ class AdminController extends Controller
         // 大量登録でエラーが起きた場合に、全てを取り消せるよう「トランザクション」を使用
         DB::beginTransaction();
 
+        $successCount = 0;
+        $skipCount = 0;
+
         try {
             // 4. CSVを1行ずつ読み込んで処理
             while (($row = fgetcsv($fp)) !== FALSE) {
@@ -144,6 +148,7 @@ class AdminController extends Controller
 
                 // すでに同じEmailが存在する場合はスキップ（またはエラーにする）
                 if (User::where('email', $row[1])->exists()) {
+                    $skipCount++;
                     continue;
                 }
 
@@ -154,12 +159,16 @@ class AdminController extends Controller
                     'password'  => Hash::make($row[2]), // パスワードをハッシュ化
                     'role'      => isset($row[3]) ? (int)$row[3] : 0, // 未指定なら0（一般）
                 ]);
+                $successCount++;
             }
 
             fclose($fp);
             DB::commit(); // すべて成功したら確定
 
-            return redirect('/admin/users')->with('success', 'ユーザーの一括登録が完了しました。');
+            return redirect('/admin/users')->with(
+                'success', 
+                "{$successCount}件登録しました。（重複 {$skipCount}件）"
+            );
 
         } catch (\Exception $e) {
             fclose($fp);
@@ -213,7 +222,9 @@ class AdminController extends Controller
     {
         $this->checkAdmin();
 
-        User::findOrFail($id)->delete();
+        $user = $this->findCompanyUser($id); 
+        $user->delete();
+        
         return redirect('/admin/users');
     }
 
@@ -221,7 +232,8 @@ class AdminController extends Controller
     {
         $this->checkAdmin();
 
-        $user = User::findOrFail($id);
+        $user = $this->findCompanyUser($id);
+
         return view('admin.edit', compact('user'));
     }
 
@@ -230,6 +242,17 @@ class AdminController extends Controller
         $this->checkAdmin();
 
         $user = $this->findCompanyUser($id);
+
+        $request->validate([
+            'user_name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ],
+            'role' => ['required', 'in:0,1'],
+        ]);
 
         $user->update([
             'email' => $request->email,
