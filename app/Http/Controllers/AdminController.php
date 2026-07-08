@@ -52,7 +52,13 @@ class AdminController extends Controller
         // 最終的な結果をゲット
         $users = $query->get();
 
-        return view('admin.users', compact('users'));
+        // ログイン中の管理者の会社名を取得
+        $companyName = auth()->user()->company->name;
+
+        $users = $query->get();
+
+        return view('admin.users', compact('users', 'companyName'));
+
     }
 
     public function create()
@@ -64,7 +70,7 @@ class AdminController extends Controller
     public function store(Request $request)
     {
         $this->checkAdmin();
-        
+
         $companyId = auth()->user()->company_id;
 
         // ここにバリデーションを追加します
@@ -86,7 +92,7 @@ class AdminController extends Controller
         User::create([
             'company_id' => $companyId,
             'email' => $request->email,
-            'password' => Hash::make($request->password), 
+            'password' => Hash::make($request->password),
             'user_name' => $request->user_name,
             'role' => $request->role ?? 0
         ]);
@@ -122,9 +128,9 @@ class AdminController extends Controller
 
         // 3. ファイルを開く
         $fp = fopen($path, 'r');
-        
+
         // 1行目（ヘッダー：名前,Email,パスワード,権限 などの行）をスキップする場合
-        fgetcsv($fp); 
+        fgetcsv($fp);
 
         // 大量登録でエラーが起きた場合に、全てを取り消せるよう「トランザクション」を使用
         DB::beginTransaction();
@@ -140,7 +146,7 @@ class AdminController extends Controller
 
                 // CSVの列の並び順の想定: 
                 // $row[0] = 名前, $row[1] = Email, $row[2] = パスワード, $row[3] = 権限
-                
+
                 // 行が空、または必要なデータが足りない場合はスキップ
                 if (empty($row[0]) || empty($row[1]) || empty($row[2])) {
                     continue;
@@ -153,7 +159,7 @@ class AdminController extends Controller
                 }
 
                 User::create([
-                    'company_id'=> $companyId, // 自社に紐づけ
+                    'company_id' => $companyId, // 自社に紐づけ
                     'user_name' => $row[0],
                     'email'     => $row[1],
                     'password'  => Hash::make($row[2]), // パスワードをハッシュ化
@@ -166,14 +172,13 @@ class AdminController extends Controller
             DB::commit(); // すべて成功したら確定
 
             return redirect('/admin/users')->with(
-                'success', 
+                'success',
                 "{$successCount}件登録しました。（重複 {$skipCount}件）"
             );
-
         } catch (\Exception $e) {
             fclose($fp);
             DB::rollBack(); // 途中でエラーが起きたらすべて巻き戻す
-            
+
             return back()->withErrors(['csv_file' => 'CSVの解析中にエラーが発生しました。データを確認してください。']);
         }
     }
@@ -203,7 +208,7 @@ class AdminController extends Controller
         try {
             foreach ($request->users as $userData) {
                 User::create([
-                    'company_id'=> $companyId, // 自社に紐づけ
+                    'company_id' => $companyId, // 自社に紐づけ
                     'user_name' => $userData['user_name'],
                     'email'     => $userData['email'],
                     'password'  => Hash::make($userData['password']),
@@ -222,9 +227,9 @@ class AdminController extends Controller
     {
         $this->checkAdmin();
 
-        $user = $this->findCompanyUser($id); 
+        $user = $this->findCompanyUser($id);
         $user->delete();
-        
+
         return redirect('/admin/users');
     }
 
@@ -263,16 +268,20 @@ class AdminController extends Controller
         return redirect('/admin/users');
     }
 
-    public function attendance($id){
+    public function attendance($id)
+    {
         $this->checkAdmin();
 
         $user = $this->findCompanyUser($id);
 
-        $attendances = Attendance::where('user_id', $id)
+        $attendances = Attendance::where('user_id', $user->id)
             ->orderBy('work_date', 'desc')
             ->get();
 
-        return view('Admin.attendance', compact('user', 'attendances'));
+        // 会社名を渡す
+        $companyName = auth()->user()->company->name;
+
+        return view('Admin.attendance', compact('user', 'attendances', 'companyName'));
     }
 
     // ★勤怠修正画面の表示
@@ -299,10 +308,10 @@ class AdminController extends Controller
         $this->findCompanyUser($attendance->user_id);
 
         // ★画面から日付は来ないので、このデータの元々の日付（Y-m-d）をベースにするで！
-        $date = \Carbon\Carbon::parse($attendance->work_date)->format('Y-m-d'); 
+        $date = \Carbon\Carbon::parse($attendance->work_date)->format('Y-m-d');
 
         // 時刻をコンバインするセーフティ関数
-        $mergeDateTime = function($time) use ($date) {
+        $mergeDateTime = function ($time) use ($date) {
             if (empty($time) || $time === '--:--') {
                 return null;
             }

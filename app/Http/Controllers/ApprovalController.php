@@ -18,6 +18,8 @@ class ApprovalController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
+        $companyName = Auth::user()->company->name;   // ← 追加
+
         // with('user') で申請者を一緒に読み込む。無いと申請ごとにユーザを問い合わせてＮ＋１で遅くなる
         $attendanceRequests = AttendanceRequest::with('user')
             ->whereHas('user', fn($q) => $q->where('company_id', $companyId))
@@ -35,6 +37,7 @@ class ApprovalController extends Controller
             'attendanceRequests',
             'leaveRequests',
             'overtimeRequests',
+            'companyName', 
         ));
     }
 

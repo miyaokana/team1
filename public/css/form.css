@@ -241,3 +241,27 @@ a {
 .big-btn.in:hover:not(:disabled) {
     background: #ff9d9d;
 }
+
+
+.register-guide {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid #e2e8f0;   /* 区切り線でログインと分ける */
+    text-align: center;
+}
+.register-guide-text {
+    display: block;
+    font-size: 13px;
+    color: #718096;                  /* 案内文は控えめなグレー */
+    margin-bottom: 8px;
+}
+.register-link {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #4f46e5;                  /* ブランド色で少しだけ強調 */
+    text-decoration: none;
+}
+.register-link:hover {
+    text-decoration: underline;
+}

@@ -233,3 +233,19 @@ body {
 .cancel-btn:hover {
     background: #5a6268;
 }
+
+.brand-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.company-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+}
