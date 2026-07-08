@@ -4,260 +4,283 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Shift;
+use App\Models\Notice;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Notice;
 
 class AttendanceController extends Controller
 {
-    // ダッシュボード表示（GET /dashboard）
 public function dashboard()
 {
-    $attendance = Attendance::where('user_id', Auth::id())
-        ->where('work_date', today())
-        ->first();
+$attendance=Attendance::where('user_id',Auth::id())->where('work_date',today())->first();
+$notices=Notice::latest()->get();
+$todayShift=Shift::where('user_id',Auth::id())->whereDate('shift_date',today())->first();
 
-    $notices = Notice::latest()->get();
-
-    $todayShift = Shift::where('user_id', Auth::id())
-    ->whereDate('shift_date', today())
-    ->first();
-
-    
-
-
-        return view('dashboard', [
-            'attendance'  => $attendance,
-            'status'      => $this->resolveStatus($attendance),
-            'workMinutes' => $this->workMinutes($attendance),
-            'notices'     => $notices,
-            'todayShift'  => $todayShift,
-        ]);
+return view('dashboard',[
+'attendance'=>$attendance,
+'status'=>$this->resolveStatus($attendance),
+'workMinutes'=>$this->workMinutes($attendance),
+'breakMinutes'=>$this->breakMinutes($attendance),
+'notices'=>$notices,
+'todayShift'=>$todayShift,
+]);
 }
 
-    // 打刻（POST /attendance/punch）
-    public function punch(Request $request)
-    {
-        $validated = $request->validate([
-            'type' => 'required|in:check_in,check_out,break_start,break_end',
-        ]);
+public function punch(Request $request)
+{
+$validated=$request->validate([
+'type'=>'required|in:check_in,check_out,break_start,break_end',
+]);
 
-        $type = $validated['type'];
+$type=$validated['type'];
 
-        // 当日のレコードを取得。無ければ作成
-        $attendance = Attendance::firstOrCreate([
-            'user_id'   => Auth::id(),
-            'work_date' => today(),
-        ]);
+$attendance=Attendance::firstOrCreate([
+'user_id'=>Auth::id(),
+'work_date'=>today(),
+]);
 
-        // 打刻順の妥当性チェック。不正ならメッセージを返して中断
-        if ($error = $this->validatePunch($type, $attendance)) {
-            return back()->with('error', $error);
-        }
+if($type==='check_in'){
+$todayShift=Shift::where('user_id',Auth::id())->whereDate('shift_date',today())->first();
 
-        $attendance->{$type} = now();
-        $attendance->save();
+if(!$todayShift){
+return back()->with('error','本日のシフトが登録されていません。');
+}
+}
 
-        $labels = [
-            'check_in'    => '出勤',
-            'check_out'   => '退勤',
-            'break_start' => '休憩開始',
-            'break_end'   => '休憩終了',
-        ];
-        return back()->with('status', $labels[$type] . 'を記録しました（' . now()->format('H:i') . '）');
-    }
+if($error=$this->validatePunch($type,$attendance)){
+return back()->with('error',$error);
+}
 
-    // 打刻履歴(GET /attendance/history)
-    public function history()
-    {
+if($type==='check_out'){
 
-        $userId = Auth::id();
-        $from = today()->subDays(30);
-        $to = today();
+$attendance->check_out=now();
 
-        // 直近30日分を新しい順で所得
-        $records = Attendance::where('user_id', $userId)
-            ->where('work_date', '>=', $from)
-            ->get()
-            ->keyBy(fn($a) => $a->work_date->format('Y-m-d'));
+if($request->boolean('auto_break')){
 
-        $shifts = Shift::where('user_id', $userId)
-            ->where('shift_date', '>=', $from->format('Y-m-d'))
-            ->get()
-            ->keyBy(fn($s) => Carbon::parse($s->shift_date)->format('Y-m-d'));
-        
-        $approvedAbsences = \App\Models\AttendanceRequest::where('user_id', $userId)
-            ->where('type', 'absence')
-            ->where('status', 'approved')
-            ->where('target_date', '>=', $from->format('Y-m-d'))
-            ->get()
-            ->keyBy(fn ($r) => \Carbon\Carbon::parse($r->target_date)->format('Y-m-d'));
+$workMinutes=$attendance->check_in->diffInMinutes($attendance->check_out);
 
-        // 各レコードに勤務時間(分)を持たせる。
-        // 日付を軸に,新しい順で1日づつ組み立てる。
-        $rows = collect();
-        for ($date = $to->copy(); $date->gte($from); $date->subDay()) {
-            $key = $date->format('Y-m-d');
+if($workMinutes>=480){
+$attendance->break_minutes=60;
+}elseif($workMinutes>=420){
+$attendance->break_minutes=45;
+}elseif($workMinutes>=360){
+$attendance->break_minutes=30;
+}else{
+$attendance->break_minutes=0;
+}
 
-            $attendance = $records->get($key);
-            $shift = $shifts->get($key);
-            $isApprovedAbsence = $approvedAbsences -> has($key);
+}else{
 
-            // 予定も実績もない日は行をつくらない。
-            if (!$attendance && !$shift && !$isApprovedAbsence) {
-                continue;
-            }
+$attendance->break_minutes=0;
 
-            $rows->push([    
-                'date' => $date->copy(),
-                'record' => $attendance,
-                'shift' => $shift,
-                'workMinutes' => $this->workMinutes($attendance),
-                'state' => $this->dayState($attendance, $shift, $isApprovedAbsence),
-                'diff' => $this->calcDiff($attendance, $shift),
-            ]);
-        }
+}
 
-        return view('attendance.history', [
-            'rows' => $rows,
-        ]);
-    }
+$attendance->save();
 
-    // 予定と実績の差分(遅刻・早退・残業)を分単位で計算する。
-    // 予定と出退勤が揃っていない項目はnull 判定しない
-    private function calcDiff(?Attendance $a, $shift): array 
-    {
-        $late = null;       // 遅刻(分)
-        $early = null;      // 早退(分)
-        $overtime = null;    // 残業(分)
+}else{
 
-        // 予定がない、または出退勤がなければ差分はださない。
-        if (!$shift || !$a) {
-            return ['late' => null, 'early' => null, 'overtime' => null];
-        }
+$attendance->{$type}=now();
+$attendance->save();
 
-        // 秒を切り捨てて「分」比較するためのヘルパ
-        $toMin = fn ($dt) => Carbon::parse($dt)->startOfMinute();
+}
 
-        // 遅刻:実際の出勤 > 予定開始
-        if ($a -> check_in) {
-            $planStart = $toMin($shift->start_time);
-            $realIn = $toMin($a->check_in);
-            if ($realIn -> gt($planStart)) {
-                $late = (int) abs($planStart->diffInMinutes($realIn));
-            }
-        }
+$labels=[
+'check_in'=>'出勤',
+'check_out'=>'退勤',
+'break_start'=>'休憩開始',
+'break_end'=>'休憩終了',
+];
 
-        // 早退・残業:退勤が予定終了より前なら早退、あとなら残業
-        if ($a->check_out) {
-            $planEnd = $toMin($shift->end_time);
-            $realOut = $toMin($a->check_out);
-            if ($realOut->lt($planEnd)) {
-                $early = (int) abs($planEnd->diffInMinutes($realOut));
-            } elseif ($realOut->gt($planEnd)) {
-                $overtime = (int) abs($realOut->diffInMinutes($planEnd));
-            }
-        }
+return back()->with('status',$labels[$type].'を記録しました（'.now()->format('H:i').'）');
+}
 
-        return ['late' => $late, 'early' => $early, 'overtime' => $overtime];
-    }
+public function history()
+{
+$userId=Auth::id();
+$from=today()->subDays(30);
+$to=today();
 
-    // その日の状態を判定する(欠勤/未打刻/勤務中/退勤済み/予定外)
-    private function dayState(?Attendance $a, $shift, bool $isApprovedAbsence = false): string
-    {
-        // 出勤打刻がない日
-        if (!$a || !$a->check_in){
-            // 承認済みの欠勤申請があれば[承認済み欠勤],なければ状況に応じて判断
-            if ($isApprovedAbsence){
-                return '承認済み欠勤';
-            }
+$records=Attendance::where('user_id',$userId)->where('work_date','>=',$from)->get()->keyBy(fn($a)=>$a->work_date->format('Y-m-d'));
 
-            // シフトがあるのに打刻も承認欠勤もなし -> 無断欠勤
-            if ($shift) {
-                return '無断欠勤';
-            }
+$shifts=Shift::where('user_id',$userId)->where('shift_date','>=',$from->format('Y-m-d'))->get()->keyBy(fn($s)=>Carbon::parse($s->shift_date)->format('Y-m-d'));
 
-            // シフトも打刻もない日(そもそも勤務予定なし)
-            return '---';
-        }
+$approvedAbsences=\App\Models\AttendanceRequest::where('user_id',$userId)->where('type','absence')->where('status','approved')->where('target_date','>=',$from->format('Y-m-d'))->get()->keyBy(fn($r)=>Carbon::parse($r->target_date)->format('Y-m-d'));
 
-        if ($a->check_out) return '退勤済み';
-        if ($a->break_start && !$a->break_end) return '休憩中';
-        return '勤務中';
-    }
+$rows=collect();
 
-    // 打刻順の検証。問題があればエラーメッセージ、無ければ null
-    private function validatePunch(string $type, Attendance $a): ?string
-    {
-        return match ($type) {
-            'check_in' => $a->check_in
-                ? '既に出勤打刻済みです。'
-                : null,
-            'check_out' => match (true) {
-                !$a->check_in                     => '先に出勤打刻をしてください。',
-                (bool) $a->check_out              => '既に退勤打刻済みです。',
-                $a->break_start && !$a->break_end => '休憩終了を打刻してから退勤してください。',
-                default                           => null,
-            },
-            'break_start' => match (true) {
-                !$a->check_in          => '先に出勤打刻をしてください。',
-                (bool) $a->check_out   => '退勤後は休憩できません。',
-                (bool) $a->break_start => '既に休憩開始を打刻済みです。',
-                default                => null,
-            },
-            'break_end' => match (true) {
-                !$a->break_start     => '先に休憩開始を打刻してください。',
-                (bool) $a->break_end => '既に休憩終了を打刻済みです。',
-                default              => null,
-            },
-            default => '不明な打刻種別です。',
-        };
-    }
+for($date=$to->copy();$date->gte($from);$date->subDay()){
 
-    // 現在の勤務状態ラベル
-    private function resolveStatus(?Attendance $a): string
-    {
-        if (!$a || !$a->check_in)              return '未出勤';
-        if ($a->check_out)                     return '退勤済み';
-        if ($a->break_start && !$a->break_end) return '休憩中';
-        return '勤務中';
-    }
+$key=$date->format('Y-m-d');
 
-    // 当日の勤務時間（分）=（退勤 - 出勤）- 休憩。出退勤が揃うまでは null
-    private function workMinutes(?Attendance $a): ?int
-    {
-        if (!$a || !$a->check_in || !$a->check_out) {
-            return null;
-        }
-        // abs() でCarbonのバージョン差（符号の向き）に依存しないようにする
-        $minutes = (int) abs($a->check_in->diffInMinutes($a->check_out));
-        if ($a->break_start && $a->break_end) {
-            $minutes -= (int) abs($a->break_start->diffInMinutes($a->break_end));
-        }
-        return max(0, $minutes);
-    }
+$attendance=$records->get($key);
+$shift=$shifts->get($key);
+$isApprovedAbsence=$approvedAbsences->has($key);
+
+if(!$attendance&&!$shift&&!$isApprovedAbsence){
+continue;
+}
+
+$rows->push([
+'date'=>$date->copy(),
+'record'=>$attendance,
+'shift'=>$shift,
+'workMinutes'=>$this->workMinutes($attendance),
+'state'=>$this->dayState($attendance,$shift,$isApprovedAbsence),
+'diff'=>$this->calcDiff($attendance,$shift),
+]);
+
+}
+
+return view('attendance.history',['rows'=>$rows]);
+}
+private function calcDiff(?Attendance $a,$shift):array
+{
+$late=null;
+$early=null;
+$overtime=null;
+
+if(!$shift||!$a){
+return['late'=>null,'early'=>null,'overtime'=>null];
+}
+
+$toMin=fn($dt)=>Carbon::parse($dt)->startOfMinute();
+
+if($a->check_in){
+$planStart=$toMin($shift->start_time);
+$realIn=$toMin($a->check_in);
+if($realIn->gt($planStart)){
+$late=$planStart->diffInMinutes($realIn);
+}
+}
+
+if($a->check_out){
+$planEnd=$toMin($shift->end_time);
+$realOut=$toMin($a->check_out);
+
+if($realOut->lt($planEnd)){
+$early=$planEnd->diffInMinutes($realOut);
+}elseif($realOut->gt($planEnd)){
+$overtime=$realOut->diffInMinutes($planEnd);
+}
+}
+
+return[
+'late'=>$late,
+'early'=>$early,
+'overtime'=>$overtime,
+];
+}
+
+private function dayState(?Attendance $a,$shift,bool $isApprovedAbsence=false):string
+{
+if(!$a||!$a->check_in){
+
+if($isApprovedAbsence){
+return'承認済み欠勤';
+}
+
+if($shift){
+return'無断欠勤';
+}
+
+return'---';
+}
+
+if($a->check_out)return'退勤済み';
+if($a->break_start&&!$a->break_end)return'休憩中';
+return'勤務中';
+}
+
+private function validatePunch(string $type,Attendance $a):?string
+{
+return match($type){
+'check_in'=>$a->check_in?'既に出勤打刻済みです。':null,
+
+'check_out'=>match(true){
+!$a->check_in=>'先に出勤打刻をしてください。',
+(bool)$a->check_out=>'既に退勤打刻済みです。',
+$a->break_start&&!$a->break_end=>'休憩終了を打刻してから退勤してください。',
+default=>null,
+},
+
+'break_start'=>match(true){
+!$a->check_in=>'先に出勤打刻をしてください。',
+(bool)$a->check_out=>'退勤後は休憩できません。',
+(bool)$a->break_start=>'既に休憩開始を打刻済みです。',
+default=>null,
+},
+
+'break_end'=>match(true){
+!$a->break_start=>'先に休憩開始を打刻してください。',
+(bool)$a->break_end=>'既に休憩終了を打刻済みです。',
+default=>null,
+},
+
+default=>'不明な打刻種別です。',
+};
+}
+
+private function resolveStatus(?Attendance $a):string
+{
+if(!$a||!$a->check_in)return'未出勤';
+if($a->check_out)return'退勤済み';
+if($a->break_start&&!$a->break_end)return'休憩中';
+return'勤務中';
+}
+
+private function workMinutes(?Attendance $a):?int
+{
+if(!$a||!$a->check_in||!$a->check_out){
+return null;
+}
+
+$minutes=$a->check_in->diffInMinutes($a->check_out);
+
+if(($a->break_minutes??0)>0){
+
+$minutes-=$a->break_minutes;
+
+}elseif($a->break_start&&$a->break_end){
+
+$minutes-=$a->break_start->diffInMinutes($a->break_end);
+
+}
+
+return max(0,$minutes);
+}
+
+private function breakMinutes(?Attendance $a):?int
+{
+if(!$a){
+return null;
+}
+
+if(($a->break_minutes??0)>0){
+return $a->break_minutes;
+}
+
+if($a->break_start&&$a->break_end){
+return $a->break_start->diffInMinutes($a->break_end);
+}
+
+return 0;
+}
+
 public function updateLocation(Request $request)
 {
-    $request->validate([
-        'work_location' => 'required|in:本社,研修（出社）,常駐先（出社）',
-    ]);
+$request->validate([
+'work_location'=>'required|in:本社（出社）,研修（出社）,常駐先（出社）',
+]);
 
-    $shift = Shift::where('user_id', Auth::id())
-        ->whereDate('shift_date', today())
-        ->first();
+$shift=Shift::where('user_id',Auth::id())->whereDate('shift_date',today())->first();
 
-    if ($shift) {
-
-        $shift->update([
-            'work_location' => $request->work_location,
-        ]);
-
-    }
-
-    return redirect()
-        ->route('dashboard')
-        ->with('success', '勤務地を変更しました');
+if($shift){
+$shift->update([
+'work_location'=>$request->work_location,
+]);
 }
 
+return redirect()->route('dashboard')->with('success','勤務地を変更しました');
+}
 }
