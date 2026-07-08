@@ -12,7 +12,6 @@
     <header class="top-bar">
         <h1>ギンクラ 管理画面</h1>
         <div class="nav-links">
-            <a href="/admin/requests" class="nav-item">申請一覧</a>
             <a href="{{ route('approvals.index') }}" class="nav-item">申請一覧・承認</a>
             <a href="{{ route('login') }}" class="nav-item back-btn">ログイン画面へ戻る</a>
         </div>
@@ -22,7 +21,7 @@
 
         <div class="header-area">
             <h2>ユーザ一覧</h2>
-            <a href="/admin/users/create" class="add-btn">＋ユーザ追加</a>
+            <a href="/admin/users/create" class="add-btn">＋ ユーザ追加</a>
         </div>
 
         <div class="search-box">
@@ -55,45 +54,47 @@
             </form>
         </div>
 
-        <table class="user-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>名前</th>
-                    <th>Email</th>
-                    <th>権限</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
+        <div class="table-responsive">
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>名前</th>
+                        <th>Email</th>
+                        <th>権限</th>
+                        <th class="text-center">操作</th>
+                    </tr>
+                </thead>
 
-            <tbody>
-            @foreach($users as $user)
-                <tr>
-                    <td>{{ $user->id }}</td>
-                    
-                    <td>
-                        <a href="/admin/users/{{ $user->id }}/attendance">
-                            {{ $user->user_name }}
-                        </a>
-                    </td>
-                    <td>{{ $user->email }}</td>
-                    <td>
-                        @if($user->role == 1)
-                            <span class="role admin">管理者</span>
-                        @else
-                            <span class="role user">一般</span>
-                        @endif
-                    </td>
-                    <td class="actions">
-                        <a href="/admin/users/edit/{{ $user->id }}" class="edit">編集</a>
-                        <a href="/admin/users/delete/{{ $user->id }}"
-                           class="delete"
-                           onclick="return confirm('削除しますか？')">削除</a>
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
+                <tbody>
+                @foreach($users as $user)
+                    <tr>
+                        <td><span class="id-badge">{{ $user->id }}</span></td>
+                        
+                        <td>
+                            <a href="/admin/users/{{ $user->id }}/attendance" class="user-link">
+                                {{ $user->user_name }}
+                            </a>
+                        </td>
+                        <td class="email-text">{{ $user->email }}</td>
+                        <td>
+                            @if($user->role == 1)
+                                <span class="role admin">管理者</span>
+                            @else
+                                <span class="role user">一般</span>
+                            @endif
+                        </td>
+                        <td class="actions text-center">
+                            <a href="/admin/users/edit/{{ $user->id }}" class="edit">編集</a>
+                            <a href="/admin/users/delete/{{ $user->id }}"
+                               class="delete"
+                               onclick="return confirm('削除しますか？')">削除</a>
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
 
     </div>
 
