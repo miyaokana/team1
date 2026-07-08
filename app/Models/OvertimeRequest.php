@@ -4,43 +4,38 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AttendanceRequest extends Model
+class OvertimeRequest extends Model 
 {
-    protected $table = 'attendance_requests';
-    
+    protected $table = 'overtime_requests';
+
     protected $fillable = [
         'user_id',
-        'type',
         'target_date',
-        'request_time',
+        'start_at',
+        'end_at',
         'reason',
         'status',
         'approver_id',
         'approved_at',
         'admin_comment',
-        'attachment_path',
     ];
 
     protected $casts = [
         'target_date' => 'date',
+        'start_at' => 'datetime',
+        'end_at' => 'datetime',
         'approved_at' => 'datetime',
-    ];
-
-    public const TYPE_LABELS = [
-        'late' => '遅刻',
-        'early_leave' => '早退',
-        'absence' => '欠勤',
     ];
 
     public const STATUS_LABELS = [
         'pending' => '申請中',
-        'approved'=> '承認済み',
-        'rejected'=> '却下',
+        'approved' => '承認済み',
+        'rejected' => '却下',
     ];
 
-    // この申請をだしたユーザー
+    // この申請を出したユーザー
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this -> belongsTo(User::class);
     }
 }

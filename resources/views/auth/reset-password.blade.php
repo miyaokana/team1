@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>パスワード再設定</title>
-    <link rel="stylesheet" href="/css/forgot-password.css">
+    <title>新しいパスワードの設定</title>
+    <link rel="stylesheet" href="/css/reset-password.css">
 </head>
 <body>
 
@@ -14,7 +14,7 @@
         <span class="ember"></span>
         <span class="ember ember--triangle"></span>
         <span class="ember"></span>
-        <span class="ember ember--star"></span>
+        <span class="ember"></span>
         <span class="ember"></span>
         <span class="ember ember--square"></span>
         <span class="ember"></span>
@@ -27,13 +27,9 @@
     </div>
 
     <div class="reset-card">
+        <h2 class="reset-card__title">新しいパスワードの設定</h2>
 
-        @if (session('status'))
-           <div class="success-message">
-            {{ session('status') }}
-        </div>
-        @endif
-
+        <!-- エラーメッセージの表示 -->
         @if ($errors->any())
             <div class="form-error-message">
                 @foreach ($errors->all() as $error)
@@ -42,22 +38,25 @@
             </div>
         @endif
 
-        <form action="{{ route('password.email') }}" method="POST">
+        <form action="{{ route('password.update') }}" method="POST">
             @csrf
 
-            <h2 class="reset-card__title">パスワード再設定</h2>
+            <!-- 誰のアドレスかを隠しフィールドでポストする -->
+            <input type="hidden" name="email" value="{{ $email }}">
 
             <div class="form-group">
-                <input type="email"
-                       name="email"
-                       placeholder="登録メールアドレス"
-                       value="{{ old('email') }}"
-                       class="form-input"
-                       required>
+                <label class="form-label">新しいパスワード（8文字以上）</label>
+                <input type="password" name="password" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">新しいパスワード（確認用）</label>
+                <!-- 「_confirmation」をつけることでLaravelのconfirmedバリデーションが自動チェックしてくれるで！ -->
+                <input type="password" name="password_confirmation" class="form-input" required>
             </div>
 
             <button type="submit" class="btn btn-primary">
-                再設定メール送信
+                パスワードを変更する
             </button>
         </form>
     </div>

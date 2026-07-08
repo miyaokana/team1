@@ -1,35 +1,42 @@
-<?php
+<?php 
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AttendanceRequest extends Model
+class LeaveRequest extends Model
 {
-    protected $table = 'attendance_requests';
-    
+    protected $table = 'leave_requests';
+
     protected $fillable = [
         'user_id',
         'type',
-        'target_date',
-        'request_time',
+        'start_date',
+        'end_date',
+        'day_type',
         'reason',
         'status',
         'approver_id',
         'approved_at',
         'admin_comment',
-        'attachment_path',
     ];
 
     protected $casts = [
-        'target_date' => 'date',
+        'start_date' => 'date',
+        'end_date' => 'date',
         'approved_at' => 'datetime',
     ];
 
+    // 種別の日本語ラベル(画面表示用)
     public const TYPE_LABELS = [
-        'late' => '遅刻',
-        'early_leave' => '早退',
-        'absence' => '欠勤',
+        'paid' => '有給',
+        'special' => '特別休暇',
+    ];
+
+    public const DAY_TYPE_LABELS = [
+        'full_day' => '全日',
+        'am' => '午前半休',
+        'pm' => '午後半休',
     ];
 
     public const STATUS_LABELS = [
@@ -38,8 +45,8 @@ class AttendanceRequest extends Model
         'rejected'=> '却下',
     ];
 
-    // この申請をだしたユーザー
-    public function user()
+    // この申請を出したユーザー
+    public function user() 
     {
         return $this->belongsTo(User::class);
     }

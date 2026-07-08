@@ -45,6 +45,224 @@ class ShiftController extends Controller
         return view('shifts.shift', compact('selectedUser', 'currentMonth', 'shifts', 'dates', 'startOfWeek', 'holidays'));
     }
 
+    public function store(Request $request)
+    {
+        // 1. 出勤時間と退勤時間が両方存在する場合のみ自動計算を行う
+        if ($request->has('start_time') && $request->has('end_time')) {
+            
+            // 文字列を Carbon インスタンスに変換
+            $start = \Carbon\Carbon::parse($request->input('start_time'));
+            $end = \Carbon\Carbon::parse($request->input('end_time'));
+
+            // 【夜勤・日付またぎ対策】
+            // 退勤時間が出勤時間より前（例: 16:00出勤 〜 02:00退勤）なら、退勤日に1日足す
+            if ($end->lt($start)) {
+                $end->addDay();
+            }
+
+            // 拘束時間（時間単位の差分）を計算
+            $diffInHours = $start->diffInHours($end);
+
+            // 【複数条件ルール】時間の長い順に判定
+            if ($diffInHours >= 8) {
+                $breakMinutes = 60;
+            } elseif ($diffInHours >= 7) {
+                $breakMinutes = 45;
+            } elseif ($diffInHours >= 6){
+                $breakMinutes = 30;
+            } else {
+                $breakMinutes = 0;
+            }
+
+            // 2. データベースの保存用カラム名（例: break_minutes）に合わせて
+            // 計算した数値をリクエストデータに強制合流（上書き）させる
+            $request->merge(['break_minutes' => $breakMinutes]);
+        }
+
+        $request->validate([
+            'user_id'            => 'required|exists:users,id',
+            'date'               => 'required|date',
+            'action'             => 'required|in:register,delete',
+            'start_hour'         => 'required_if:action,register|string',
+            'end_hour'           => 'required_if:action,register|string',
+            'break_minutes'      => 'required_if:action,register|integer|min:0',
+            'work_location_base' => 'required_if:action,register|string',
+            'work_style'         => 'required_if:action,register|string', 
+        ]);
+
+        if ($request->action === 'delete') {
+            Shift::where('user_id', $request->user_id)
+                 ->where('shift_date', $request->date)
+                 ->delete();
+                 
+            $message = '出勤を取り消しました。';
+        } else {
+            $startTime = Carbon::parse($request->date . ' ' . $request->start_hour);
+            // 単発登録でも変則的な終了時間（夜勤など）に対応できるように共通メソッドを使用
+            $endTime = $this->parseEndTime($request->date, $request->end_hour);
+
+            if ($endTime->lt($startTime)) {
+                return redirect()->back()->with('error', '退勤時間は出勤時間より後の時間を設定してください。');
+            }
+
+            $totalWorkingMinutes = $startTime->diffInMinutes($endTime);
+            if ($request->break_minutes > $totalWorkingMinutes) {
+                return redirect()->back()->with('error', '休憩時間は総勤務時間より短く設定してください。');
+            }
+
+            $base = $request->input('work_location_base', '本社');
+            $style = $request->input('work_style', '出社');
+            $workLocation = "{$base}（{$style}）";
+
+            Shift::updateOrCreate(
+                [
+                    'user_id'    => $request->user_id,
+                    'shift_date' => $request->date,
+                ],
+                [
+                    'work_location' => $workLocation,
+                    'start_time'    => $startTime,
+                    'end_time'      => $endTime,
+                    'break_minutes' => $request->break_minutes
+                ]
+            );
+            $message = 'シフトを登録しました（' . $request->start_hour . '〜' . $request->end_hour . '）。';
+        }
+
+        $month = Carbon::parse($request->date)->format('Y-m');
+        return redirect()->route('shifts.shift', ['month' => $month, 'user_id' => $request->user_id])
+                         ->with('success', $message);
+    }
+
+    public function storeBulk(Request $request)
+    {
+        $request->validate([
+            'user_id'            => 'required|exists:users,id',
+            'selected_dates'     => 'required|array',
+            'selected_dates.*'   => 'required|date',
+            'action'             => 'required|in:register,delete',
+            'bulk_start_hour'    => 'required_if:action,register|string',
+            'bulk_end_hour'      => 'required_if:action,register|string',
+            'bulk_break_minutes' => 'required_if:action,register|integer|min:0',
+            'work_location_base' => 'required_if:action,register|string',
+            'work_style'         => 'required_if:action,register|string',
+        ]);
+
+        // 1. 開始時間と終了時間を取得
+        $start = $request->input('bulk_start_hour'); // "09:00"
+        $endRaw = $request->input('bulk_end_hour');   // "17:30+0" などの想定
+
+        if ($start && $endRaw) {
+            // 翌日フラグの有無を確認
+            $isNextDay = str_contains($endRaw, '+1');
+            $end = str_replace(['+0', '+1'], '', $endRaw);
+
+            $startTime = \Carbon\Carbon::parse($start);
+            $endTime = \Carbon\Carbon::parse($end);
+
+            // 翌日の場合は1日加算
+            if ($isNextDay || $endTime->lt($startTime)) {
+                $endTime->addDay();
+            }
+
+            // 差分（時間）を計算
+            $diffHours = $startTime->diffInHours($endTime);
+
+            if ($diffHours >= 8){
+                $bulkBreak = 60;
+            } else if ($diffHours >= 7){
+                $bulkBreak = 45;
+            } else if ($diffHours >= 6){
+                $bulkBreak = 30;
+            } else {
+                $bulkBreak = 0;
+            }
+            
+            $request->merge(['bulk_break_minutes' => $bulkBreak]);
+        }
+
+        // 2. ここでバリデーションを行う（すでに値が入っているので required を通過します）
+        $request->validate([
+            'bulk_break_minutes' => 'required|integer',
+        ]);
+
+        $userId = $request->user_id; 
+        $dates = $request->selected_dates;
+
+        if ($request->action === 'delete') {
+            Shift::where('user_id', $userId)
+                ->whereIn('shift_date', $dates)
+                ->delete();
+
+            return redirect()->back()->with('success', '選択した日付のシフトを一括削除しました。');
+        }
+
+        $base = $request->input('work_location_base', '本社');
+        $style = $request->input('work_style', '出社');
+        $workLocation = "{$base}（{$style}）";
+        
+        $startTimeStr = $request->bulk_start_hour; 
+        $endTimeRaw = $request->bulk_end_hour;     
+        $breakMinutes = $request->bulk_break_minutes;
+
+        // 💡 データの詰め替えを行い、upsertで一括処理（高速化 ＆ foreach内のエラーを排除）
+        $upsertData = [];
+        foreach ($dates as $dateStr) {
+            $start = Carbon::parse($dateStr . ' ' . $startTimeStr);
+            $end = $this->parseEndTime($dateStr, $endTimeRaw);
+
+            $upsertData[] = [
+                'user_id'       => $userId,
+                'shift_date'    => $dateStr,
+                'work_location' => $workLocation,
+                'start_time'    => $start->format('Y-m-d H:i:s'),
+                'end_time'      => $end->format('Y-m-d H:i:s'),
+                'break_minutes' => $breakMinutes,
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ];
+        }
+
+        DB::transaction(function () use ($upsertData) {
+            Shift::upsert(
+                $upsertData, 
+                ['user_id', 'shift_date'], 
+                ['work_location', 'start_time', 'end_time', 'break_minutes', 'updated_at']
+            );
+        });
+
+        return redirect()->back()->withInput()->with('success', '一括登録しました。');
+    }
+
+    /**
+     * 「33:00」や「10:00+1」などの変則的な退勤時間をパースする共通ロジック
+     */
+    private function parseEndTime(string $dateStr, string $endTimeRaw): Carbon
+    {
+        $endTimeStr = $endTimeRaw;
+        $addDays = 0;
+
+        // 「+1」などの日数加算表記のパース
+        if (strpos($endTimeRaw, '+') !== false) {
+            [$endTimeStr, $addDays] = explode('+', $endTimeRaw);
+            $addDays = (int)$addDays;
+        }
+
+        // 「33:00」などの24時間超過表記のパース
+        if (strpos($endTimeStr, ':') !== false) {
+            [$hours, $minutes] = explode(':', $endTimeStr);
+            $hours = (int)$hours;
+
+            if ($hours >= 24) {
+                $addDays += floor($hours / 24);
+                $hours = $hours % 24;
+            }
+            $endTimeStr = sprintf('%02d:%s', $hours, $minutes);
+        }
+
+        return Carbon::parse($dateStr . ' ' . $endTimeStr)->addDays($addDays);
+    }
+
     /**
      * 日本の祝日（振替休日・国民の休日含む）の自動判定ロジック
      */
@@ -123,121 +341,5 @@ class ShiftController extends Controller
         });
 
         return array_values($filteredHolidays);
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'user_id'    => 'required|exists:users,id',
-            'date'       => 'required|date',
-            'action'     => 'required|in:register,delete',
-            'start_hour' => 'required_if:action,register|string',
-            'end_hour'   => 'required_if:action,register|string',
-        ]);
-
-        if ($request->action === 'register') {
-            $startTime = Carbon::parse($request->date . ' ' . $request->start_hour);
-            $endTime = Carbon::parse($request->date . ' ' . $request->end_hour);
-
-            if ($endTime->lt($startTime)) {
-                return redirect()->back()->with('error', '退勤時間は出勤時間より後の時間を設定してください。');
-            }
-
-            Shift::updateOrCreate(
-                [
-                    'user_id'    => $request->user_id,
-                    'shift_date' => $request->date,
-                ],
-                [
-                    'start_time' => $startTime,
-                    'end_time'   => $endTime,
-                ]
-            );
-            $message = 'シフトを登録しました（' . $request->start_hour . '〜' . $request->end_hour . '）。';
-        } else {
-            Shift::where('user_id', $request->user_id)
-                 ->where('shift_date', $request->date)
-                 ->delete();
-            $message = '出勤を取り消しました。';
-        }
-
-        $month = Carbon::parse($request->date)->format('Y-m');
-        return redirect()->route('shifts.shift', ['month' => $month, 'user_id' => $request->user_id])
-                         ->with('success', $message);
-    }
-
-    public function storeBulk(Request $request)
-    {
-        // 💡 変更点: バリデーションルールを分割した2つのセレクトボックス（base / style）に更新
-        $request->validate([
-            'user_id'            => 'required|exists:users,id',
-            'selected_dates'     => 'required|array',
-            'selected_dates.*'   => 'required|date',
-            'action'             => 'required|in:register,delete',
-            'bulk_start_hour'    => 'required_if:action,register|string',
-            'bulk_end_hour'      => 'required_if:action,register|string',
-            'work_location_base' => 'required_if:action,register|string', // 💡 追加
-            'work_style'         => 'required_if:action,register|string', // 💡 追加
-        ]);
-
-        $userId = $request->user_id; 
-        $dates = $request->selected_dates;
-
-        if ($request->action === 'delete') {
-            Shift::where('user_id', $userId)
-                ->whereIn('shift_date', $dates)
-                ->delete();
-
-            return redirect()->back()->with('success', '選択した日付のシフトを一括削除しました。');
-        }
-
-        // 💡 2つの選択肢を結びつけて「本社（在宅）」のような文字列にドッキング
-        $base = $request->input('work_location_base', '本社');
-        $style = $request->input('work_style', '出社');
-        $workLocation = "{$base}（{$style}）";
-        
-        $startTimeStr = $request->bulk_start_hour; 
-        $endTimeRaw = $request->bulk_end_hour;     
-
-        // トランザクション処理を追加して一括更新を安全に高速化
-        DB::transaction(function () use ($dates, $userId, $startTimeStr, $endTimeRaw, $workLocation) {
-            foreach ($dates as $dateStr) {
-                $start = Carbon::parse($dateStr . ' ' . $startTimeStr);
-                
-                $endTimeStr = $endTimeRaw;
-                $addDays = 0;
-
-                // 「+1」などの日数加算表記のパース
-                if (strpos($endTimeRaw, '+') !== false) {
-                    list($endTimeStr, $addDays) = explode('+', $endTimeRaw);
-                    $addDays = (int)$addDays;
-                }
-
-                // 「33:00」などの24時間超過表記のパース
-                if (strpos($endTimeStr, ':') !== false) {
-                    list($hours, $minutes) = explode(':', $endTimeStr);
-                    $hours = (int)$hours;
-
-                    if ($hours >= 24) {
-                        $addDays += floor($hours / 24);
-                        $hours = $hours % 24;
-                    }
-                    $endTimeStr = sprintf('%02d:%s', $hours, $minutes);
-                }
-
-                $end = Carbon::parse($dateStr . ' ' . $endTimeStr)->addDays($addDays);
-
-                Shift::updateOrCreate(
-                    ['user_id' => $userId, 'shift_date' => $dateStr],
-                    [
-                        'work_location' => $workLocation,
-                        'start_time'    => $start, 
-                        'end_time'      => $end,   
-                    ]
-                );
-            }
-        });
-
-        return redirect()->back()->withInput()->with('success', '一括登録しました。');
     }
 }

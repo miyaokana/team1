@@ -20,7 +20,7 @@
 
     <div class="wrap">
 
-        <!-- システム通知 -->
+        <!--   システム通知    -->
         <div class="notice-wide">
 
             <div class="notice-left">
@@ -75,9 +75,17 @@
 
 
                     <div class="info">
-                        <div>勤務地：本社</div>
+
+                        <div class="work-location-info">
+                            <span class="work-label">勤務地</span>
+
+                            <span class="work-value">
+                                {{ $todayShift?->work_location ?? '未設定' }}
+                            </span>
+                        </div>
 
                         <div>出勤：{{ optional($attendance?->check_in)->format('H:i') ?? '--:--' }}</div>
+
                         <div>退勤：{{ optional($attendance?->check_out)->format('H:i') ?? '--:--' }}</div>
 
                         <div>
@@ -90,26 +98,55 @@
                         <div>
                             勤務時間：
                             @if (!is_null($workMinutes))
-                                {{ intdiv($workMinutes, 60) }}時間{{ $workMinutes % 60 }}分
+                                {{ intdiv($workMinutes,60) }}時間{{ $workMinutes % 60 }}分
                             @else
                                 --
                             @endif
                         </div>
+
                     </div>
 
                 </div>
 
                 <!-- ✅ 右 -->
                 <div class="right">
+<div class="location">
 
-                    <div class="location">
-                        <span class="loc-label">勤務地</span>
+    <span class="loc-label">勤務地</span>
 
-                        <div class="loc-box">
-                            <span>本社</span>
-                            <span class="change-btn">変更</span>
-                        </div>
-                    </div>
+    <form action="{{ route('shift.location.update') }}" method="POST">
+        @csrf
+
+        <div class="loc-box">
+
+            <select name="work_location">
+
+    <option value="本社"
+        {{ ($todayShift?->work_location ?? '') === '本社' ? 'selected' : '' }}>
+        本社
+    </option>
+
+    <option value="研修（出社）"
+        {{ ($todayShift?->work_location ?? '') === '研修（出社）' ? 'selected' : '' }}>
+        研修（出社）
+    </option>
+
+    <option value="常駐先（出社）"
+        {{ ($todayShift?->work_location ?? '') === '常駐先（出社）' ? 'selected' : '' }}>
+        常駐先（出社）
+    </option>
+
+</select>
+
+            <button type="submit" class="change-btn">
+                変更
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
 
                     <div class="punch-row">
 

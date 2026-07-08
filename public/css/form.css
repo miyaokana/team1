@@ -223,3 +223,21 @@ a {
 .google-btn {
     color: #000;
 }
+
+.big-btn.in {
+    background: #ddd;
+}
+
+.big-btn.in {
+    background: #ffd6d6;
+    color: #d32f2f;
+    border: 2px solid #f5a5a5;
+}
+
+.big-btn.in:not(:disabled) {
+    background: #ffb3b3;
+}
+
+.big-btn.in:hover:not(:disabled) {
+    background: #ff9d9d;
+}

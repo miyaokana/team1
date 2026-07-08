@@ -4,15 +4,70 @@ body {
     background: linear-gradient(120deg, #fff5f5, #fceaea);
 }
 
-/* 上バー */
+/* ==========================================================
+   ▼ 上バー（ここを横並び用にスマートにカスタム！）
+   ========================================================== */
 .top-bar {
     background: #ff6b6b;
     color: white;
     padding: 15px 30px;
     font-size: 18px;
+    
+    /* 横並び＆両端に寄せるための魔法 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* 中央 */
+.top-bar h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+/* リンクを右側に綺麗に並べるコンテナ */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* リンク同士の間隔 */
+}
+
+/* ナビゲーションアイテム共通 */
+.nav-item {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.nav-item:hover {
+    opacity: 0.8;
+}
+
+/* ログイン画面へ戻るボタン（元のテイストのまま右端に配置） */
+.back-btn,
+.back-btn:link,
+.back-btn:visited {
+    color: #fff;
+    text-decoration: none;
+    background: #6b7280;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    transition: background 0.2s;
+}
+
+.back-btn:hover {
+    background: #4b5563;
+    color: #fff;
+    opacity: 1;
+}
+
+/* ==========================================================
+   ▼ 中央コンテンツ＆パーツ（元の最高なデザインを100%継承！）
+   ========================================================== */
 .container {
     width: 90%;
     max-width: 1000px;
@@ -48,6 +103,77 @@ body {
     background: #ff4c4c;
 }
 
+/* 検索ボックスのスタイル */
+.search-box {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    border: 1px solid #ffe5e5;
+}
+
+.search-box form {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-box .form-group {
+    display: flex;
+    align-items: center;
+}
+
+.search-box label {
+    font-weight: bold;
+    margin-right: 5px;
+    white-space: nowrap;
+    color: #555;
+}
+
+.search-box input[type="text"],
+.search-box select {
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+}
+
+/* ボタン群 */
+.search-box .form-actions {
+    display: flex;
+    align-items: center;
+}
+
+.search-box .search-btn {
+    padding: 6px 15px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.search-box .search-btn:hover {
+    background: #0056b3;
+}
+
+.search-box .clear-btn {
+    padding: 6px 15px;
+    background: #6c757d;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-left: 5px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.search-box .clear-btn:hover {
+    background: #5a6268;
+}
+
 /* テーブル */
 .user-table {
     width: 100%;
@@ -63,6 +189,19 @@ body {
 .user-table td {
     padding: 12px;
     border-bottom: 1px solid #eee;
+}
+
+/* IDと名前のリンク（勤怠一覧への導線）を装飾 */
+.user-table td a {
+    color: #e57373;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.user-table td a:hover {
+    text-decoration: underline; 
+    color: #ff4c4c;              
 }
 
 /* ホバー */
@@ -97,6 +236,14 @@ body {
     color: #007bff;
 }
 
+.actions .edit:hover {
+    text-decoration: underline;
+}
+
 .actions .delete {
     color: red;
+}
+
+.actions .delete:hover {
+    text-decoration: underline;
 }
