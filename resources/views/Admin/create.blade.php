@@ -54,6 +54,16 @@
 
         <div id="form-multiple" class="form-content">
             <form method="POST" action="/admin/users/store-multiple" novalidate>
+                @if ($errors->any())
+                <div class="error-box">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+                
                 @csrf
                 <div style="margin-bottom: 25px;">
                     <button type="button" id="add-row-btn" style="width: 100%; padding: 10px; background: #edf2f7; color: #4a5568; border: 1px solid #cbd5e0; border-radius: 6px; font-weight: bold; cursor: pointer;">＋ 入力行を追加する</button>
