@@ -297,7 +297,7 @@
                                             $isCellNextDay = ($endMinutes < $startMinutes) || str_contains((string)$shift->end_time, '+1');
                                         @endphp
                                         <span class="text-lg text-slate-800 font-mono font-extrabold tracking-tighter block w-full text-center leading-tight">                                         
-                                            <span class="block xl:inline-block">{{ $timeStart->format('H:i') }}</span><span class="block xl:inline-block">～</span><span class="block xl:inline-block">{{ $isCellNextDay ? '翌' : '' }}{{ $timeEnd->format('H:i') }}</span>
+                                            <span class="block xl:inline-block">{{ $timeStart->format('H:i') }}</span><span class="block xl:inline-block">－</span><span class="block xl:inline-block">{{ $isCellNextDay ? '翌' : '' }}{{ $timeEnd->format('H:i') }}</span>
                                         </span>
                                     </div>
                                 @else
@@ -342,7 +342,14 @@
                     }
                         
                     $diffInHours = $start->diffInHours($endForCalc);
-                    if ($diffInHours >= 6) { $diffInHours -= 1; } 
+                    if ($diffInHours >= 8) { 
+                        $diffInHours -= 1;
+                    } else if ($diffInHours >= 7) { 
+                        $diffInHours -= 0.75; 
+                    } else if ($diffInHours >= 6) { 
+                        $diffInHours -= 0.5; 
+                    }
+
                     $totalHours += $diffInHours;
                 }
             }
@@ -413,7 +420,15 @@
                                         }
 
                                         $diffInHours = $start->diffInHours($endForCalc);
-                                        $restHours = ($diffInHours >= 6) ? 1 : 0;
+                                        if ($diffInHours >= 8) { 
+                                            $restHours = 1;
+                                        } else if ($diffInHours >= 7) { 
+                                            $restHours = 0.75; 
+                                        } else if ($diffInHours >= 6) { 
+                                            $restHours = 0.5; 
+                                        } else {
+                                            $restHours = 0;
+                                        }
                                         $workHours = $diffInHours - $restHours;
 
                                         $thisWeekId = $dateObj->copy()->startOfWeek(\Carbon\Carbon::MONDAY)->format('Y-m-d');
@@ -446,7 +461,7 @@
                                         </td>
                                         {{-- 休憩時間 --}}
                                         <td class="p-3 border-r border-rose-300 text-center font-semibold text-slate-500 text-base">
-                                            {{ $restHours }} 時間
+                                            {{ $restHours * 60 }} 分
                                         </td>
                                         {{-- 勤務時間 --}}
                                         <td class="p-3 text-center font-black text-blue-600 bg-amber-50/50 text-base">
