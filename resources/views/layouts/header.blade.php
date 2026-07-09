@@ -4,9 +4,21 @@
         <a href="{{ route('notices.index') }}" class="notice-link">
             お知らせ
 
-            <span class="count">
-                {{ isset($notices) ? $notices->count() : 0 }}
-            </span>
+        @php
+        $noticeCount = \App\Models\Notice::where(function ($query) {
+
+            $query->where('user_id', auth()->id())
+                ->orWhereNull('user_id');
+
+        })
+        ->where('is_read', false)
+        ->count();
+        @endphp
+
+        <span class="count">
+            {{ $noticeCount }}
+        </span>
+
         </a>
     </div>
 

@@ -13,6 +13,7 @@ use App\Http\Controllers\AdminRequestController;
 use App\Models\AttendanceRequest;
 use App\Models\OvertimeRequest;
 use App\Models\Notice;
+use App\Http\Controllers\NoticeController;
 
 // トップ
 Route::get('/', function () {
@@ -83,8 +84,33 @@ Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('g
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 Route::get('/notices', function () {
+
+    // 未読 → 既読
+    Notice::where(function ($query) {
+
+        $query->where('user_id', auth()->id())
+              ->orWhereNull('user_id');
+
+    })
+    ->where('is_read', false)
+    ->update([
+        'is_read' => true,
+    ]);
+
+    // お知らせ取得
     $notices = Notice::latest()->get();
-    return view('notices.index', ['notices' => $notices]);
+
+    $requestNotifications =
+        AttendanceRequest::where('user_id', auth()->id())
+        ->whereIn('status', ['approved', 'rejected'])
+        ->latest()
+        ->get();
+
+    return view('notices.index', [
+        'notices' => $notices,
+        'requestNotifications' => $requestNotifications,
+    ]);
+
 })->name('notices.index');
 
 
