@@ -47,6 +47,38 @@ class ShiftController extends Controller
 
     public function store(Request $request)
     {
+        // 1. 出勤時間と退勤時間が両方存在する場合のみ自動計算を行う
+        if ($request->has('start_time') && $request->has('end_time')) {
+            
+            // 文字列を Carbon インスタンスに変換
+            $start = \Carbon\Carbon::parse($request->input('start_time'));
+            $end = \Carbon\Carbon::parse($request->input('end_time'));
+
+            // 【夜勤・日付またぎ対策】
+            // 退勤時間が出勤時間より前（例: 16:00出勤 〜 02:00退勤）なら、退勤日に1日足す
+            if ($end->lt($start)) {
+                $end->addDay();
+            }
+
+            // 拘束時間（時間単位の差分）を計算
+            $diffInHours = $start->diffInHours($end);
+
+            // 【複数条件ルール】時間の長い順に判定
+            if ($diffInHours >= 8) {
+                $breakMinutes = 60;
+            } elseif ($diffInHours >= 7) {
+                $breakMinutes = 45;
+            } elseif ($diffInHours >= 6){
+                $breakMinutes = 30;
+            } else {
+                $breakMinutes = 0;
+            }
+
+            // 2. データベースの保存用カラム名（例: break_minutes）に合わせて
+            // 計算した数値をリクエストデータに強制合流（上書き）させる
+            $request->merge(['break_minutes' => $breakMinutes]);
+        }
+
         $request->validate([
             'user_id'            => 'required|exists:users,id',
             'date'               => 'required|date',
@@ -136,8 +168,15 @@ class ShiftController extends Controller
             // 差分（時間）を計算
             $diffHours = $startTime->diffInHours($endTime);
 
-            // 6時間以上なら60分、それ未満なら0分をリクエストに強制追加
-            $bulkBreak = ($diffHours >= 6) ? 60 : 0;
+            if ($diffHours >= 8){
+                $bulkBreak = 60;
+            } else if ($diffHours >= 7){
+                $bulkBreak = 45;
+            } else if ($diffHours >= 6){
+                $bulkBreak = 30;
+            } else {
+                $bulkBreak = 0;
+            }
             
             $request->merge(['bulk_break_minutes' => $bulkBreak]);
         }
@@ -145,7 +184,6 @@ class ShiftController extends Controller
         // 2. ここでバリデーションを行う（すでに値が入っているので required を通過します）
         $request->validate([
             'bulk_break_minutes' => 'required|integer',
-            // 他のバリデーション...
         ]);
 
         $userId = $request->user_id; 

@@ -3,15 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title>新しいパスワードの設定</title>
+    <link rel="stylesheet" href="/css/reset-password.css">
 </head>
 <body>
 
-    <div style="max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc;">
-        <h2>新しいパスワードの設定</h2>
+    <div class="embers">
+        <span class="ember"></span>
+        <span class="ember"></span>
+        <span class="ember ember--square"></span>
+        <span class="ember"></span>
+        <span class="ember ember--triangle"></span>
+        <span class="ember"></span>
+        <span class="ember"></span>
+        <span class="ember"></span>
+        <span class="ember ember--square"></span>
+        <span class="ember"></span>
+        <span class="ember ember--triangle"></span>
+        <span class="ember"></span>
+        <span class="ember"></span>
+        <span class="ember"></span>
+        <span class="ember ember--square"></span>
+        <span class="ember"></span>
+    </div>
+
+    <div class="reset-card">
+        <h2 class="reset-card__title">新しいパスワードの設定</h2>
 
         <!-- エラーメッセージの表示 -->
         @if ($errors->any())
-            <div style="color: red; margin-bottom: 15px;">
+            <div class="form-error-message">
                 @foreach ($errors->all() as $error)
                     <p>{{ $error }}</p>
                 @endforeach
@@ -24,18 +44,18 @@
             <!-- 誰のアドレスかを隠しフィールドでポストする -->
             <input type="hidden" name="email" value="{{ $email }}">
 
-            <div style="margin-bottom: 15px;">
-                <label>新しいパスワード（8文字以上）</label><br>
-                <input type="password" name="password" style="width: 100%; padding: 8px;" required>
+            <div class="form-group">
+                <label class="form-label">新しいパスワード（8文字以上）</label>
+                <input type="password" name="password" class="form-input" required>
             </div>
 
-            <div style="margin-bottom: 15px;">
-                <label>新しいパスワード（確認用）</label><br>
+            <div class="form-group">
+                <label class="form-label">新しいパスワード（確認用）</label>
                 <!-- 「_confirmation」をつけることでLaravelのconfirmedバリデーションが自動チェックしてくれるで！ -->
-                <input type="password" name="password_confirmation" style="width: 100%; padding: 8px;" required>
+                <input type="password" name="password_confirmation" class="form-input" required>
             </div>
 
-            <button type="submit" style="padding: 10px 15px; background-color: #28a745; color: white; border: none; cursor: pointer;">
+            <button type="submit" class="btn btn-primary">
                 パスワードを変更する
             </button>
         </form>
