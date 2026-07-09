@@ -364,27 +364,20 @@ class="sub-btn {{ !$isWorking?'inactive':'' }}"
 
 <div class="bottom-btns">
 
+    <button
+        type="button"
+        class="outline"
+        id="openRequest">
+        勤怠申請
+    </button>
 
-<!-- ここを変更 -->
-
-<button type="button" 
-class="outline"
-id="openRequest">
-
-勤怠申請
-
-</button>
-
-
-<button class="outline">
-
-打刻修正
-
-</button>
-
+    <a
+        href="{{ route('dakoku.request.create') }}"
+        class="outline">
+        打刻修正
+    </a>
 
 </div>
-
 
 </div>
 
