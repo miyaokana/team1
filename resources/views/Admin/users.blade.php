@@ -31,6 +31,7 @@
                     'absent' => ['label' => '無断欠勤', 'class' => 'st-absent'],
                     'before' => ['label' => '出勤前',   'class' => 'st-before'],
                     'off'    => ['label' => '休み',     'class' => 'st-off'],
+                    'admin'  => ['label' => '対象外',     'class' => 'st-admin'],
                 ];
             @endphp
 
@@ -41,6 +42,7 @@
                     <div class="summary-label">全員</div>
                 </a>
                 @foreach ($stateMap as $key => $s)
+                @continue($key === 'admin')
                     <a href="/admin/users?state={{ $key }}"
                        class="summary-card card-{{ $s['class'] }} {{ $activeState === $key ? 'active' : '' }}">
                         <div class="summary-num">{{ $counts[$key] }}</div>
@@ -104,7 +106,11 @@
                             </td>
                             <td class="email-text">{{ $user->email }}</td>
                             <td class="text-center">
-                                <span class="state-badge {{ $st['class'] }}">{{ $st['label'] }}</span>
+                                @if ($user->today_state === 'admin')
+                                    <span class="state-badge st-admin">-</span>
+                                @else
+                                    <span class="state-badge {{ $st['class'] }}">{{ $st['label'] }}</span>
+                                @endif
                             </td>
                             <td class="text-center">
                                 @if($user->role == 1)

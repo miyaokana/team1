@@ -400,3 +400,11 @@ body { margin: 0; background: #f1f5f9; font-family: system-ui, "Hiragino Kaku Go
 @media (max-width: 800px) {
     .summary-cards { grid-template-columns: repeat(3, 1fr); }
 }
+
+.st-admin { 
+    background: #cbd5e0; 
+}
+.state-badge.st-admin {
+     background: #f1f5f9; 
+     color: #94a3b8;
+}

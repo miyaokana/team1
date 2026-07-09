@@ -57,6 +57,10 @@ class AdminController extends Controller
 
         // 各ユーザに今日の勤務状態を付与
         foreach ($users as $u) {
+            if ($u->role == 1) {
+                $u->today_state = 'admin';  // 管理者は対象外の専門状態
+                continue;
+            }
             $shift = \App\Models\Shift::where('user_id', $u->id)
                 ->where('shift_date', $today)
                 ->first();
@@ -68,19 +72,22 @@ class AdminController extends Controller
             $u->today_state = $this->resolveTodayState($shift, $attendance);
         }
 
+        // 一般社員だけ集計対象にする
+        $staff = $users->where('role', 0);
+
         // 状態別カウント(絞り込み前の全体で数える)
         $counts = [
-            'normal' => $users->where('today_state', 'normal')->count(),
-            'late'   => $users->where('today_state', 'late')->count(),
-            'absent'   => $users->where('today_state', 'absent')->count(),
-            'before'   => $users->where('today_state', 'before')->count(),
-            'off'   => $users->where('today_state', 'off')->count(),
-            'total'   => $users->count(),
+            'normal' => $staff->where('today_state', 'normal')->count(),
+            'late'   => $staff->where('today_state', 'late')->count(),
+            'absent' => $staff->where('today_state', 'absent')->count(),
+            'before' => $staff->where('today_state', 'before')->count(),
+            'off'    => $staff->where('today_state', 'off')->count(),
+            'total'  => $staff->count(),
         ];
 
         // 状態フィルタ(サマリーカードのクリックで絞る)
         $activeState = $request->input('state');
-        if ($activeState && in_array($activeState, ['normal', 'late', 'before', 'off'], true)) {
+        if ($activeState && in_array($activeState, ['normal', 'late', 'absent', 'before', 'off'], true)) {
             $users = $users->where('today_state', $activeState)->values();
         }
 
