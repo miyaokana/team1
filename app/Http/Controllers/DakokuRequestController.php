@@ -81,7 +81,7 @@ class DakokuRequestController extends Controller
         if ($request->filled('requested_punch_out') || $request->delete_out == 1) {
             $existsOut = DakokuRequest::where('user_id', $userId)
                 ->where('date', $date)
-                ->where('is_out_request', true) // 💡 退勤の申請であることを明示
+                ->where('is_out_request', true)
                 ->where('status', 'pending')
                 ->exists();
 
@@ -89,13 +89,17 @@ class DakokuRequestController extends Controller
                 DakokuRequest::create([
                     'user_id'            => $userId,
                     'date'               => $date,
+                    'is_in_request'      => false,
                     'is_out_request'     => true,
-                    'is_delete'          => $request->delete_out == 1, // 💡 削除申請フラグ
+                    'is_delete'          => $request->delete_out == 1,
+                    'requested_punch_in' => null,
                     'requested_punch_out'=> $request->delete_out == 1 ? null : $request->requested_punch_out,
+                    'auto_break_out'     => $request->delete_out == 1 ? false : ($request->auto_break_out == 1), // 💡セレクトボックスの値を判定
                     'reason'             => $request->reason_out,
                 ]);
                 $hasCreated = true;
             }
+
         }
 
         if (!$hasCreated) {
@@ -127,27 +131,42 @@ class DakokuRequestController extends Controller
                 'work_date' => $dakokuRequest->date
             ]);
 
-            // 💡 出勤申請か退勤申請か、および削除申請か否かで反映ロジックを切り分ける
+            // 出勤の反映
             if ($dakokuRequest->is_in_request) {
                 $attendance->check_in = $dakokuRequest->is_delete ? null : $dakokuRequest->requested_punch_in;
             }
 
+            // 退勤の反映
             if ($dakokuRequest->is_out_request) {
                 $attendance->check_out = $dakokuRequest->is_delete ? null : $dakokuRequest->requested_punch_out;
+            }
+
+            // 💡【休憩時間の自動計算ロジック】
+            // 自動追加フラグが有効、かつ出勤・退勤のどちらもデータが存在する場合に計算
+            if ($dakokuRequest->auto_break_out && $attendance->check_in && $attendance->check_out) {
+                
+                // Carbonで時間をパースして、滞在時間（分）を計算
+                $inTime = \Carbon\Carbon::parse($attendance->check_in);
+                $outTime = \Carbon\Carbon::parse($attendance->check_out);
+                
+                // 出退勤の差分（総労働分）を取得
+                $workMinutes = $inTime->diffInMinutes($outTime);
+
+                // 条件分岐（8時間=480分、7時間=420分、6時間=360分）
+                if ($workMinutes >= 480) {
+                    $attendance->break_minutes = 60;  // 8時間以上は60分
+                } elseif ($workMinutes >= 420) {
+                    $attendance->break_minutes = 45;  // 7時間以上は45分
+                } elseif ($workMinutes >= 360) {
+                    $attendance->break_minutes = 30;  // 6時間以上は30分
+                } else {
+                    $attendance->break_minutes = 0;   // 6時間未満は0分
+                }
             }
 
             $attendance->save();
 
             return back()->with('success', '申請を承認し、勤怠データを更新しました。');
-
-        } else {
-            // 却下処理
-            $dakokuRequest->update([
-                'status' => 'rejected',
-                'admin_comment' => $request->admin_comment
-            ]);
-
-            return back()->with('success', '申請を却下しました。');
         }
     }
 }

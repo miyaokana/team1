@@ -151,6 +151,20 @@
                                 <textarea id="reason_out" name="reason_out" rows="2" placeholder="例：残業したが押し忘れた" 
                                     class="w-full flex-1 p-3 bg-white border-2 border-slate-500 focus:border-black focus:outline-none rounded-xl text-slate-800 placeholder-slate-400 transition-colors resize-none">{{ old('reason_out') }}</textarea>
                             </div>
+                        
+
+                            <hr class="my-3 border-1 border-slate-400">
+
+                            <div class="form-group flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mt-3">
+                                <label for="auto_break_out" class="text-base font-bold text-slate-800 min-w-[140px]">休憩時間の調整</label>
+                                <div class="w-full sm:w-72">
+                                    <select id="auto_break_out" name="auto_break_out" 
+                                        class="w-full h-12 px-4 bg-white border-2 border-slate-500 focus:border-black focus:outline-none rounded-xl font-bold text-base text-slate-800 cursor-pointer transition-colors">
+                                        <option value="0" {{ old('auto_break_out') == '0' ? 'selected' : '' }}>休憩時間を自動追加しない</option>
+                                        <option value="1" {{ old('auto_break_out') == '1' ? 'selected' : '1' }}>勤務時間に応じて自動追加する</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 @endif
@@ -158,7 +172,7 @@
                 {{-- ▼ 送信ボタン（元のカラーを維持して中央寄せ） --}}
                 <button type="submit" class="w-70 h-14 mx-auto bg-rose-400 hover:bg-rose-700 text-white font-black text-lg rounded-2xl shadow-sm transition-all cursor-pointer flex items-center justify-center tracking-wider block">
                     申請
-                    </button>
+                </button>
             </form>
 
         @else
@@ -288,39 +302,40 @@
         const timeInput = document.getElementById(`requested_punch_${type}`);
         const badge = document.getElementById(`badge_${type}`);
         
+        // 👇 退勤側の自動休憩セレクトボックスを取得
+        const autoBreakSelect = document.getElementById('auto_break_out');
+
         if (!checkbox || !containerBox || !timeInput || !badge) return;
 
         if (checkbox.checked) {
-            // 🔴 削除申請モード
-            // disabledではなくreadOnlyを使用（フォーム送信時に値を保持するため）
             timeInput.readOnly = true;
             timeInput.classList.add('bg-slate-100', 'text-slate-400', 'cursor-not-allowed', 'opacity-50');
             
+            // 👇 削除時は「自動追加しない」にして操作不可にする
+            if (type === 'out' && autoBreakSelect) {
+                autoBreakSelect.value = "0";
+                autoBreakSelect.disabled = true;
+                autoBreakSelect.classList.add('bg-slate-100', 'text-slate-400', 'cursor-not-allowed', 'opacity-50');
+            }
+
             containerBox.classList.remove(type === 'in' ? 'border-emerald-600' : 'border-indigo-600', type === 'in' ? 'bg-emerald-50/50' : 'bg-indigo-50/50');
             containerBox.classList.add('border-rose-500', 'bg-rose-50/30');
-            
             badge.innerText = "削除理由";
         } else {
-            // 🟢 通常（修正）モードに戻す
             timeInput.readOnly = false;
             timeInput.classList.remove('bg-slate-100', 'text-slate-400', 'cursor-not-allowed', 'opacity-50');
             
+            // 👇 通常モードに戻ったら操作可能にする
+            if (type === 'out' && autoBreakSelect) {
+                autoBreakSelect.disabled = false;
+                autoBreakSelect.classList.remove('bg-slate-100', 'text-slate-400', 'cursor-not-allowed', 'opacity-50');
+            }
+
             containerBox.classList.remove('border-rose-500', 'bg-rose-50/30');
             containerBox.classList.add(type === 'in' ? 'border-emerald-600' : 'border-indigo-600', type === 'in' ? 'bg-emerald-50/50' : 'bg-indigo-50/50');
-            
             badge.innerText = "必須";
         }
     }
-
-    // 🔄 バリデーションエラーからの復帰時（old値）に対応
-    document.addEventListener('DOMContentLoaded', () => {
-        ['in', 'out'].forEach(type => {
-            const checkbox = document.querySelector(`input[name="delete_${type}"]`);
-            if (checkbox && checkbox.checked) {
-                toggleDeleteMode(type);
-            }
-        });
-    });
 </script>
 </body>
 </html>
