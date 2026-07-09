@@ -74,7 +74,7 @@ Route::get('/admin/users/delete/{id}', [AdminController::class, 'delete']);
 Route::get('/admin/users/edit/{id}', [AdminController::class, 'edit']);
 Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
 
-// シフト 
+// シフト  
 Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');
 Route::post('/shifts/store', [ShiftController::class, 'store'])->name('shifts.store');
 Route::post('/shifts/bulk', [ShiftController::class, 'storeBulk'])->name('shifts.store_bulk');
