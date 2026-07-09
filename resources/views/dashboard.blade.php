@@ -530,11 +530,6 @@ name="request_time">
 
 
 
-                    <div class="bottom-btns">
-                        <button class="outline">勤怠申請</button>
-                        <a href="{{ route('dakoku.request.create') }}" class="outline" >打刻修正</a>
-                    </div>
-
 
 <div class="form-row">
 
@@ -632,38 +627,37 @@ p(n.getSeconds())
 
 // 勤怠申請モーダル
 
-const modal=document.getElementById('requestModal');
+// 勤怠申請モーダル
 
-const open=document.getElementById('openRequest');
+const modal = document.getElementById('requestModal');
+const open = document.getElementById('openRequest');
+const close = document.getElementById('closeRequest');
 
-const close=document.getElementById('closeRequest');
+open.onclick = () => {
 
+    modal.style.display = 'block';
 
-
-open.onclick=()=>{
-
-modal.style.display='block';
-
+    // 背景スクロール禁止
+    document.body.style.overflow = 'hidden';
 };
 
+close.onclick = () => {
 
+    modal.style.display = 'none';
 
-close.onclick=()=>{
-
-modal.style.display='none';
-
+    // スクロール解除
+    document.body.style.overflow = '';
 };
 
+window.onclick = (e) => {
 
+    if (e.target === modal) {
 
-window.onclick=(e)=>{
+        modal.style.display = 'none';
 
-if(e.target===modal){
-
-modal.style.display='none';
-
-}
-
+        // スクロール解除
+        document.body.style.overflow = '';
+    }
 };
 
 
