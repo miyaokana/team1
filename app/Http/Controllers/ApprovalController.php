@@ -9,24 +9,37 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Attendance;
 use Carbon\Carbon;
+use App\Models\Notice;
+
+
 
 class ApprovalController extends Controller
 {
     // 承認一覧 (GET /approvals)
     public function index()
     {
+        $companyId = Auth::user()->company_id;
+
+        $companyName = Auth::user()->company->name;   // ← 追加
+
         // with('user') で申請者を一緒に読み込む。無いと申請ごとにユーザを問い合わせてＮ＋１で遅くなる
         $attendanceRequests = AttendanceRequest::with('user')
+            ->whereHas('user', fn($q) => $q->where('company_id', $companyId))
             ->orderBy('created_at', 'desc')->get();
+
         $leaveRequests = LeaveRequest::with('user')
+            ->whereHas('user', fn($q) => $q->where('company_id', $companyId))
             ->orderBy('created_at', 'desc')->get();
+
         $overtimeRequests = OvertimeRequest::with('user')
+            ->whereHas('user', fn($q) => $q->where('company_id', $companyId))
             ->orderBy('created_at', 'desc')->get();
 
         return view('approvals.index', compact(
             'attendanceRequests',
             'leaveRequests',
             'overtimeRequests',
+            'companyName', 
         ));
     }
 
@@ -49,6 +62,11 @@ class ApprovalController extends Controller
             return back()->with('error', '対象の申請が見つかりませんでした。');
         }
 
+        // 対象申請が自社ユーザのものか確認(他社なら403)
+        if (!$model->user || $model->user->company_id !== Auth::user()->company_id){
+            abort(403, 'この申請を操作する権限はありません。');
+        }
+
         // すでに処理済みのものは二重に承認・差し戻しさせない
         if ($model->status !== 'pending') {
             return back()->with('error', 'この申請は既に処理済みです。');
@@ -60,6 +78,35 @@ class ApprovalController extends Controller
         $model->approver_id = Auth::id();
         $model->approved_at = now();
         $model->save();
+
+         // 申請結果通知を作成
+$typeLabel = match ($model->type) {
+    'late' => '遅刻',
+    'early_leave' => '早退',
+    'absence' => '欠勤',
+    default => '申請',
+};
+
+if ($validated['status'] === 'approved') {
+
+    $message = "{$typeLabel}申請が承認されました。";
+
+} else {
+
+    $message = "{$typeLabel}申請が却下されました。";
+
+    if (!empty($model->admin_comment)) {
+        $message .= "\n\n理由：{$model->admin_comment}";
+    }
+    }
+
+    Notice::create([
+        'user_id' => $model->user_id,
+        'title' => '申請結果通知',
+        'message' => $message,
+        'date' => today(),
+        'is_read' => false,
+    ]);
 
         if ($type === 'attendance'
             && $validated['status'] === 'approved'

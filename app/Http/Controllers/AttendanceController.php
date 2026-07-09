@@ -17,6 +17,125 @@ $attendance=Attendance::where('user_id',Auth::id())->where('work_date',today())-
 $notices=Notice::latest()->get();
 $todayShift=Shift::where('user_id',Auth::id())->whereDate('shift_date',today())->first();
 
+$systemNotice = null;
+
+if (!$todayShift) {
+
+    $systemNotice = '本日のシフトは登録されていません。';
+
+} else {
+
+    $startTime = Carbon::parse($todayShift->start_time);
+    $endTime   = Carbon::parse($todayShift->end_time);
+
+    // 未出勤
+    if (!$attendance?->check_in) {
+
+        if (now()->lt($startTime)) {
+
+            $systemNotice =
+                '本日の勤務予定：'
+                .$startTime->format('H:i')
+                .'～'
+                .$endTime->format('H:i');
+
+        } else {
+
+            $lateMinutes = (int) floor(
+                $startTime->diffInSeconds(now()) / 60
+            );
+
+            $systemNotice =
+                "出勤打刻をしてください（{$lateMinutes}分経過）";
+        }
+    }
+
+    // 休憩中
+    elseif (
+        $attendance->break_start &&
+        !$attendance->break_end
+    ) {
+
+        $breakMinutes = (int) floor(
+            $attendance->break_start
+                ->diffInSeconds(now()) / 60
+        );
+
+        if ($breakMinutes >= 60) {
+
+            $systemNotice =
+                "休憩開始から{$breakMinutes}分経過しています";
+
+        } else {
+
+            $systemNotice = '休憩中です';
+        }
+    }
+
+    // 退勤済み
+    elseif ($attendance->check_out) {
+
+        if ($attendance->check_out->lt($endTime)) {
+
+            $earlyMinutes = (int) floor(
+                $attendance->check_out
+                    ->diffInSeconds($endTime) / 60
+            );
+
+            $systemNotice =
+                "本日は{$earlyMinutes}分の早退が発生しています";
+
+        } elseif ($attendance->check_out->gt($endTime)) {
+
+            $overMinutes = (int) floor(
+                $endTime
+                    ->diffInSeconds($attendance->check_out) / 60
+            );
+
+            $systemNotice =
+                "本日は{$overMinutes}分の残業でした";
+
+        } else {
+
+            $systemNotice =
+                '本日の勤務は終了しました';
+        }
+    }
+
+    // 勤務中
+    else {
+
+        $remainMinutes = (int) floor(
+            now()->diffInSeconds($endTime, false) / 60
+        );
+
+        if ($remainMinutes > 0 && $remainMinutes <= 30) {
+
+            $systemNotice =
+                "退勤予定まであと{$remainMinutes}分です";
+
+        } elseif ($remainMinutes <= 0) {
+
+            $overMinutes = abs($remainMinutes);
+
+            if ($overMinutes >= 30) {
+
+                $systemNotice =
+                    "残業が{$overMinutes}分発生しています";
+
+            } else {
+
+                $systemNotice =
+                    '退勤予定時刻を過ぎています';
+            }
+        } else {
+
+            $systemNotice =
+                '本日もよろしくお願いします';
+        }
+    }
+}
+
 return view('dashboard',[
 'attendance'=>$attendance,
 'status'=>$this->resolveStatus($attendance),
@@ -24,6 +143,7 @@ return view('dashboard',[
 'breakMinutes'=>$this->breakMinutes($attendance),
 'notices'=>$notices,
 'todayShift'=>$todayShift,
+'systemNotice'=>$systemNotice,
 ]);
 }
 
