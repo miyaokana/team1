@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\DB;
 
@@ -18,13 +19,20 @@ class AdminController extends Controller
         }
     }
 
+    // 自社ユーザだけに絞る
+    public function findCompanyUser($id)
+    {
+        return User::where('company_id', auth()->user()->company_id)
+            ->findOrFail($id);
+    }
+
     // 名前とEmailの個別検索に対応したindexメソッド
     public function index(Request $request)
     {
         $this->checkAdmin();
 
-        // クエリビルダを始動
-        $query = User::query();
+        // クエリビルダを始動 自社ユーザだけに絞る
+        $query = User::where('company_id', auth()->user()->company_id);
 
         // 1. 名前（user_name）で検索
         if ($request->filled('name')) {
@@ -44,7 +52,13 @@ class AdminController extends Controller
         // 最終的な結果をゲット
         $users = $query->get();
 
-        return view('admin.users', compact('users'));
+        // ログイン中の管理者の会社名を取得
+        $companyName = auth()->user()->company->name;
+
+        $users = $query->get();
+
+        return view('admin.users', compact('users', 'companyName'));
+
     }
 
     public function create()
@@ -56,6 +70,8 @@ class AdminController extends Controller
     public function store(Request $request)
     {
         $this->checkAdmin();
+
+        $companyId = auth()->user()->company_id;
 
         // ここにバリデーションを追加します
         $request->validate([
@@ -74,8 +90,9 @@ class AdminController extends Controller
         ]);
 
         User::create([
+            'company_id' => $companyId,
             'email' => $request->email,
-            'password' => Hash::make($request->password), 
+            'password' => Hash::make($request->password),
             'user_name' => $request->user_name,
             'role' => $request->role ?? 0
         ]);
@@ -95,6 +112,8 @@ class AdminController extends Controller
     {
         $this->checkAdmin();
 
+        $companyId = auth()->user()->company_id;
+
         // 1. ファイルのバリデーション（CSV形式、最大2MBまでなど）
         $request->validate([
             'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
@@ -109,12 +128,15 @@ class AdminController extends Controller
 
         // 3. ファイルを開く
         $fp = fopen($path, 'r');
-        
+
         // 1行目（ヘッダー：名前,Email,パスワード,権限 などの行）をスキップする場合
-        fgetcsv($fp); 
+        fgetcsv($fp);
 
         // 大量登録でエラーが起きた場合に、全てを取り消せるよう「トランザクション」を使用
         DB::beginTransaction();
+
+        $successCount = 0;
+        $skipCount = 0;
 
         try {
             // 4. CSVを1行ずつ読み込んで処理
@@ -124,7 +146,7 @@ class AdminController extends Controller
 
                 // CSVの列の並び順の想定: 
                 // $row[0] = 名前, $row[1] = Email, $row[2] = パスワード, $row[3] = 権限
-                
+
                 // 行が空、または必要なデータが足りない場合はスキップ
                 if (empty($row[0]) || empty($row[1]) || empty($row[2])) {
                     continue;
@@ -132,26 +154,31 @@ class AdminController extends Controller
 
                 // すでに同じEmailが存在する場合はスキップ（またはエラーにする）
                 if (User::where('email', $row[1])->exists()) {
+                    $skipCount++;
                     continue;
                 }
 
                 User::create([
+                    'company_id' => $companyId, // 自社に紐づけ
                     'user_name' => $row[0],
                     'email'     => $row[1],
                     'password'  => Hash::make($row[2]), // パスワードをハッシュ化
                     'role'      => isset($row[3]) ? (int)$row[3] : 0, // 未指定なら0（一般）
                 ]);
+                $successCount++;
             }
 
             fclose($fp);
             DB::commit(); // すべて成功したら確定
 
-            return redirect('/admin/users')->with('success', 'ユーザーの一括登録が完了しました。');
-
+            return redirect('/admin/users')->with(
+                'success',
+                "{$successCount}件登録しました。（重複 {$skipCount}件）"
+            );
         } catch (\Exception $e) {
             fclose($fp);
             DB::rollBack(); // 途中でエラーが起きたらすべて巻き戻す
-            
+
             return back()->withErrors(['csv_file' => 'CSVの解析中にエラーが発生しました。データを確認してください。']);
         }
     }
@@ -159,6 +186,8 @@ class AdminController extends Controller
     public function storeMultiple(Request $request)
     {
         $this->checkAdmin();
+
+        $companyId = auth()->user()->company_id;
 
         $request->validate([
             'users' => ['required', 'array', 'min:1'],
@@ -179,6 +208,7 @@ class AdminController extends Controller
         try {
             foreach ($request->users as $userData) {
                 User::create([
+                    'company_id' => $companyId, // 自社に紐づけ
                     'user_name' => $userData['user_name'],
                     'email'     => $userData['email'],
                     'password'  => Hash::make($userData['password']),
@@ -197,7 +227,9 @@ class AdminController extends Controller
     {
         $this->checkAdmin();
 
-        User::findOrFail($id)->delete();
+        $user = $this->findCompanyUser($id);
+        $user->delete();
+
         return redirect('/admin/users');
     }
 
@@ -205,7 +237,8 @@ class AdminController extends Controller
     {
         $this->checkAdmin();
 
-        $user = User::findOrFail($id);
+        $user = $this->findCompanyUser($id);
+
         return view('admin.edit', compact('user'));
     }
 
@@ -213,7 +246,18 @@ class AdminController extends Controller
     {
         $this->checkAdmin();
 
-        $user = User::findOrFail($id);
+        $user = $this->findCompanyUser($id);
+
+        $request->validate([
+            'user_name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ],
+            'role' => ['required', 'in:0,1'],
+        ]);
 
         $user->update([
             'email' => $request->email,
@@ -224,16 +268,20 @@ class AdminController extends Controller
         return redirect('/admin/users');
     }
 
-    public function attendance($id){
+    public function attendance($id)
+    {
         $this->checkAdmin();
 
-        $user = User::findOrFail($id);
+        $user = $this->findCompanyUser($id);
 
-        $attendances = Attendance::where('user_id', $id)
+        $attendances = Attendance::where('user_id', $user->id)
             ->orderBy('work_date', 'desc')
             ->get();
 
-        return view('Admin.attendance', compact('user', 'attendances'));
+        // 会社名を渡す
+        $companyName = auth()->user()->company->name;
+
+        return view('Admin.attendance', compact('user', 'attendances', 'companyName'));
     }
 
     // ★勤怠修正画面の表示
@@ -244,7 +292,7 @@ class AdminController extends Controller
         // 修正対象の勤怠データをゲット
         $attendance = Attendance::findOrFail($id);
         // 誰の勤怠かわかるようにユーザー情報もゲット
-        $user = User::findOrFail($attendance->user_id);
+        $user = $this->findCompanyUser($attendance->user_id);
 
         // フォルダ名が大文字の「Admin」やから大文字で指定するで！
         return view('Admin.edit_attendance', compact('attendance', 'user'));
@@ -256,11 +304,14 @@ class AdminController extends Controller
 
         $attendance = Attendance::findOrFail($id);
 
+        // 対象勤怠が自社ユーザのものか確認(他社なら404)
+        $this->findCompanyUser($attendance->user_id);
+
         // ★画面から日付は来ないので、このデータの元々の日付（Y-m-d）をベースにするで！
-        $date = \Carbon\Carbon::parse($attendance->work_date)->format('Y-m-d'); 
+        $date = \Carbon\Carbon::parse($attendance->work_date)->format('Y-m-d');
 
         // 時刻をコンバインするセーフティ関数
-        $mergeDateTime = function($time) use ($date) {
+        $mergeDateTime = function ($time) use ($date) {
             if (empty($time) || $time === '--:--') {
                 return null;
             }

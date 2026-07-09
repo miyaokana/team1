@@ -11,7 +11,10 @@
 <div class="admin-wrapper">
 
     <header class="top-bar">
-        <h1>ギンクラ 管理画面</h1>
+        <div class="brand-area">
+            <h1>ギンクラ 管理画面</h1>
+            <span class="company-badge">{{ $companyName }}</span>
+        </div>
         <div class="nav-links">
             <a href="/admin/users" class="nav-item">← ユーザ一覧に戻る</a>
             <a href="/admin/requests" class="nav-item">申請一覧</a>
