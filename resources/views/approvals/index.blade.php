@@ -18,7 +18,7 @@
                 <span class="company-badge">{{ $companyName }}</span>
             </div>
             <div class="nav-links">
-                <a href="{{ route('approvals.index') }}" class="nav-item">申請一覧・承認</a>
+                <p class="back-link"><a href="/admin/users" class="nav-item">← ユーザー一覧に戻る</a></p>
                 <a href="{{ route('login') }}" class="nav-item back-btn">ログイン画面へ戻る</a>
             </div>
         </header>
