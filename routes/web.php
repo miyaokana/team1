@@ -84,7 +84,7 @@ Route::post('/admin/attendance/{id}/update', [AdminController::class, 'updateAtt
 Route::get('/admin/users/requests', [DakokuRequestController::class, 'adminIndex'])->name('admin.dakoku.requests.index');
 Route::post('/admin/users/requests/{id}/approve', [DakokuRequestController::class, 'adminApprove'])->name('admin.dakoku.requests.approve');
 
-// シフト
+// シフト  
 Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');
 Route::post('/shifts/store', [ShiftController::class, 'store'])->name('shifts.store');
 Route::post('/shifts/bulk', [ShiftController::class, 'storeBulk'])->name('shifts.store_bulk');
@@ -118,3 +118,4 @@ Route::post(
     '/shift/location',
     [AttendanceController::class, 'updateLocation']
 )->name('shift.location.update');
+
