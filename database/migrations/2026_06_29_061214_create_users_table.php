@@ -9,17 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->string('user_name');
-            $table->integer('role')->default(0); // 0:一般 1:管理者
-            $table->timestamps();
-        });
-    }
+   public function up(): void
+{
+    Schema::create('users', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('company_id')->constrained()->onDelete('cascade'); // 所属会社
+        $table->string('email')->unique();
+        $table->string('password');
+        $table->string('user_name');
+        $table->integer('role')->default(0); // 0:一般 1:管理者
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.

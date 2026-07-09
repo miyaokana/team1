@@ -12,23 +12,34 @@ use Carbon\Carbon;
 use App\Models\Notice;
 
 
+
 class ApprovalController extends Controller
 {
     // 承認一覧 (GET /approvals)
     public function index()
     {
+        $companyId = Auth::user()->company_id;
+
+        $companyName = Auth::user()->company->name;   // ← 追加
+
         // with('user') で申請者を一緒に読み込む。無いと申請ごとにユーザを問い合わせてＮ＋１で遅くなる
         $attendanceRequests = AttendanceRequest::with('user')
+            ->whereHas('user', fn($q) => $q->where('company_id', $companyId))
             ->orderBy('created_at', 'desc')->get();
+
         $leaveRequests = LeaveRequest::with('user')
+            ->whereHas('user', fn($q) => $q->where('company_id', $companyId))
             ->orderBy('created_at', 'desc')->get();
+
         $overtimeRequests = OvertimeRequest::with('user')
+            ->whereHas('user', fn($q) => $q->where('company_id', $companyId))
             ->orderBy('created_at', 'desc')->get();
 
         return view('approvals.index', compact(
             'attendanceRequests',
             'leaveRequests',
             'overtimeRequests',
+            'companyName', 
         ));
     }
 
@@ -49,6 +60,11 @@ class ApprovalController extends Controller
         $model = $this->resolveModel($type, $id);
         if (!$model) {
             return back()->with('error', '対象の申請が見つかりませんでした。');
+        }
+
+        // 対象申請が自社ユーザのものか確認(他社なら403)
+        if (!$model->user || $model->user->company_id !== Auth::user()->company_id){
+            abort(403, 'この申請を操作する権限はありません。');
         }
 
         // すでに処理済みのものは二重に承認・差し戻しさせない

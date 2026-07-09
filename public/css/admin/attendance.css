@@ -1,0 +1,251 @@
+/* ===== 基本ベース（ユーザーダッシュボードのグラデーションを踏襲） ===== */
+body {
+    margin: 0;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(120deg, #fff5f5, #fceaea);
+    min-height: 100vh;
+    color: #333;
+}
+
+/* 上バー */
+.top-bar {
+    background: #ff6b6b;
+    color: white;
+    padding: 15px 30px;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.top-bar h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-item {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.nav-item:hover {
+    opacity: 0.8;
+}
+
+/* メインコンテナ */
+.container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 40px auto;
+}
+
+/* ヘッダーエリア */
+.header-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.header-area h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #444;
+}
+
+/* メールアドレスのバッジ */
+.user-email-badge {
+    background: #e57373;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* ===== テーブル専用カードコンテナ（すりガラス・エフェクト） ===== */
+.table-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    border: 1px solid #ffe5e5;
+}
+
+/* テーブルスタイル */
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.attendance-table th {
+    background: #ffe5e5;
+    color: #7f1d1d;
+    padding: 14px 12px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* テーブルヘッダーの角丸化 */
+.attendance-table th:first-child { border-radius: 8px 0 0 8px; }
+.attendance-table th:last-child { border-radius: 0 8px 8px 0; }
+
+.attendance-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #eee;
+    font-size: 15px;
+}
+
+/* ホバーで行がスッとハイライト */
+.attendance-table tr:hover td {
+    background: #fff5f5;
+}
+
+/* 各セルのカラー微調整 */
+.work-date {
+    font-weight: bold;
+    color: #444;
+}
+
+.time-cell {
+    font-variant-numeric: tabular-nums; /* 数字の幅を揃えて美しく */
+}
+
+/* データがない時の特別スタイル */
+.empty-message {
+    text-align: center;
+    color: #999;
+    padding: 40px 0 !important;
+    font-style: italic;
+}
+
+/* 修正ボタン */
+.edit-btn {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.edit-btn:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================================
+   ▼ ここから下を attendance.css の末尾に追記してや！
+   ========================================================== */
+
+/* 修正フォーム用のカードサイズ制限 */
+.form-card {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* フォーム全体のレイアウト */
+.edit-attendance-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 縦並びの入力グループ */
+.form-group-block {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* 横並びの行（出退勤・休憩用） */
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+/* 均等に幅を広げる */
+.flex-1 {
+    flex: 1;
+}
+
+/* ラベルスタイル */
+.form-label {
+    font-weight: bold;
+    color: #555;
+}
+
+/* 入力フォームの共通デザイン */
+.form-input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    background: #fff;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* ボタンを並べる行 */
+.form-actions-row {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+/* 保存ボタン */
+.submit-btn {
+    flex: 1;
+    padding: 12px;
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.submit-btn:hover {
+    background: #ff4c4c;
+}
+
+/* キャンセルボタン */
+.cancel-btn {
+    padding: 12px 20px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 16px;
+    text-align: center;
+    transition: background 0.2s;
+}
+
+.cancel-btn:hover {
+    background: #5a6268;
+}
+
+.brand-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.company-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+}

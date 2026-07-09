@@ -1,0 +1,257 @@
+/* ==========================================================
+   ▼ 全体ベース（ユーザ一覧のベースを完全リスペクト）
+   ========================================================== */
+body {
+    margin: 0;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(120deg, #fff5f5, #fceaea);
+    color: #333;
+    min-height: 100vh;
+}
+
+/* ユーティリティ */
+.text-center {
+    text-align: center !important;
+}
+
+/* ==========================================================
+   ▼ トップバー（ヘッダー共通・100%同一デザイン）
+   ========================================================== */
+.top-bar {
+    background: #ff6b6b;
+    color: white;
+    padding: 15px 30px;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.top-bar h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-item {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.nav-item:hover {
+    opacity: 0.8;
+}
+
+.back-btn,
+.back-btn:link,
+.back-btn:visited {
+    color: #fff;
+    text-decoration: none;
+    background: #6b7280;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    transition: background 0.2s;
+}
+
+.back-btn:hover {
+    background: #4b5563;
+    color: #fff;
+    opacity: 1;
+}
+
+/* ==========================================================
+   ▼ 中央コンテンツ＆外枠構造（.layout なしの単体 wrap / card 構造に対応）
+   ========================================================== */
+/* サイドバーがないので、wrap自体をコンテナとして中央にマージン配置 */
+.wrap {
+    width: 90%;
+    max-width: 1000px;
+    margin: 40px auto;
+}
+
+.wrap h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+/* 各セクションを包むカード（ユーザ一覧の .container の装飾を継承） */
+.card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+.card h2 {
+    font-size: 18px;
+    color: #495057;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #ffe5e5;
+}
+
+/* フラッシュメッセージ */
+.flash {
+    padding: 12px 18px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: bold;
+}
+.flash-ok {
+    background-color: #e6fcf5;
+    color: #0ca678;
+    border: 1px solid #c3fae8;
+}
+.flash-err {
+    background-color: #fff5f5;
+    color: #f03e3e;
+    border: 1px solid #ffe3e3;
+}
+
+/* ==========================================================
+   ▼ テーブルスタイル（.user-table のルック＆フィールを移植）
+   ========================================================== */
+.request-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.request-table th {
+    background: #ffe5e5;
+    padding: 12px;
+    text-align: left;
+    color: #333;
+    font-weight: bold;
+}
+
+.request-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    color: #555;
+    vertical-align: middle;
+}
+
+/* ホバー効果 */
+.request-table tr:hover {
+    background: #fff2f2;
+}
+
+/* テキスト装飾関係 */
+.user-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.user-link {
+    color: #e57373;
+    text-decoration: none;
+    font-weight: bold;
+}
+.user-link:hover {
+    text-decoration: underline;
+    color: #ff4c4c;
+}
+
+.date-text, .time-text {
+    font-weight: 600;
+}
+
+.reason-text {
+    color: #666;
+    max-width: 200px;
+    word-break: break-all;
+}
+
+/* ==========================================================
+   ▼ 申請画面専用コンポーネント（種類・状態バッジ ＆ 操作ボタン）
+   ========================================================== */
+/* 種類（Type）バッジ */
+.type-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+.type-badge.late { background: #fff4e6; color: #f76707; }
+.type-badge.early { background: #eef2ff; color: #4f46e5; }
+.type-badge.absent { background: #fff0f6; color: #d6336c; }
+.type-badge.paid-leave { background: #e6fcf5; color: #0ca678; }
+.type-badge.special-leave { background: #f3f0ff; color: #7048e8; }
+
+/* ステータスバッジ（管理者用は赤、それ以外は元のトーンにアジャスト） */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+.status-badge.pending { background: #fff9db; color: #f59f00; border: 1px solid #ffe066; }
+.status-badge.approved { background: #ff6b6b; color: white; } /* ユーザ一覧のrole.adminと同等 */
+.status-badge.rejected { background: #ddd; color: #333; }      /* ユーザ一覧のrole.userと同等 */
+
+/* 操作ボタン群 */
+.btn-approve {
+    background: #007bff; /* 検索ボタンと同等のブルー */
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-approve:hover {
+    background: #0056b3;
+}
+
+.btn-reject {
+    background: #6c757d; /* クリアボタンと同等のグレー */
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-reject:hover {
+    background: #5a6268;
+}
+
+.brand-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.company-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.2);   /* 上部バーの色に馴染む半透明 */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+}
