@@ -1,0 +1,302 @@
+/* ==========================================================
+   ユーザ編集ページ用スタイル (管理者側)
+   ギンクラ - Admin / User Edit
+   ========================================================== */
+
+:root {
+  --color-bg: #eef2f6;
+  --color-card: #ffffff;
+  --color-primary: #1e4e79;
+  --color-primary-light: #2f6ba3;
+  --color-accent: #4a90d9;
+  --color-text: #2d3238;
+  --color-text-muted: #6b7580;
+  --color-border: #dce3ea;
+  --shadow-card: 0 8px 24px rgba(30, 78, 121, 0.10), 0 2px 6px rgba(30, 78, 121, 0.06);
+}
+
+* {/* ==========================================
+   ユーザ編集ページ (users-edit.css)
+   ========================================== */
+
+body {
+    margin: 0;
+    padding: 40px 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    background: linear-gradient(135deg, #eaf2fb 0%, #dce9f7 100%);
+    color: #2c3e50;
+}
+
+/* ---------- タイトル ---------- */
+h2 {
+    margin: 0 0 28px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c5282;
+    letter-spacing: 0.05em;
+}
+
+/* ---------- 入力項目・ボタンを囲む枠 ---------- */
+form {
+    width: 100%;
+    max-width: 380px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    padding: 32px 28px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(44, 82, 130, 0.12);
+}
+
+form p {
+    margin: 0 0 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+/* ---------- 入力欄 ---------- */
+input[type="text"],
+input[type="email"],
+select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+
+    font-size: 14px;
+    font-family: inherit;
+    color: #2c3e50;
+
+    background: #f7fafc;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+select:focus {
+    outline: none;
+    border-color: #4a90d9;
+    box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.15);
+    background: #ffffff;
+}
+
+select {
+    cursor: pointer;
+}
+
+/* ---------- 更新ボタン ---------- */
+button[type="submit"] {
+    margin-top: 8px;
+    padding: 12px 0;
+
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+
+    background: #3a7bd5;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+button[type="submit"]:hover {
+    background: #2d63b0;
+}
+
+button[type="submit"]:active {
+    transform: translateY(1px);
+}
+
+/* ---------- 戻るリンク（枠の下） ---------- */
+body > p {
+    margin-top: 20px;
+}
+
+body > p a {
+    font-size: 13px;
+    color: #4a5568;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+body > p a::before {
+    content: "← ";
+}
+
+body > p a:hover {
+    color: #2c5282;
+    border-color: #2c5282;
+}
+  box-sizing: border-box;
+}
+
+body.edit-user-page {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-bg);
+  font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, "Segoe UI", sans-serif;
+  color: var(--color-text);
+}
+
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 56px 20px 40px;
+}
+
+/* ---------- タイトル（上部） ---------- */
+.page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: 0.04em;
+}
+
+.page-title::after {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 3px;
+  margin: 10px auto 0;
+  background: var(--color-accent);
+  border-radius: 2px;
+}
+
+/* ---------- 中央の枠（フォームカード） ---------- */
+.form-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-card);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card);
+  padding: 36px 32px 32px;
+  animation: card-in 0.35s ease-out;
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form-card { animation: none; }
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label,
+.form-group .form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--color-text);
+  background: #fbfcfd;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.18);
+}
+
+.form-group select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7580'><path d='M5.5 7.5l4.5 4.5 4.5-4.5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+  padding-right: 34px;
+}
+
+/* ---------- 更新ボタン ---------- */
+.form-actions {
+  margin-top: 28px;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-light);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+/* ---------- 戻るリンク（枠の下） ---------- */
+.back-link {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.back-link a {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.back-link a:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
