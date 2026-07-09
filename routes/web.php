@@ -13,6 +13,7 @@ use App\Http\Controllers\AdminRequestController;
 use App\Models\AttendanceRequest;
 use App\Models\OvertimeRequest;
 use App\Models\Notice;
+use App\Http\Controllers\DakokuRequestController;
 
 // トップ
 Route::get('/', function () {
@@ -41,6 +42,10 @@ Route::middleware('auth')->group(function () {
     // 有給申請
     Route::get('/leave-requests', [LeaveRequestController::class, 'index'])->name('leave_requests.index');
     Route::post('/leave-requests', [LeaveRequestController::class, 'store'])->name('leave_requests.store');
+
+    // 打刻修正
+    Route::get('/dakoku/request', [DakokuRequestController::class, 'createUserView'])->name('dakoku.request.create');
+    Route::post('/dakoku/request', [DakokuRequestController::class, 'storeApplication'])->name('dakoku.request.store');
 
     // 添付ファイル
     Route::get('/attendance-requests/{attendanceRequest}/attachment',
@@ -76,8 +81,10 @@ Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
 Route::get('/admin/users/{id}/attendance', [AdminController::class, 'attendance']);
 Route::get('/admin/attendance/{id}/edit', [AdminController::class, 'editAttendance']);
 Route::post('/admin/attendance/{id}/update', [AdminController::class, 'updateAttendance']);
+Route::get('/admin/users/requests', [DakokuRequestController::class, 'adminIndex'])->name('admin.dakoku.requests.index');
+Route::post('/admin/users/requests/{id}/approve', [DakokuRequestController::class, 'adminApprove'])->name('admin.dakoku.requests.approve');
 
-// シフト
+// シフト  
 Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');
 Route::post('/shifts/store', [ShiftController::class, 'store'])->name('shifts.store');
 Route::post('/shifts/bulk', [ShiftController::class, 'storeBulk'])->name('shifts.store_bulk');
@@ -111,3 +118,4 @@ Route::post(
     '/shift/location',
     [AttendanceController::class, 'updateLocation']
 )->name('shift.location.update');
+
