@@ -33,7 +33,11 @@
 システム通知
 </span>
 
-@if(isset($notices) && $notices->count())
+@if(!empty($systemNotice))
+
+{{ $systemNotice }}
+
+@elseif(isset($notices) && $notices->count())
 
 {{ $notices->first()->title }}
 

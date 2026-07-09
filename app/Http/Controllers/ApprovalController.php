@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Attendance;
 use Carbon\Carbon;
+use App\Models\Notice;
+
 
 
 class ApprovalController extends Controller
@@ -76,6 +78,35 @@ class ApprovalController extends Controller
         $model->approver_id = Auth::id();
         $model->approved_at = now();
         $model->save();
+
+         // 申請結果通知を作成
+$typeLabel = match ($model->type) {
+    'late' => '遅刻',
+    'early_leave' => '早退',
+    'absence' => '欠勤',
+    default => '申請',
+};
+
+if ($validated['status'] === 'approved') {
+
+    $message = "{$typeLabel}申請が承認されました。";
+
+} else {
+
+    $message = "{$typeLabel}申請が却下されました。";
+
+    if (!empty($model->admin_comment)) {
+        $message .= "\n\n理由：{$model->admin_comment}";
+    }
+    }
+
+    Notice::create([
+        'user_id' => $model->user_id,
+        'title' => '申請結果通知',
+        'message' => $message,
+        'date' => today(),
+        'is_read' => false,
+    ]);
 
         if ($type === 'attendance'
             && $validated['status'] === 'approved'
