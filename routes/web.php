@@ -77,7 +77,7 @@ Route::get('/admin/users/{id}/attendance', [AdminController::class, 'attendance'
 Route::get('/admin/attendance/{id}/edit', [AdminController::class, 'editAttendance']);
 Route::post('/admin/attendance/{id}/update', [AdminController::class, 'updateAttendance']);
 
-// シフト
+// シフト  
 Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');
 Route::post('/shifts/store', [ShiftController::class, 'store'])->name('shifts.store');
 Route::post('/shifts/bulk', [ShiftController::class, 'storeBulk'])->name('shifts.store_bulk');
@@ -111,3 +111,4 @@ Route::post(
     '/shift/location',
     [AttendanceController::class, 'updateLocation']
 )->name('shift.location.update');
+
