@@ -68,10 +68,26 @@ class AdminController extends Controller
             $u->today_state = $this->resolveTodayState($shift, $attendance);
         }
 
+        // 状態別カウント(絞り込み前の全体で数える)
+        $counts = [
+            'normal' => $users->where('today_state', 'normal')->count(),
+            'late'   => $users->where('today_state', 'late')->count(),
+            'absent'   => $users->where('today_state', 'absent')->count(),
+            'before'   => $users->where('today_state', 'before')->count(),
+            'off'   => $users->where('today_state', 'off')->count(),
+            'total'   => $users->count(),
+        ];
+
+        // 状態フィルタ(サマリーカードのクリックで絞る)
+        $activeState = $request->input('state');
+        if ($activeState && in_array($activeState, ['normal', 'late', 'before', 'off'], true)) {
+            $users = $users->where('today_state', $activeState)->values();
+        }
+
         // ログイン中の管理者の会社名を取得
         $companyName = auth()->user()->company->name;
 
-        return view('admin.users', compact('users', 'companyName'));
+        return view('admin.users', compact('users', 'companyName', 'counts', 'activeState'));
 
     }
 
