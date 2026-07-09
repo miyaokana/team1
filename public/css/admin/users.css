@@ -263,3 +263,50 @@ body {
     font-weight: bold;
     color: #fff;
 }
+
+/* 状態のドット（名前の左） */
+.state-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+/* 状態バッジ */
+.state-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* 5段階の色 */
+.st-normal { background: #16a34a; }               /* ドット：緑 */
+.state-badge.st-normal { background: #dcfce7; color: #15803d; }
+
+.st-late { background: #f59e0b; }                  /* 黄 */
+.state-badge.st-late { background: #fef3c7; color: #b45309; }
+
+.st-absent { background: #ef4444; }                /* 赤 */
+.state-badge.st-absent { background: #fee2e2; color: #b91c1c; }
+
+.st-before { background: #38bdf8; }                /* 水色（出勤前） */
+.state-badge.st-before { background: #e0f2fe; color: #0369a1; }
+
+.st-off { background: #475569; }                   /* 黒/グレー（休み） */
+.state-badge.st-off { background: #e2e8f0; color: #475569; }
+
+.state-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: #475569;
+}
+.state-legend .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
