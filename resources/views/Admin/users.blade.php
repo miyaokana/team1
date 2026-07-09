@@ -18,7 +18,7 @@
             </div>
             <div class="nav-links">
                 <a href="{{ route('approvals.index') }}" class="nav-item">申請一覧・承認</a>
-                <a href="{{ route('login') }}" class="nav-item back-btn">ログイン画面へ戻る</a>
+                <a href="{{ route('logout') }}" class="nav-item back-btn">ログアウト</a>
             </div>
         </header>
 
@@ -59,6 +59,26 @@
                 </form>
             </div>
 
+            {{-- 状態の色分け対応表 --}}
+            @php
+                $stateMap = [
+                    'normal' => ['label' => '出勤',     'class' => 'st-normal'],
+                    'late'   => ['label' => '遅刻',     'class' => 'st-late'],
+                    'absent' => ['label' => '無断欠勤', 'class' => 'st-absent'],
+                    'before' => ['label' => '出勤前',   'class' => 'st-before'],
+                    'off'    => ['label' => '休み',     'class' => 'st-off'],
+                ];
+            @endphp
+
+            {{-- 状態の凡例 --}}
+            <div class="state-legend">
+                @foreach ($stateMap as $s)
+                    <span class="legend-item">
+                        <span class="state-dot {{ $s['class'] }}"></span>{{ $s['label'] }}
+                    </span>
+                @endforeach
+            </div>
+
             <div class="table-responsive">
                 <table class="user-table">
                     <thead>
@@ -66,6 +86,7 @@
                             <th>ID</th>
                             <th>名前</th>
                             <th>Email</th>
+                            <th class="text-center">本日の状態</th>
                             <th>権限</th>
                             <th class="text-center">操作</th>
                         </tr>
@@ -73,15 +94,22 @@
 
                     <tbody>
                         @foreach($users as $user)
+                        @php
+                            $st = $stateMap[$user->today_state ?? 'off'] ?? $stateMap['off'];
+                        @endphp
                         <tr>
                             <td><span class="id-badge">{{ $user->id }}</span></td>
 
                             <td>
+                                <span class="state-dot {{ $st['class'] }}"></span>
                                 <a href="/admin/users/{{ $user->id }}/attendance" class="user-link">
                                     {{ $user->user_name }}
                                 </a>
                             </td>
                             <td class="email-text">{{ $user->email }}</td>
+                            <td class="text-center">
+                                <span class="state-badge {{ $st['class'] }}">{{ $st['label'] }}</span>
+                            </td>
                             <td>
                                 @if($user->role == 1)
                                 <span class="role admin">管理者</span>

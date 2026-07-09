@@ -53,10 +53,23 @@ class AdminController extends Controller
         // 最終的な結果をゲット
         $users = $query->get();
 
+        $today = now()->toDateString();
+
+        // 各ユーザに今日の勤務状態を付与
+        foreach ($users as $u) {
+            $shift = \App\Models\Shift::where('user_id', $u->id)
+                ->where('shift_date', $today)
+                ->first();
+
+            $attendance = \App\Models\Attendance::where('user_id', $u->id)
+                ->where('work_date', $today)
+                ->first();
+
+            $u->today_state = $this->resolveTodayState($shift, $attendance);
+        }
+
         // ログイン中の管理者の会社名を取得
         $companyName = auth()->user()->company->name;
-
-        $users = $query->get();
 
         return view('admin.users', compact('users', 'companyName'));
 
@@ -370,5 +383,26 @@ class AdminController extends Controller
         ]);
 
         return redirect('/admin/users/' . $attendance->user_id . '/attendance');
+    }
+
+    // 今日の勤怠状態を判定して返す
+    private function resolveTodayState($shift, $attendance): string
+    {
+        // シフトがない -> 休み
+        if (!$shift) {
+            return 'off';
+        }
+
+        // シフトあり・出勤打刻あり -> 遅刻か正常か
+        if ($attendance && $attendance->check_in) {
+            $checkIn = \Carbon\Carbon::parse($attendance->check_in);
+            $shiftStart = \Carbon\Carbon::parse($shift->start_time);
+            // 分単位で比較(秒切り捨て)。開始より後なら遅刻
+            return $checkIn->startOfMinute()->gt($shiftStart->startOfMinute()) ? 'late' : 'normal';
+        }
+
+        // シフトあり・未打刻・開始時間を過ぎていれば無断欠勤、まだなら出勤前
+        $shiftStart = \Carbon\Carbon::parse($shift->start_time);
+        return now()->gt($shiftStart) ? 'absent' : 'before';
     }
 }
