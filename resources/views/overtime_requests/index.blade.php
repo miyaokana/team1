@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>残業申請</title>
+
+    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/overtime_requests.css') }}">
 </head>
 <body>
+    @include('layouts.header')
     <div class="layout">
         @include('layouts.sidebar')
         <div class="wrap">
@@ -31,6 +37,14 @@
                     </ul>
                 </div>
             @endif
+
+            <div class="tab-container">
+                <a href="{{ route('attendance_requests.index') }}" class="tab-link">遅刻・早退・欠勤申請</a>
+                
+                <a href="{{ route('overtime_requests.index') }}" class="tab-link active">残業申請</a>
+                
+                <a href="{{ route('leave_requests.index') }}" class="tab-link">有給・特別休暇申請</a>
+            </div>
 
             <!-- 申請フォーム -->
             <div class="card">

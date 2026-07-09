@@ -10,6 +10,43 @@
     <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/attendance-request.css') }}">
+
+    <style>
+        .tab-container {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            gap: 8px;
+            justify-content: center;
+        }
+        /* 💡 ボタンから <a> タグ用のスタイルに調整 */
+        .tab-link {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            background: #64748b;
+            border: 1px solid #f1dada;
+            border-bottom: none;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: -2px;
+        }
+        .tab-link:hover {
+            background: #ffffff;
+            color: #334155;
+        }
+        /* 💡 現在開いているページのタブに適用するスタイル */
+        .tab-link.active {
+            color: #334155;
+            background: #ffffff; /* 他の画面のボタンに合わせたslate系の色 */
+            border-color: #f1dada;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -39,6 +76,14 @@
                 </ul>
             </div>
             @endif
+
+            <div class="tab-container">
+                <a href="{{ route('attendance_requests.index') }}" class="tab-link active">遅刻・早退・欠勤申請</a>
+                
+                <a href="{{ route('overtime_requests.index') }}" class="tab-link">残業申請</a>
+                
+                <a href="{{ route('leave_requests.index') }}" class="tab-link">有給・特別休暇申請</a>
+            </div>
 
             <!-- 申請フォーム -->
             <div class="card">
