@@ -201,7 +201,7 @@
 
                     <div class="bottom-btns">
                         <button class="outline">勤怠申請</button>
-                        <a href="{{ route('dakoku.request.create') }}" class="outline" >打刻修正</a>
+                        <a href="{{ route('dakoku.request.create') }}" class="outline">打刻修正</a>
                     </div>
 
                 </div>

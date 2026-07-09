@@ -15,6 +15,9 @@ class DakokuRequest extends Model
     protected $fillable = [
         'user_id',
         'date', 
+        'is_in_request', 
+        'is_out_request',
+        'is_delete',
         'requested_punch_in', 
         'requested_punch_out', 
         'reason', 
