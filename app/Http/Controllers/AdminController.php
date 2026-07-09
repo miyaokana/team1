@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\Models\Attendance;
+use Carbon\Constants\Format;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
@@ -281,7 +282,49 @@ class AdminController extends Controller
         // 会社名を渡す
         $companyName = auth()->user()->company->name;
 
-        return view('Admin.attendance', compact('user', 'attendances', 'companyName'));
+        // 当月の範囲
+        $monthStart = now()->startOfMonth();
+        $monthEnd = now()->endOfMonth();
+
+        // 当月の勤怠だけ抽出
+        $monthAttendances = $attendances->filter(function ($a) use($monthStart, $monthEnd){
+            return \Carbon\Carbon::parse($a->work_date)->betweenIncluded($monthStart, $monthEnd);
+        });
+
+        // 出勤日数 (出勤打刻がある日)
+        $workDays = $monthAttendances->filter(fn ($a) => $a->check_in)->count();
+
+        // 当月の実働時間(分) = (退勤-出勤)-休憩の合計
+        $workMinutes = 0;
+        foreach ($monthAttendances as $a) {
+            if ($a->check_in && $a->check_out) {
+                $mins = (int) abs(\Carbon\Carbon::parse($a->check_in)->diffInMinutes(\Carbon\Carbon::parse($a->check_out)));
+                if ($a->break_start && $a->break_end) {
+                    $mins -= (int) abs(\Carbon\Carbon::parse($a->break_start)->diffInMinutes(\Carbon\Carbon::parse($a->break_end)));
+                }
+                $workMinutes += max(0, $mins);
+            }
+        }
+
+        // 当月の承認済み申請を種別ごとに集計
+        $reqCounts = \App\Models\AttendanceRequest::where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->whereBetween('target_date', [$monthStart->format('Y-m-d'), $monthEnd->format('Y-m-d')])
+            ->selectRaw('type, count(*) as cnt')
+            ->groupBy('type')
+            ->pluck('cnt', 'type');
+
+        $summary = [
+            'monthLabel' => now()->format('Y年n月'),
+            'workDays' => $workDays,
+            'workHours' => intdiv($workMinutes, 60),
+            'workMins' => $workMinutes % 60,
+            'late' => $reqCounts['late'] ?? 0,
+            'early' => $reqCounts['early_leave'] ?? 0,
+            'absence' => $reqCounts['absence'] ?? 0,
+        ];
+
+        return view('Admin.attendance', compact('user', 'attendances', 'companyName', 'summary'));
     }
 
     // ★勤怠修正画面の表示
