@@ -64,3 +64,29 @@
     color: #43a047;
     font-weight: bold;
 }
+
+.history-bottom-action{
+    max-width: 1200px;
+    margin: 20px auto 0;
+    text-align: center;
+}
+.history-bottom-action{
+    max-width: 1200px;
+    margin: 20px auto 0;
+    text-align: center;
+}
+
+.outline{
+    display: inline-block;
+    padding: 12px 30px;
+    background: #e57373;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: bold;
+    transition: .2s;
+}
+
+.outline:hover{
+    background: #d85d5d;
+}

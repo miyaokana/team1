@@ -43,9 +43,11 @@
                             <th>予定</th>
                             <th>出勤</th>
                             <th>退勤</th>
-                            <th>休憩</th>
+                            <th>休憩時間</th>
+                            <th>休憩時間（合計）</th>
                             <th>勤務時間</th>
                             <th>差分</th>
+                            <th>修正</th>
                         </tr>
                     </thead>
 
@@ -135,9 +137,21 @@
 
             @endif
 
+        </div> {{-- history-card --}}
+
+        <div class="history-bottom-action">
+
+            <a
+                href="{{ route('dakoku.request.create') }}"
+                class="outline">
+                打刻修正
+            </a>
+
         </div>
 
-    </div>
+        </div> {{-- wrap --}}
+
+ 
 
 </div>
 
