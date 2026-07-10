@@ -247,3 +247,156 @@ body {
 .actions .delete:hover {
     text-decoration: underline;
 }
+
+.brand-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.company-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.2);   /* 上部バーの色に馴染む半透明 */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+}
+
+/* 状態のドット（名前の左） */
+.state-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+/* 状態バッジ */
+.state-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* 5段階の色 */
+.st-normal { background: #16a34a; }               /* ドット：緑 */
+.state-badge.st-normal { background: #dcfce7; color: #15803d; }
+
+.st-late { background: #f59e0b; }                  /* 黄 */
+.state-badge.st-late { background: #fef3c7; color: #b45309; }
+
+.st-absent { background: #ef4444; }                /* 赤 */
+.state-badge.st-absent { background: #fee2e2; color: #b91c1c; }
+
+.st-before { background: #38bdf8; }                /* 水色（出勤前） */
+.state-badge.st-before { background: #e0f2fe; color: #0369a1; }
+
+.st-off { background: #475569; }                   /* 黒/グレー（休み） */
+.state-badge.st-off { background: #e2e8f0; color: #475569; }
+
+.state-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: #475569;
+}
+.state-legend .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: #f1f5f9; font-family: system-ui, "Hiragino Kaku Gothic ProN", sans-serif; color: #1e293b; }
+
+.top-bar { display: flex; justify-content: space-between; align-items: center; background: #4f46e5; color: #fff; padding: 14px 28px; }
+.brand-area { display: flex; align-items: center; gap: 12px; }
+.top-bar h1 { font-size: 18px; margin: 0; }
+.company-badge { padding: 4px 12px; background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.4); border-radius: 999px; font-size: 13px; font-weight: bold; }
+.nav-links { display: flex; gap: 16px; }
+.nav-item { color: #fff; text-decoration: none; font-size: 14px; opacity: .9; }
+.nav-item:hover { opacity: 1; text-decoration: underline; }
+
+.container { max-width: 1040px; margin: 24px auto; padding: 0 20px; }
+
+/* サマリーカード */
+.summary-cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px; }
+.summary-card {
+    background: #fff; border-radius: 12px; padding: 16px 10px; text-align: center;
+    text-decoration: none; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,.05);
+    border: 2px solid transparent; transition: transform .15s, border-color .15s;
+}
+.summary-card:hover { transform: translateY(-2px); }
+.summary-card.active { border-color: #4f46e5; }
+.summary-num { font-size: 26px; font-weight: bold; }
+.summary-label { font-size: 12px; color: #64748b; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+
+.header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.header-area h2 { font-size: 20px; margin: 0; }
+.filter-note { font-size: 14px; color: #4f46e5; }
+.add-btn { background: #4f46e5; color: #fff; padding: 9px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold; }
+
+.search-box { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+.search-box form { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+.search-box .form-group { display: flex; flex-direction: column; font-size: 13px; color: #475569; }
+.search-box input, .search-box select { padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 8px; margin-top: 4px; }
+.search-btn { background: #4f46e5; color: #fff; border: none; padding: 9px 18px; border-radius: 8px; cursor: pointer; }
+.clear-btn { padding: 9px 14px; color: #64748b; text-decoration: none; }
+
+/* テーブル */
+.user-table thead th.text-center { text-align: center; }
+.table-responsive { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+.user-table { width: 100%; border-collapse: collapse; }
+.user-table thead th { position: sticky; top: 0; background: #f8fafc; color: #64748b; font-size: 13px; padding: 12px 14px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+.user-table td { padding: 12px 14px; border-bottom: 1px solid #eef2f7; font-size: 14px; }
+.user-table tbody tr:hover { background: #f8fafc; }
+.text-center { text-align: center; }
+.empty-row { text-align: center; color: #94a3b8; padding: 28px; }
+
+/* 名前セル：アバター＋リンク */
+.user-cell { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 34px; height: 34px; border-radius: 50%; color: #fff; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.user-link { color: #1e293b; text-decoration: none; font-weight: 500; }
+.user-link:hover { color: #4f46e5; text-decoration: underline; }
+.email-text { color: #64748b; }
+
+/* 状態の色（ドット・バッジ・アバター・カード） */
+.state-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.state-badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: bold; }
+
+.st-normal { background: #16a34a; }
+.state-badge.st-normal { background: #dcfce7; color: #15803d; }
+.card-st-normal .summary-num { color: #16a34a; }
+
+.st-late { background: #f59e0b; }
+.state-badge.st-late { background: #fef3c7; color: #b45309; }
+.card-st-late .summary-num { color: #f59e0b; }
+
+.st-absent { background: #ef4444; }
+.state-badge.st-absent { background: #fee2e2; color: #b91c1c; }
+.card-st-absent .summary-num { color: #ef4444; }
+
+.st-before { background: #38bdf8; }
+.state-badge.st-before { background: #e0f2fe; color: #0369a1; }
+.card-st-before .summary-num { color: #0ea5e9; }
+
+.st-off { background: #475569; }
+.state-badge.st-off { background: #e2e8f0; color: #475569; }
+.card-st-off .summary-num { color: #475569; }
+
+/* 権限バッジ・操作 */
+.role { padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: bold; }
+.role.admin { background: #ede9fe; color: #6d28d9; }
+.role.user { background: #e2e8f0; color: #475569; }
+.actions a { font-size: 13px; text-decoration: none; margin: 0 4px; }
+.actions .edit { color: #4f46e5; }
+.actions .delete { color: #ef4444; }
+
+@media (max-width: 800px) {
+    .summary-cards { grid-template-columns: repeat(3, 1fr); }
+}

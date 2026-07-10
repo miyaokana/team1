@@ -13,6 +13,8 @@ use App\Http\Controllers\AdminRequestController;
 use App\Models\AttendanceRequest;
 use App\Models\OvertimeRequest;
 use App\Models\Notice;
+use App\Http\Controllers\DakokuRequestController;
+use App\Http\Controllers\NoticeController;
 
 // トップ
 Route::get('/', function () {
@@ -42,6 +44,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/leave-requests', [LeaveRequestController::class, 'index'])->name('leave_requests.index');
     Route::post('/leave-requests', [LeaveRequestController::class, 'store'])->name('leave_requests.store');
 
+    // 打刻修正
+    Route::get('/dakoku/request', [DakokuRequestController::class, 'createUserView'])->name('dakoku.request.create');
+    Route::post('/dakoku/request', [DakokuRequestController::class, 'storeApplication'])->name('dakoku.request.store');
+
     // 添付ファイル
     Route::get('/attendance-requests/{attendanceRequest}/attachment',
         [AttendanceRequestController::class, 'downloadAttachment'])
@@ -54,6 +60,21 @@ Route::middleware(['auth', 'admin'])->group(function () {
         
     Route::post('/approvals/{type}/{id}', [\App\Http\Controllers\ApprovalController::class, 'update'])
         ->name('approvals.update');
+
+    // 管理画面
+    Route::get('/admin/users', [AdminController::class, 'index']);
+    Route::get('/admin/users/create', [AdminController::class, 'create']);
+    Route::post('/admin/users/store', [AdminController::class, 'store']);
+    Route::post('/admin/users/import', [AdminController::class, 'import']);
+    Route::post('/admin/users/store-multiple', [AdminController::class, 'storeMultiple']);
+    Route::get('/admin/users/delete/{id}', [AdminController::class, 'delete']);
+    Route::get('/admin/users/edit/{id}', [AdminController::class, 'edit']);
+    Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
+    Route::get('/admin/users/{id}/attendance', [AdminController::class, 'attendance']);
+    Route::get('/admin/attendance/{id}/edit', [AdminController::class, 'editAttendance']);
+    Route::post('/admin/attendance/{id}/update', [AdminController::class, 'updateAttendance']);
+    Route::get('/admin/users/requests', [DakokuRequestController::class, 'adminIndex'])->name('admin.dakoku.requests.index');
+    Route::post('/admin/users/requests/{id}/approve', [DakokuRequestController::class, 'adminApprove'])->name('admin.dakoku.requests.approve');
 });
 
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
@@ -64,18 +85,6 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// 管理画面
-Route::get('/admin/users', [AdminController::class, 'index']);
-Route::get('/admin/users/create', [AdminController::class, 'create']);
-Route::post('/admin/users/store', [AdminController::class, 'store']);
-Route::post('/admin/users/import', [AdminController::class, 'import']);
-Route::post('/admin/users/store-multiple', [AdminController::class, 'storeMultiple']);
-Route::get('/admin/users/delete/{id}', [AdminController::class, 'delete']);
-Route::get('/admin/users/edit/{id}', [AdminController::class, 'edit']);
-Route::post('/admin/users/update/{id}', [AdminController::class, 'update']);
-Route::get('/admin/users/{id}/attendance', [AdminController::class, 'attendance']);
-Route::get('/admin/attendance/{id}/edit', [AdminController::class, 'editAttendance']);
-Route::post('/admin/attendance/{id}/update', [AdminController::class, 'updateAttendance']);
 
 // シフト  
 Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.shift');
@@ -86,8 +95,33 @@ Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('g
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 Route::get('/notices', function () {
+
+    // 未読 → 既読
+    Notice::where(function ($query) {
+
+        $query->where('user_id', auth()->id())
+              ->orWhereNull('user_id');
+
+    })
+    ->where('is_read', false)
+    ->update([
+        'is_read' => true,
+    ]);
+
+    // お知らせ取得
     $notices = Notice::latest()->get();
-    return view('notices.index', ['notices' => $notices]);
+
+    $requestNotifications =
+        AttendanceRequest::where('user_id', auth()->id())
+        ->whereIn('status', ['approved', 'rejected'])
+        ->latest()
+        ->get();
+
+    return view('notices.index', [
+        'notices' => $notices,
+        'requestNotifications' => $requestNotifications,
+    ]);
+
 })->name('notices.index');
 
 

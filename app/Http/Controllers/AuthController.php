@@ -22,11 +22,29 @@ class AuthController extends Controller
     // ✅ 登録処理（ここ修正）
     public function register(Request $request)
     {
+        $validated = $request->validate([
+            'company_name' => 'required|string|max:255',
+            'user_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8',
+        ],[
+            'company_name.required' => '会社名は必須です。',
+            'user_name.required' => '名前は必須です。',
+            'email.required' => 'メールアドレスは必須です。',
+            'email.unique' => 'このメールアドレスは既に使われています。',
+            'password.min' => 'パスワードは8文字以上で入力してください。',
+        ]);
+
+        $company = \App\Models\Company::create([
+            'name' => $validated['company_name'],
+        ]);
+
         User::create([
-            'email' => $request->email,
-            'password' => Hash::make($request->password), // ✅ 重要
-            'user_name' => $request->user_name,
-            'role' => 0
+            'company_id' => $company->id,
+            'user_name' => $validated['user_name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']), // ✅ 重要
+            'role' => 1 // 会社の最初の登録者は管理者
         ]);
 
         return redirect('/login');

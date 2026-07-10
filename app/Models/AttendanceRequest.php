@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Shift;
+use Carbon\Carbon;
 
 class AttendanceRequest extends Model
 {
@@ -43,4 +45,8 @@ class AttendanceRequest extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+
+    
+    
 }

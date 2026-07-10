@@ -9,3 +9,16 @@ footer p {
     margin: 0;
     color: #555;
 }
+
+.request-modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    z-index:9999;
+    overflow-y:auto;
+}
+
+.request-modal-box{
+    margin:50px auto;
+}

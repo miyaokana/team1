@@ -425,6 +425,10 @@ input:checked + .slider:before {
     color: #e57373;
     background: #fff;
     border-radius: 10px;
+
+    text-decoration: none;
+    text-align: center;
+    font-size: 14px;
 }
 
 /* ===== 履歴 ===== */
