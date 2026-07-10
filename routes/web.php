@@ -15,6 +15,7 @@ use App\Models\OvertimeRequest;
 use App\Models\Notice;
 use App\Http\Controllers\DakokuRequestController;
 use App\Http\Controllers\NoticeController;
+use App\Http\Controllers\ApprovalController;
 
 // トップ
 Route::get('/', function () {
@@ -73,7 +74,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/users/{id}/attendance', [AdminController::class, 'attendance']);
     Route::get('/admin/attendance/{id}/edit', [AdminController::class, 'editAttendance']);
     Route::post('/admin/attendance/{id}/update', [AdminController::class, 'updateAttendance']);
-   
+    // 【管理者】申請一覧表示
+    Route::get('/dakoku-requests', [ApprovalController::class, 'adminIndex'])->name('admin.dakoku.index');
+    // 【管理者】承認・却下処理
+    Route::post('/dakoku-requests/{id}/approve', [ApprovalController::class, 'adminApprove'])->name('admin.dakoku.approve');
 });
 
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');

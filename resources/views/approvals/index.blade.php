@@ -31,6 +31,10 @@
             <div class="flash flash-ok">{{ session('status') }}</div>
             @endif
 
+            @if (session('success'))
+            <div class="flash flash-ok">{{ session('success') }}</div>
+            @endif
+            
             @if (session('error'))
             <div class="flash flash-err">{{ session('error') }}</div>
             @endif
@@ -221,7 +225,7 @@
                             </td>
                             <td>
                                 {{-- form 開始タグを追加（元HTMLでは欠落していた） --}}
-                                <form method="POST" action="{{ route('admin.dakoku.requests.approve', $req->id) }}">
+                                <form method="POST" action="{{ route('admin.dakoku.approve', $req->id) }}">
                                     @csrf
 
                                     <input
