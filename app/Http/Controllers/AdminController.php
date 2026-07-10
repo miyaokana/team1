@@ -80,7 +80,7 @@ class AdminController extends Controller
 
         // 状態フィルタ(サマリーカードのクリックで絞る)
         $activeState = $request->input('state');
-        if ($activeState && in_array($activeState, ['normal', 'late', 'before', 'off'], true)) {
+        if ($activeState && in_array($activeState, ['normal', 'late', 'absent', 'before', 'off'], true)) {
             $users = $users->where('today_state', $activeState)->values();
         }
 
