@@ -11,6 +11,7 @@ use App\Models\Attendance;
 use Carbon\Carbon;
 use App\Models\Notice;
 use App\Models\DakokuRequest;
+use App\Models\Notification;
 
 
 
@@ -168,5 +169,111 @@ if ($validated['status'] === 'approved') {
             'overtime' => OvertimeRequest::find($id),
             default => null,
         };
+    }
+
+    // 【管理者】承認・却下処理
+    public function adminApprove(Request $request, $id)
+    {
+        $request->validate([
+            'action' => 'required|in:approve,reject',
+            'admin_comment' => 'nullable|string|max:255',
+        ]);
+
+        $dakokuRequest = DakokuRequest::findOrFail($id);
+
+        // 承認
+        if ($request->action === 'approve') {
+
+            $dakokuRequest->update([
+                'status' => 'approved',
+                'admin_comment' => $request->admin_comment
+            ]);
+
+            $attendance = Attendance::firstOrNew([
+                'user_id' => $dakokuRequest->user_id,
+                'work_date' => $dakokuRequest->date
+            ]);
+
+            if ($dakokuRequest->is_in_request) {
+                $attendance->check_in = $dakokuRequest->is_delete
+                    ? null
+                    : $dakokuRequest->requested_punch_in;
+            }
+
+            if ($dakokuRequest->is_out_request) {
+                $attendance->check_out = $dakokuRequest->is_delete
+                    ? null
+                    : $dakokuRequest->requested_punch_out;
+            }
+
+            if (
+                $dakokuRequest->auto_break_out &&
+                $attendance->check_in &&
+                $attendance->check_out
+            ) {
+
+                $inTime = \Carbon\Carbon::parse($attendance->check_in);
+                $outTime = \Carbon\Carbon::parse($attendance->check_out);
+
+                $workMinutes = $inTime->diffInMinutes($outTime);
+
+                if ($workMinutes >= 480) {
+                    $attendance->break_minutes = 60;
+                } elseif ($workMinutes >= 420) {
+                    $attendance->break_minutes = 45;
+                } elseif ($workMinutes >= 360) {
+                    $attendance->break_minutes = 30;
+                } else {
+                    $attendance->break_minutes = 0;
+                }
+            }
+
+            $attendance->save();
+
+            Notification::create([
+                'user_id' => $dakokuRequest->user_id,
+                'title' => '申請承認',
+                'message' => $dakokuRequest->date . ' の申請が承認されました。'
+            ]);
+
+            return back()->with(
+                'success',
+                '申請を承認し、勤怠データを更新しました。'
+            );
+        }
+
+        // 却下
+        if ($request->action === 'reject') {
+
+            $dakokuRequest->update([
+                'status' => 'rejected',
+                'admin_comment' => $request->admin_comment
+            ]);
+
+            Notification::create([
+                'user_id' => $dakokuRequest->user_id,
+                'title' => '申請却下',
+                'message' => $dakokuRequest->date .
+                    ' の申請は却下されました。理由：' .
+                    ($request->admin_comment ?? '管理者コメントなし')
+            ]);
+
+            return back()->with(
+                'success',
+                '申請を却下しました。'
+            );
+        }
+    }
+    // 【管理者】申請一覧表示
+    public function adminIndex()
+    {
+        $requests = DakokuRequest::with('user')
+            ->where('status', 'pending')
+            ->latest()
+            ->get();
+
+        return view('dakoku.index', [
+            'requests' => $requests,
+        ]);
     }
 }
