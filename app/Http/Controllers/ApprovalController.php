@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Attendance;
 use Carbon\Carbon;
 use App\Models\Notice;
+use App\Models\DakokuRequest;
 
 
 
@@ -35,11 +36,19 @@ class ApprovalController extends Controller
             ->whereHas('user', fn($q) => $q->where('company_id', $companyId))
             ->orderBy('created_at', 'desc')->get();
 
+        
+        $dakokuRequests = DakokuRequest::with('user')
+        ->whereHas('user', fn($q) => $q->where('company_id', $companyId))
+        ->where('status', 'pending')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
         return view('approvals.index', compact(
             'attendanceRequests',
             'leaveRequests',
             'overtimeRequests',
-            'companyName', 
+            'dakokuRequests',
+            'companyName'
         ));
     }
 

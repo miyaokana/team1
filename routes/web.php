@@ -73,8 +73,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/users/{id}/attendance', [AdminController::class, 'attendance']);
     Route::get('/admin/attendance/{id}/edit', [AdminController::class, 'editAttendance']);
     Route::post('/admin/attendance/{id}/update', [AdminController::class, 'updateAttendance']);
-    Route::get('/admin/users/requests', [DakokuRequestController::class, 'adminIndex'])->name('admin.dakoku.requests.index');
-    Route::post('/admin/users/requests/{id}/approve', [DakokuRequestController::class, 'adminApprove'])->name('admin.dakoku.requests.approve');
+   
 });
 
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');

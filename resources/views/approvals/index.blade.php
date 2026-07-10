@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>申請の承認</title>
     <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/approvals.css') }}">
 </head>
 
 <body>
@@ -172,8 +173,90 @@
                 @endif
             </div>
 
-        </div>
-    </div>
+            {{-- 打刻修正カードを .wrap の中に移動 --}}
+            <div class="card">
+                <h2>打刻修正申請</h2>
+
+                @if ($dakokuRequests->isEmpty())
+                <p>申請はありません。</p>
+                @else
+                <table class="request-table">
+                    <thead>
+                        <tr>
+                            <th>申請者</th>
+                            <th>日付</th>
+                            <th>種別</th>
+                            <th>申請時刻</th>
+                            <th>理由</th>
+                            <th>状態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($dakokuRequests as $req)
+                        <tr>
+                            <td class="user-name">{{ $req->user->user_name ?? $req->user->name }}</td>
+                            <td class="date-text">{{ $req->date }}</td>
+                            <td>
+                                @if($req->is_in_request)
+                                出勤
+                                @elseif($req->is_out_request)
+                                退勤
+                                @endif
+
+                                @if($req->is_delete)
+                                （削除）
+                                @endif
+                            </td>
+                            <td class="time-text">
+                                @if($req->is_in_request)
+                                {{ $req->requested_punch_in ?? '削除' }}
+                                @else
+                                {{ $req->requested_punch_out ?? '削除' }}
+                                @endif
+                            </td>
+                            <td class="reason-text">{{ $req->reason }}</td>
+                            <td>
+                                <span class="status-badge {{ $req->status }}">{{ $req->status }}</span>
+                            </td>
+                            <td>
+                                {{-- form 開始タグを追加（元HTMLでは欠落していた） --}}
+                                <form method="POST" action="{{ route('admin.dakoku.requests.approve', $req->id) }}">
+                                    @csrf
+
+                                    <input
+                                        type="text"
+                                        name="admin_comment"
+                                        placeholder="コメント（任意）">
+
+                                    <br><br>
+
+                                    <button
+                                        type="submit"
+                                        name="action"
+                                        value="approve"
+                                        class="approve-btn">
+                                        承認
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        name="action"
+                                        value="reject"
+                                        class="reject-btn">
+                                        却下
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @endif
+            </div>
+
+        </div>{{-- /.wrap --}}
+    </div>{{-- /.admin-wrapper --}}
 
     <script>
         function submitApproval(button, status) {

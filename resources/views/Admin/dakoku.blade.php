@@ -48,7 +48,7 @@
                         </td>
                         <td>{{ $req->reason }}</td>
                         <td>
-                            <form action="{{ route('admin.attendance.requests.approve', $req->id) }}" method="POST">
+                            <form action="{{ route('admin.dakoku.requests.approve', $req->id) }}" method="POST">
                                 @csrf
                                 <input type="text" name="admin_comment" placeholder="コメント（任意）" style="padding: 5px; margin-bottom: 5px; width: 150px;"><br>
                                 

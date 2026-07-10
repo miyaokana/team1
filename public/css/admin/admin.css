@@ -255,3 +255,90 @@ body {
     font-weight: bold;
     color: #fff;
 }
+
+/* ==========================================
+   打刻修正申請
+========================================== */
+
+.dakoku-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.dakoku-table thead th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 13px;
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.dakoku-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #eef2f7;
+    font-size: 14px;
+}
+
+.dakoku-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* 打刻種別 */
+
+.type-badge.dakoku-in {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.type-badge.dakoku-out {
+    background: #ede9fe;
+    color: #7c3aed;
+}
+
+.type-badge.delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* コメント */
+
+.admin-comment {
+    width: 180px;
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+/* 承認ボタン */
+
+.btn-approve {
+    background: #4f46e5;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-approve:hover {
+    background: #4338ca;
+}
+
+/* 却下ボタン */
+
+.btn-reject {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-reject:hover {
+    background: #dc2626;
+}

@@ -12,18 +12,19 @@ class DakokuRequest extends Model
     // テーブル名を明示的に指定
     protected $table = 'dakoku_requests';
 
-    protected $fillable = [
-        'user_id',
-        'date', 
-        'is_in_request', 
-        'is_out_request',
-        'is_delete',
-        'requested_punch_in', 
-        'requested_punch_out', 
-        'reason', 
-        'status', 
-        'admin_comment'
-    ];
+        protected $fillable = [
+            'user_id',
+            'date',
+            'is_in_request',
+            'is_out_request',
+            'is_delete',
+            'requested_punch_in',
+            'requested_punch_out',
+            'auto_break_out',
+            'reason',
+            'status',
+            'admin_comment'
+        ];
 
     // 申請したユーザーへのリレーション
     public function user()
