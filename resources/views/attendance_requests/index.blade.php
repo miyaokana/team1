@@ -11,42 +11,6 @@
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/attendance-request.css') }}">
 
-    <style>
-        .tab-container {
-            display: flex;
-            border-bottom: 2px solid #e2e8f0;
-            gap: 8px;
-            justify-content: center;
-        }
-        /* 💡 ボタンから <a> タグ用のスタイルに調整 */
-        .tab-link {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #ffffff;
-            background: #64748b;
-            border: 1px solid #f1dada;
-            border-bottom: none;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: -2px;
-        }
-        .tab-link:hover {
-            background: #ffffff;
-            color: #334155;
-        }
-        /* 💡 現在開いているページのタブに適用するスタイル */
-        .tab-link.active {
-            color: #334155;
-            background: #ffffff; /* 他の画面のボタンに合わせたslate系の色 */
-            border-color: #f1dada;
-        }
-    </style>
-
 </head>
 
 <body>
@@ -108,10 +72,12 @@
 
                     <!-- 遅刻・早退の時だけ表示する時刻覧 -->
                     <div class="form-row" id="time-row">
-                        <label for="request_time">時刻</label>
+                        <div>
+                            <label for="request_time">時刻</label>
+                            <small class="form-hint">遅刻=出勤予定の時刻,早退=退勤する時刻</small>
+                        </div>
                         <input type="time" name="request_time" id="request_time"
                             value="{{ old('request_time') }}">
-                        <small class="form-hint">遅刻=出勤予定の時刻,早退=退勤する時刻</small>
                     </div>
 
                     <div class="form-row">
@@ -120,10 +86,12 @@
                     </div>
 
                     <div class="form-row">
-                        <label for="attachment">添付ファイル（任意）</label>
+                        <div>
+                            <label for="attachment">添付ファイル（任意）</label>
+                            <small class="form-hint">写真(JPG・PNG)またはPDF、5MBまで。診断書や遅延証明などがあれば添付してください。</small>
+                        </div>
                         <input type="file" name="attachment" id="attachment"
                             accept=".jpg,.jpeg,.png,.pdf">
-                        <small class="form-hint">写真(JPG・PNG)またはPDF、5MBまで。診断書や遅延証明などがあれば添付してください。</small>
                     </div>
 
                     <button type="submit" class="btn-submit">申請する</button>

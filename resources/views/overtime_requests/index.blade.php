@@ -64,10 +64,12 @@
                     </div>
 
                     <div class="form-row">
-                        <label for="end_time">終了時刻</label>
+                        <div>
+                            <label for="end_time">終了時刻</label>
+                            <small class="form-hint">終了が開始より早い場合は翌日として扱います(例 22:00 ~ 翌1:00)</small>
+                        </div>
                         <input type="time" name="end_time" id="end_time"
                             value="{{ old('end_time') }}" required>
-                        <small class="form-hint">終了が開始より早い場合は翌日として扱います(例 22:00 ~ 翌1:00)</small>
                     </div>
 
                     <div class="form-row">

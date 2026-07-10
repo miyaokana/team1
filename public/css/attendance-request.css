@@ -17,12 +17,14 @@ body{
     max-width:1200px;
     margin:0 auto 24px;
     color:#111827;
+    text-align: center;
 }
 
 .card{
-    max-width:1200px;
+    max-width: 700px;
     margin:0 auto 24px;
     background:#fff;
+    border: 3px solid #fca5a5;
     border-radius:16px;
     padding:32px;
     box-shadow:0 2px 8px rgba(0,0,0,.05);
@@ -32,39 +34,66 @@ body{
     margin-top:0;
     margin-bottom:24px;
     color:#111827;
+    text-align: center;
+}
+
+.card p{
+    text-align: center;
 }
 
 .form-row{
     display:flex;
-    flex-direction:column;
-    gap:8px;
+    flex-direction:row;
+    align-items: flex-start; /* 上揃えにしてヒント文が崩れないようにします */
+    gap:16px;
     margin-bottom:20px;
+    justify-content: space-between;
 }
 
 .form-row label{
     font-weight:600;
+    width: 150px;
+    font-size: 1.25rem;
+    flex-shrink:0;
+    padding-top: 10px; /* 入力欄の中央付近にテキストが来るよう微調整 */
+}
+
+/* 入力欄とその下のヒント文を縦に並べるためのラッパー（HTML側で使用） */
+.form-input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .form-row input,
 .form-row select,
 .form-row textarea{
+    width: 300px;
     padding:12px;
-    border:1px solid #ddd;
+    border:2px solid #000;
     border-radius:8px;
     font-size:14px;
+    box-sizing: border-box;
 }
 
+/* 終了日の下に回り込むヒント文のスタイル */
 .form-hint{
     color:#777;
+    display:block;
+    margin-top:8px;
+    font-size: 13px;
+    line-height: 1.4;
 }
 
 .btn-submit{
     background:#e57373;
     color:#fff;
     border:none;
-    padding:12px 24px;
+    padding:12px 36px;
     border-radius:10px;
     cursor:pointer;
+    display: block;
+    margin: 0 auto;
 }
 
 .btn-submit:hover{
@@ -80,13 +109,13 @@ body{
     background:#f7f7f7;
     padding:14px;
     text-align:center;
-    border-bottom:2px solid #ddd;
+    border-bottom:2px solid #b2b2b2;
 }
 
 .request-table td{
     padding:14px;
     text-align:center;
-    border-bottom:1px solid #eee;
+    border-bottom:1px solid #b2b2b2;
 }
 
 .request-table tr:hover{
@@ -98,6 +127,13 @@ body{
     border-radius:20px;
     font-size:13px;
     font-weight:700;
+
+    writing-mode: vertical-rl;      /* 縦書きモードにする */
+    text-orientation: up-right;     /* 文字の向きを正位置（上向き）に揃える */
+    display: inline-flex;           /* 縦書き時のバッジの余白を綺麗に保つ */
+    align-items: center;            /* 文字を中央に揃える */
+    justify-content: center;
+    min-height: 4em;                /* 縦書きの時にバッジが潰れないよう、最低限の長さを確保 */
 }
 
 .req-approved{
@@ -140,4 +176,90 @@ body{
 .history-note{
     color:#666;
     margin-bottom:20px;
+}
+
+.tab-container {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    border-bottom: none; /* グレーのベース線はなし */
+    
+    /* ★カードのピンク枠線（2px）の真上にぴったり重ねるために「-2px」にします */
+    margin-bottom: -2.5px; 
+    position: relative;
+    z-index: 10; /* カードの枠線より上に表示させる */
+}
+
+.tab-link {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background: #64748b;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    /* 枠線をあらかじめ定義 */
+    border: 3px solid transparent;
+    border-bottom: 3px solid #fca5a5;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.tab-link:hover {
+    background: hsl(0, 0%, 100%);
+    color: #334155;
+    border-bottom: 3px solid #fff;
+}
+
+.tab-link.active {
+    color: #334155;
+    background: #ffffff; 
+    
+    /* 左右上にはカードと同じ rose-300 (#fca5a5) を指定 */
+    border-top-color: #fca5a5;
+    border-left-color: #fca5a5;
+    border-right-color: #fca5a5;
+    
+    /* ★太さ2pxの「白」を指定し、カードのピンクの線を上から踏みつけて消します */
+    border-bottom: 3px solid #ffffff !important; 
+}
+
+/* 日付（date）と時刻（time）の入力欄を短くする */
+.form-row input[type="date"],
+.form-row input[type="time"] {
+    width: 200px;
+    flex-grow: 0; /* 横いっぱいに広がるのを防ぐ */
+}
+
+/* セレクトボックス（種別や区分）を短くする */
+.form-row select {
+    width: 200px;
+    flex-grow: 0;
+}
+
+/* 理由（テキストエリア）はしっかり幅を取る */
+.form-row textarea {
+    max-width: 500px; /* 広がりすぎない上限を設定 */
+}
+
+.form-row input[type=file] {
+    width: auto;       /* 固定幅を解除して文字量に合わせる */
+    max-width: 350px;  /* 必要に応じて広がる上限を設定 */
+    padding: 6px 1;    /* 内側の余白を微調整 */
+}
+
+.form-row{
+    width: 100%;
+    margin-bottom: 50px;
+    padding-bottom: 50px;    /* ★線の上の余白を作ります */
+    border-bottom: 2px dashed #c5c5c5; /* ★薄いグレーのドット（破線）の区切り線を追加 */
+}
+
+.form-row:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 32px;     /* ボタンとの間だけ少し広めにあける */
 }
