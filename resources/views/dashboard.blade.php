@@ -131,67 +131,57 @@ $notIn=$status==='未出勤';
 
 <div class="info">
 
+    <div>
+        勤務地：
+        {{ $todayShift?->work_location ?? '未設定' }}
+    </div>
 
-<div class="work-location-info">
+    <div>
+        シフト：
+        @if($todayShift)
+            {{ \Carbon\Carbon::parse($todayShift->start_time)->format('H:i') }}
+            ～
+            {{ \Carbon\Carbon::parse($todayShift->end_time)->format('H:i') }}
+        @else
+            未登録
+        @endif
+    </div>
 
-<span class="work-label">
-勤務地
-</span>
+    <div>
+        休憩：
+        @if($todayShift)
 
-<span class="work-value">
-{{ $todayShift?->work_location ?? '未設定' }}
-</span>
+            @php
+                $start = \Carbon\Carbon::parse($todayShift->start_time);
+                $end = \Carbon\Carbon::parse($todayShift->end_time);
 
-</div>
+                if ($end->lt($start)) {
+                    $end->addDay();
+                }
 
+                $hours = $start->diffInHours($end);
 
+                if ($hours >= 8) {
+                    $breakMinutes = 60;
+                } elseif ($hours >= 7) {
+                    $breakMinutes = 45;
+                } elseif ($hours >= 6) {
+                    $breakMinutes = 30;
+                } else {
+                    $breakMinutes = 0;
+                }
+            @endphp
 
-<div>
-出勤：
-{{ optional($attendance?->check_in)->format('H:i') ?? '--:--' }}
-</div>
+            {{ $breakMinutes }}分
 
-
-
-<div>
-退勤：
-{{ optional($attendance?->check_out)->format('H:i') ?? '--:--' }}
-</div>
-
-
-
-<div>
-休憩：
-{{ optional($attendance?->break_start)->format('H:i') ?? '--:--' }}
-
-～
-
-{{ optional($attendance?->break_end)->format('H:i') ?? '--:--' }}
-</div>
-
-
-
-<div>
-
-勤務時間：
-
-@if(!is_null($workMinutes))
-
-{{ intdiv($workMinutes,60) }}時間{{ $workMinutes%60 }}分
-
-@else
-
---
-
-@endif
+        @else
+            --
+        @endif
+    </div>
 
 </div>
+</div> <!-- left終了 -->
 
-
-</div>
-
-
-</div>
 
 <!-- 右側 -->
 
@@ -374,27 +364,20 @@ class="sub-btn {{ !$isWorking?'inactive':'' }}"
 
 <div class="bottom-btns">
 
+    <button
+        type="button"
+        class="outline"
+        id="openRequest">
+        勤怠申請
+    </button>
 
-<!-- ここを変更 -->
-
-<button type="button" 
-class="outline"
-id="openRequest">
-
-勤怠申請
-
-</button>
-
-
-<button class="outline">
-
-打刻修正
-
-</button>
-
+    <a
+        href="{{ route('dakoku.request.create') }}"
+        class="outline">
+        打刻修正
+    </a>
 
 </div>
-
 
 </div>
 
@@ -530,11 +513,6 @@ name="request_time">
 
 
 
-                    <div class="bottom-btns">
-                        <button class="outline">勤怠申請</button>
-                        <a href="{{ route('dakoku.request.create') }}" class="outline" >打刻修正</a>
-                    </div>
-
 
 <div class="form-row">
 
@@ -632,38 +610,37 @@ p(n.getSeconds())
 
 // 勤怠申請モーダル
 
-const modal=document.getElementById('requestModal');
+// 勤怠申請モーダル
 
-const open=document.getElementById('openRequest');
+const modal = document.getElementById('requestModal');
+const open = document.getElementById('openRequest');
+const close = document.getElementById('closeRequest');
 
-const close=document.getElementById('closeRequest');
+open.onclick = () => {
 
+    modal.style.display = 'block';
 
-
-open.onclick=()=>{
-
-modal.style.display='block';
-
+    // 背景スクロール禁止
+    document.body.style.overflow = 'hidden';
 };
 
+close.onclick = () => {
 
+    modal.style.display = 'none';
 
-close.onclick=()=>{
-
-modal.style.display='none';
-
+    // スクロール解除
+    document.body.style.overflow = '';
 };
 
+window.onclick = (e) => {
 
+    if (e.target === modal) {
 
-window.onclick=(e)=>{
+        modal.style.display = 'none';
 
-if(e.target===modal){
-
-modal.style.display='none';
-
-}
-
+        // スクロール解除
+        document.body.style.overflow = '';
+    }
 };
 
 
