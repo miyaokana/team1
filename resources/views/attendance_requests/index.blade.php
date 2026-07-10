@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/attendance-request.css') }}">
+
 </head>
 
 <body>
@@ -40,6 +41,14 @@
             </div>
             @endif
 
+            <div class="tab-container">
+                <a href="{{ route('attendance_requests.index') }}" class="tab-link active">遅刻・早退・欠勤申請</a>
+                
+                <a href="{{ route('overtime_requests.index') }}" class="tab-link">残業申請</a>
+                
+                <a href="{{ route('leave_requests.index') }}" class="tab-link">有給・特別休暇申請</a>
+            </div>
+
             <!-- 申請フォーム -->
             <div class="card">
                 <h2>新規申請</h2>
@@ -63,10 +72,12 @@
 
                     <!-- 遅刻・早退の時だけ表示する時刻覧 -->
                     <div class="form-row" id="time-row">
-                        <label for="request_time">時刻</label>
+                        <div>
+                            <label for="request_time">時刻</label>
+                            <small class="form-hint">遅刻=出勤予定の時刻,早退=退勤する時刻</small>
+                        </div>
                         <input type="time" name="request_time" id="request_time"
                             value="{{ old('request_time') }}">
-                        <small class="form-hint">遅刻=出勤予定の時刻,早退=退勤する時刻</small>
                     </div>
 
                     <div class="form-row">
@@ -75,10 +86,12 @@
                     </div>
 
                     <div class="form-row">
-                        <label for="attachment">添付ファイル（任意）</label>
+                        <div>
+                            <label for="attachment">添付ファイル（任意）</label>
+                            <small class="form-hint">写真(JPG・PNG)またはPDF、5MBまで。診断書や遅延証明などがあれば添付してください。</small>
+                        </div>
                         <input type="file" name="attachment" id="attachment"
                             accept=".jpg,.jpeg,.png,.pdf">
-                        <small class="form-hint">写真(JPG・PNG)またはPDF、5MBまで。診断書や遅延証明などがあれば添付してください。</small>
                     </div>
 
                     <button type="submit" class="btn-submit">申請する</button>

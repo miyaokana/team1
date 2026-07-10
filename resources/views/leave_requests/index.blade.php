@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>有給・特別休暇申請</title>
+
+    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/leave_requests.css') }}">
 </head>
 <body>
+    @include('layouts.header')
     <div class="layout">
         @include('layouts.sidebar')
 
@@ -33,8 +39,17 @@
                 </div>
              @endif
 
+            <div class="tab-container">
+                <a href="{{ route('attendance_requests.index') }}" class="tab-link">遅刻・早退・欠勤申請</a>
+                
+                <a href="{{ route('overtime_requests.index') }}" class="tab-link">残業申請</a>
+                
+                <a href="{{ route('leave_requests.index') }}" class="tab-link active">有給・特別休暇申請</a>
+            </div>
+
             <!-- 申請フォーム -->
             <div class="card">
+
                 <h2>新規申請</h2>
                 <form action="{{ route('leave_requests.store') }}" method="POST">
                     @csrf
@@ -62,10 +77,12 @@
                     </div>
                     
                     <div class="form-row">
-                        <label for="end_date">終了日</label>
-                        <input type="date" name="end_date" id="end_date"
-                            value="{{ old('end_date') }}" required>
-                        <small class="form-hint">半休(午前・午後)の場合は開始日と同じ日にしてください。</small>
+                        <div>
+                            <label for="end_date" style="display: block;">終了日</label>
+                            <small class="form-hint">半休(午前・午後)の場合は開始日と同じ日にしてください。</small>
+                        </div>
+                        
+                        <input type="date" name="end_date" id="end_date" value="{{ old('end_date') }}" required>
                     </div>
 
                     <div class="form-row">
